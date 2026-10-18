@@ -10,6 +10,9 @@ const mathPanel = async (page: Page) => {
   await page.getByRole('tab', { name: 'The math' }).click();
   return page.getByRole('tabpanel');
 };
+/** A section of The math by its heading (a Lab adds sections of its own after the note's). */
+const mathSection = (panel: ReturnType<Page['getByRole']>, heading: string) =>
+  panel.locator('section', { has: panel.page().getByRole('heading', { name: heading }) });
 
 test('choosing N-EDO offers N from 5 to 72 in place of the Tonic, and stores N in the URL', async ({
   page,
@@ -51,14 +54,18 @@ test('a step plays at its frequency, worked from A4 in The math', async ({ page 
   await key(page, 'step 10 of 31, octave 4').click();
   let math = await mathPanel(page);
   await expect(math).toContainText('Step 10 of 31 sits s steps above step 0');
-  await expect(math.locator('[data-step="result"]').first()).toContainText('387.097');
+  await expect(
+    mathSection(math, 'The note you played').locator('[data-step="result"]'),
+  ).toContainText('387.097');
 
   await page.getByRole('tab', { name: 'Controls' }).click();
   await key(page, 'step 0 of 31, octave 4').click();
   math = await mathPanel(page);
   // Step 0 is 23 steps below A4 = 440 Hz: 440 · 2^(−23/31).
   await expect(math).toContainText('A4 is step 23 of 31');
-  await expect(math.locator('[data-step="result"]').last()).toContainText('263.09');
+  await expect(mathSection(math, 'Its frequency').locator('[data-step="result"]')).toContainText(
+    '263.09',
+  );
 });
 
 test('computer keys play consecutive steps, and ← → shift the range', async ({ page }) => {

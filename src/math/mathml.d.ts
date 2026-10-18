@@ -24,6 +24,7 @@ declare module 'react' {
       msub: MathMLProps;
       msup: MathMLProps;
       msubsup: MathMLProps;
+      munderover: MathMLProps;
       mfrac: MathMLProps;
       msqrt: MathMLProps;
       mroot: MathMLProps;

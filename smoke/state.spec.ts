@@ -14,8 +14,8 @@ test('playing a key shows its 12-EDO frequency worked out in The math', async ({
   await key(page, 'C5').click();
   const math = await mathPanel(page);
   await expect(math.getByRole('heading', { name: 'The note you played' })).toBeVisible();
-  await expect(math.locator('[data-step="substituted"]')).toContainText('440.00');
-  await expect(math.locator('[data-step="result"]')).toContainText('523.25');
+  await expect(math.locator('[data-step="substituted"]').first()).toContainText('440.00');
+  await expect(math.locator('[data-step="result"]').first()).toContainText('523.25');
   await expect(math.locator('.math-live').first()).toBeVisible();
   await expect(math.getByRole('heading', { name: 'Sources' })).toBeVisible();
 });
@@ -25,7 +25,7 @@ test('a shared URL restores the Reference pitch', async ({ page }) => {
   await expect(referencePitch(page)).toHaveValue('415');
   await key(page, 'A4').click();
   const math = await mathPanel(page);
-  await expect(math.locator('[data-step="result"]')).toContainText('415.00');
+  await expect(math.locator('[data-step="result"]').first()).toContainText('415.00');
 });
 
 test('a shared URL restores a custom Reference pitch', async ({ page }) => {
