@@ -4,6 +4,7 @@ import { LABS } from '../labs/registry';
 import { Link } from '../state/Link';
 import { settingsHref, useSettings } from '../state/useSettings';
 import { ReferencePitchField } from './ReferencePitchField';
+import { TonicField, TuningSystemField } from './TuningFields';
 
 /** The six Labs as a vertical list; the current one is marked. */
 export function LabNav({ current }: { current: LabId }) {
@@ -31,6 +32,8 @@ export function LabNav({ current }: { current: LabId }) {
 export function SettingsFields() {
   return (
     <div className="settings-fields">
+      <TuningSystemField />
+      <TonicField />
       <ReferencePitchField />
     </div>
   );

@@ -383,6 +383,17 @@ button {
   color: var(--text-disabled);
   pointer-events: none;
 }
+/* Black keys carry their spelling (G♯ or A♭ depends on the tuning system). */
+.key-black {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 3px;
+}
+.key-black .key-label {
+  color: var(--text-inverse);
+  white-space: nowrap;
+}
 
 /* ---------- The math ---------- */
 .math-section {
@@ -460,8 +471,15 @@ button {
     border-radius: var(--radius-sm);
     white-space: nowrap;
   }
+  /* A long tuning-system chip gives way before the menu button does. */
+  .chip-shrink {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .menu-button {
     margin-left: auto;
+    flex-shrink: 0;
   }
   .lab-head {
     padding: var(--space-sm) var(--space-md) 4px;

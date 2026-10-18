@@ -1,5 +1,5 @@
 import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react';
-import { type Note, edo12NoteName } from '../core';
+import { type Note, type Tuning, edo12NoteName, keySpelling, noteName } from '../core';
 import { copy } from '../copy/en';
 
 /** Black keys by pitch class, with the white key (index in octave) they sit after. */
@@ -14,6 +14,8 @@ const BLACK_KEYS = [
 const OCTAVES = [4, 5];
 
 export interface KeyboardProps {
+  /** Names each key by this tuning system's spelling. */
+  tuning: Tuning;
   /** Start a held note (pointer down). */
   onNoteOn(note: Note): void;
   /** Release a held note (pointer up / leave). */
@@ -23,9 +25,9 @@ export interface KeyboardProps {
 }
 
 /** The on-screen keyboard, two octaves from C4. */
-export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
+export function Keyboard({ tuning, onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
   const key = (note: Note, colour: 'white' | 'black', style?: CSSProperties) => {
-    const name = edo12NoteName(note);
+    const name = noteName(tuning, note);
     const down = (e: PointerEvent<HTMLButtonElement>) => {
       if (e.button !== 0) return;
       e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -45,7 +47,7 @@ export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
     };
     return (
       <button
-        key={name}
+        key={edo12NoteName(note)}
         type="button"
         className={`key key-${colour} ml-focusable`}
         style={style}
@@ -56,7 +58,10 @@ export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
         onLostPointerCapture={up}
         onKeyDown={keyDown}
       >
-        {colour === 'white' && <span className="key-label">{name}</span>}
+        {/* Black keys are narrow: they show the spelling alone (e.g. "G♯"). */}
+        <span className="key-label">
+          {colour === 'white' ? name : keySpelling(tuning, note.pitchClass)}
+        </span>
       </button>
     );
   };
