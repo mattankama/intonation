@@ -65,8 +65,21 @@ describe('tuning system in the URL', () => {
   });
 
   it('falls back to 12-EDO for unknown values', () => {
-    for (const bad of ['', 'Meantone', 'werckmeister', 'equal', '19-edo']) {
+    for (const bad of ['', 'Meantone', 'werckmeister', 'equal']) {
       expect(read(`tuning=${bad}`).tuningSystem).toBe('12-edo');
+    }
+  });
+
+  it('stores N for any N-EDO from 5 to 72', () => {
+    for (const n of [5, 19, 31, 53, 72]) expect(read(`tuning=${n}-edo`).tuningSystem).toBe(`${n}-edo`);
+    expect(writeSettings(new URLSearchParams(), { ...DEFAULT_SETTINGS, tuningSystem: '31-edo' }).toString()).toBe(
+      'tuning=31-edo',
+    );
+  });
+
+  it('falls back to 12-EDO for an N-EDO out of range or badly written', () => {
+    for (const bad of ['4-edo', '73-edo', '0-edo', '031-edo', '31.5-edo', '-31-edo', '31edo', 'edo', '1e1-edo']) {
+      expect(read(`tuning=${bad}`).tuningSystem, bad).toBe('12-edo');
     }
   });
 });

@@ -443,6 +443,61 @@ button {
   }
 }
 
+/* N-EDO keyboard (decision #8): one row of equal keys, ≈14px wide at N = 72 so a whole
+   octave fits on desktop; it scrolls sideways when the keys don't fit (phones). */
+.keyboard-steps {
+  overflow-x: auto;
+  touch-action: pan-x;
+}
+.key-step {
+  flex: 1 0 13px;
+  min-width: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0 4px;
+  background: var(--surface-tint);
+  border: var(--border-width) solid var(--border-field);
+  border-left: none;
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+  font-variant-numeric: tabular-nums;
+}
+.key-step:first-child {
+  border-left: var(--border-width) solid var(--border-field);
+}
+.key-step:has(.key-landmark) {
+  background: var(--surface-card);
+}
+.key-step:active,
+.key-step[data-down='true'],
+.key-step[data-held='true'] {
+  background: var(--accent-gold-soft);
+}
+/* The familiar note(s) a step is nearest, along the top of the key; then the computer key
+   and the step number at the bottom. */
+.key-landmark {
+  order: -1;
+  margin-bottom: auto;
+  width: 100%;
+  padding-top: 4px;
+  border-top: 3px solid var(--text-disabled);
+  font: var(--type-caption);
+  color: var(--text-body);
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.key-landmark[data-kind='natural'] {
+  border-top-color: var(--ink);
+  font-weight: 700;
+}
+/* Dense keyboards: step numbers run up the key. */
+.keyboard-steps[data-dense] .key-step .key-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
 /* ---------- The math ---------- */
 .math-section {
   display: flex;
