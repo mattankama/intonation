@@ -4,6 +4,8 @@ import { LABS } from '../labs/registry';
 import { Link } from '../state/Link';
 import { settingsHref, useSettings } from '../state/useSettings';
 import { ReferencePitchField } from './ReferencePitchField';
+import { TimbreField } from './TimbreField';
+import { VolumeField } from './VolumeField';
 
 /** The six Labs as a vertical list; the current one is marked. */
 export function LabNav({ current }: { current: LabId }) {
@@ -32,6 +34,8 @@ export function SettingsFields() {
   return (
     <div className="settings-fields">
       <ReferencePitchField />
+      <TimbreField />
+      <VolumeField />
     </div>
   );
 }
