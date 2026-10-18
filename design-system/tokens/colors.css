@@ -1,0 +1,60 @@
+:root{
+/* Brand & accent */
+--brand-mark:#c74634;
+--primary:#312d2a;
+--primary-pressed:#47423e;
+--on-primary:#ffffff;
+--accent-gold:#f0cc71;
+--accent-gold-soft:#f7e0a1;
+/* Neutral ladder */
+--canvas:#ffffff;
+--canvas-soft:#fbf9f8;
+--canvas-tint:#f5f4f2;
+--canvas-warm:#f1efed;
+--hairline:#e4e1dd;
+--divider:#e9e7e4;
+--field-border:#d4cfca;
+--ink-deep:#211e1c;
+/* Text */
+--ink:#161513;
+--link:#006b8f;
+/* Semantic */
+--focus:#227e9e;
+--error:#d63b25;
+--disabled-ink:#aea8a2;
+/* Bands */
+--band-teal:#d6e5e5;
+--band-forest:#33553c;
+/* Washes */
+--ink-wash-8:rgba(22,21,19,.08);
+--ink-wash-14:rgba(22,21,19,.14);
+--white-wash-12:rgba(255,255,255,.12);
+--scrim:rgba(22,21,19,.40);
+
+/* Semantic aliases */
+--surface-page:var(--canvas);
+--surface-card:var(--canvas);
+--surface-soft:var(--canvas-soft);
+--surface-tint:var(--canvas-tint);
+--surface-warm:var(--canvas-warm);
+--surface-deep:var(--ink-deep);
+--surface-inverse:var(--primary);
+--text-body:var(--ink);
+--text-heading:var(--ink);
+--text-inverse:var(--on-primary);
+--text-link:var(--link);
+--text-disabled:var(--disabled-ink);
+--text-error:var(--error);
+--text-brand:var(--brand-mark);
+--border-hairline:var(--hairline);
+--border-divider:var(--divider);
+--border-field:var(--field-border);
+--action-primary-bg:var(--primary);
+--action-primary-bg-pressed:var(--primary-pressed);
+--action-primary-fg:var(--on-primary);
+--action-tertiary-bg:var(--ink-wash-8);
+--action-disabled-bg:var(--canvas-soft);
+--focus-ring:var(--focus);
+--ornament:var(--accent-gold);
+--subnav-indicator:var(--accent-gold-soft);
+}

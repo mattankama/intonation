@@ -1,0 +1,28 @@
+:root{
+--font-sans:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+--font-serif:Georgia,"Gelasio","Times New Roman",serif;
+--font-mono:Consolas,"JetBrains Mono",ui-monospace,monospace;
+
+/* Role shorthands — use as font: var(--type-…). Letter-spacing is 0 on every role. */
+--type-display-serif-xl:400 56px/67.2px var(--font-serif);
+--type-display-serif-lg:400 40px/48px var(--font-serif);
+--type-display-serif-md:400 36px/43.2px var(--font-serif);
+--type-display-sans-lg:300 40px/52px var(--font-sans);
+--type-display-sans-md:300 32px/44px var(--font-sans);
+--type-heading-xl:800 28px/33.6px var(--font-sans);
+--type-heading-lg:800 24px/28.8px var(--font-sans);
+--type-heading-md:800 20px/24px var(--font-sans);
+--type-heading-sm:800 18px/21.6px var(--font-sans);
+--type-heading-card:600 24px/32px var(--font-sans);
+--type-lead:400 24px/33.6px var(--font-sans);
+--type-body:400 16px/22.4px var(--font-sans);
+--type-body-loose:350 16px/24px var(--font-sans);
+--type-body-strong:700 16px/22.4px var(--font-sans);
+--type-label:500 14px/16.8px var(--font-sans);
+--type-label-strong:600 14px/20px var(--font-sans);
+--type-caption:400 12px/20px var(--font-sans);
+--type-mono:400 14px/20px var(--font-mono);
+
+--heading-margin-bottom:18px;
+--tracking:0;
+}

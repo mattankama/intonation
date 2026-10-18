@@ -1,0 +1,7 @@
+/* Self-hosted OFL fonts (assets/fonts/*). Source Sans 3 is the sans (variable 200–900, covers 350).
+   Georgia is a system font; Gelasio is its metric-compatible webfont fallback. JetBrains Mono stands in for Consolas. */
+@font-face{font-family:"Source Sans 3";src:url("../assets/fonts/source-sans-3/SourceSans3-Variable.woff2") format("woff2");font-weight:200 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Source Sans 3";src:url("../assets/fonts/source-sans-3/SourceSans3-Italic-Variable.woff2") format("woff2");font-weight:200 900;font-style:italic;font-display:swap}
+@font-face{font-family:"Gelasio";src:url("../assets/fonts/gelasio/Gelasio-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("../assets/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("../assets/fonts/jetbrains-mono/JetBrainsMono-SemiBold.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}

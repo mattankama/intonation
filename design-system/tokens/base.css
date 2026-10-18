@@ -1,0 +1,22 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font:var(--type-body);color:var(--text-body);background:var(--surface-page);letter-spacing:0;-webkit-font-smoothing:antialiased}
+a{color:var(--text-link);text-decoration:none}
+a:hover{text-decoration:underline}
+.ml-focusable:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.ml-display-serif-xl{font:var(--type-display-serif-xl)}
+.ml-display-serif-lg{font:var(--type-display-serif-lg)}
+.ml-display-serif-md{font:var(--type-display-serif-md)}
+.ml-display-sans-lg{font:var(--type-display-sans-lg)}
+.ml-display-sans-md{font:var(--type-display-sans-md)}
+.ml-heading-xl{font:var(--type-heading-xl)}
+.ml-heading-lg{font:var(--type-heading-lg)}
+.ml-heading-md{font:var(--type-heading-md)}
+.ml-heading-sm{font:var(--type-heading-sm)}
+.ml-heading-card{font:var(--type-heading-card)}
+.ml-lead{font:var(--type-lead)}
+.ml-body{font:var(--type-body)}
+.ml-body-loose{font:var(--type-body-loose)}
+.ml-body-strong{font:var(--type-body-strong)}
+.ml-label{font:var(--type-label)}
+.ml-label-strong{font:var(--type-label-strong)}
+.ml-caption{font:var(--type-caption)}

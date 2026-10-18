@@ -1,0 +1,22 @@
+:root{
+--radius-none:0px;
+--radius-xs:4px;   /* buttons */
+--radius-sm:6px;   /* fields */
+--radius-md:8px;   /* product-page cards, media */
+--radius-lg:12px;  /* index nav tiles */
+--radius-xl:15px;  /* index content cards, stat panels */
+--radius-full:9999px; /* play control only */
+
+--border-width:1px;
+--divider-width:2px;
+--eyebrow-rule-width:40px;
+--eyebrow-rule-height:4px;
+--subnav-bar-width:67px;
+--subnav-bar-height:5px;
+
+/* The system carries no shadows. Depth = position on the neutral ladder. */
+--shadow-none:none;
+
+--duration-fast:120ms; /* @kind other */
+--ease-standard:ease; /* @kind other */
+}
