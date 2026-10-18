@@ -3,6 +3,8 @@
  * Vocabulary follows GLOSSARY.md.
  */
 import {
+  type ChordIntervalId,
+  type ChordType,
   type CommaId,
   type NamedTuningSystemId,
   type TimbrePresetId,
@@ -43,6 +45,37 @@ const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1
 
 /** "3 steps" / "1 step". */
 const stepCount = (k: number) => `${Math.abs(k)} step${Math.abs(k) === 1 ? '' : 's'}`;
+
+/** "a", "a and b", "a, b and c". */
+const listAnd = (items: string[]) =>
+  items.length <= 1 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
+
+const CHORD_TYPE_NAMES = {
+  major: 'Major',
+  minor: 'Minor',
+  diminished: 'Diminished',
+  augmented: 'Augmented',
+  'dominant-7th': 'Dominant 7th',
+  'major-7th': 'Major 7th',
+  'minor-7th': 'Minor 7th',
+  sus2: 'Sus2',
+  sus4: 'Sus4',
+} as const satisfies Record<ChordType, string>;
+
+const INTERVAL_NAMES = {
+  unison: 'unison',
+  'major-second': 'major second',
+  'minor-third': 'minor third',
+  'major-third': 'major third',
+  fourth: 'fourth',
+  'diminished-fifth': 'diminished fifth',
+  'septimal-tritone': 'septimal tritone',
+  fifth: 'fifth',
+  'augmented-fifth': 'augmented fifth',
+  'harmonic-seventh': 'harmonic seventh',
+  'minor-seventh': 'minor seventh',
+  'major-seventh': 'major seventh',
+} as const satisfies Record<ChordIntervalId, string>;
 
 const TIMBRE_PRESET_NAMES = {
   sine: 'Sine',
@@ -222,6 +255,115 @@ export const copy = {
       kirnberger:
         'J. P. Kirnberger, letter to J. N. Forkel (c. 1779), printed by H. Bellermann in Allgemeine Musikalische Zeitung 6 (1871).',
       fiveLimit: 'David Wright, Mathematics and Music (2009), pp. 140–141: the asymmetric 5-limit scale.',
+      plompLevelt:
+        'R. Plomp & W. J. M. Levelt, “Tonal consonance and critical bandwidth”, J. Acoust. Soc. Am. 38, 548–560 (1965).',
+      sethares:
+        'W. A. Sethares, “Local consonance and the relationship between timbre and scale”, J. Acoust. Soc. Am. 94(3), 1218–1228 (1993).',
+    },
+  },
+
+  chords: {
+    types: CHORD_TYPE_NAMES,
+    /** The Root picker's familiar names (decision #9). */
+    roots: ['C', 'C♯/D♭', 'D', 'E♭', 'E', 'F', 'F♯/G♭', 'G', 'A♭', 'A', 'B♭', 'B'],
+    inversions: ['Root position', '1st inversion', '2nd inversion', '3rd inversion'],
+    /** "A♭ major", "C dominant 7th". */
+    name: (root: string, type: ChordType) => `${root} ${CHORD_TYPE_NAMES[type].toLowerCase()}`,
+    intervals: INTERVAL_NAMES,
+    /** A note's part in the chord, for naming pairs of notes: "root–third". */
+    roles: {
+      unison: 'root',
+      'major-second': 'second',
+      'minor-third': 'third',
+      'major-third': 'third',
+      fourth: 'fourth',
+      'diminished-fifth': 'fifth',
+      'septimal-tritone': 'fifth',
+      fifth: 'fifth',
+      'augmented-fifth': 'fifth',
+      'harmonic-seventh': 'seventh',
+      'minor-seventh': 'seventh',
+      'major-seventh': 'seventh',
+    } satisfies Record<ChordIntervalId, string>,
+  },
+
+  chordButtons: {
+    label: 'Chords',
+    hint: 'Chords on the Tonic and its neighbours, in the current tuning system',
+    /** "Am" for a minor chord, "A♭" for a major one. */
+    short: (root: string, type: 'major' | 'minor') => (type === 'minor' ? `${root}m` : root),
+    play: (name: string) => `Play ${name}`,
+  },
+
+  chordComparison: {
+    rootLabel: 'Root',
+    typeLabel: 'Chord',
+    inversionLabel: 'Inversion',
+    pureLabel: 'Pure chord',
+    pureOption: (name: string, proportion: string) => `${name} ${proportion}`,
+    fiveLimit: '5-limit',
+    /** The alternative pure chords (decision #7): dominant 7th and diminished only. */
+    alternativeName: (type: ChordType) => (type === 'diminished' ? 'Septimal' : 'Harmonic 7th'),
+    systemsHeading: 'Tuning systems',
+    systemLabel: (i: number) => `Compared system ${i}`,
+    stepsLabel: (i: number) => `Steps per octave, compared system ${i}`,
+    remove: (system: string) => `Remove ${system}`,
+    add: 'Add a tuning system',
+    maxSystems: (n: number) => `Up to ${n} tuning systems, beside the pure chord.`,
+    tonicNote: (tonic: string) => `12-note systems are built from the Tonic, ${tonic}, set under Settings.`,
+    playAll: 'Play all in turn',
+    stop: 'Stop',
+    play: (column: string) => `Play ${column}`,
+    pureHeading: 'Pure chord',
+    /** A column's heading: "¼-comma meantone in C"; EDOs have no Tonic. */
+    systemHeading: (system: string, tonic: string | null) => (tonic ? `${system} in ${tonic}` : system),
+    notesLabel: (column: string) => `Notes of the chord in ${column}, highest first`,
+    centsOff: 'Cents off pure',
+    /** An N-EDO note in a column, short: "step 10". */
+    step: (step: number) => `step ${step}`,
+    beatsHeading: 'Beats',
+    pair: (lower: string, upper: string) => `${lower}–${upper}`,
+    noBeat: 'no beats',
+    /** Δf in Hz, or a slow swell's period. */
+    swell: (seconds: string) => `slow swell, every ${seconds} s`,
+    harmonics: (i: number, j: number) => `harmonics ${i} and ${j}`,
+    sineHint:
+      'A sine has no harmonics to beat, so hardly any beats show. Choose another Timbre under Settings to see them.',
+    remarks: {
+      borrowed: (key: string, as: string) => `Uses ${key} as ${as}.`,
+      mapping: (n: number, interval: string, nearest: number, builtFrom: string[]) =>
+        `${n}-EDO’s closest ${interval} (${stepCount(nearest)}) doesn’t fit its ${listAnd(builtFrom)}.`,
+      noStep: (n: number, interval: string, mapsTo: 'unison' | 'octave') =>
+        `${n}-EDO has no step for the ${interval}; it maps to the ${mapsTo}.`,
+    },
+  },
+
+  chordComparisonMath: {
+    pure: {
+      heading: 'The pure chord',
+      body: (chord: string, proportion: string, system: string) =>
+        `${chord} as a pure chord is ${proportion}. Each pure note is the root’s frequency times its ratio. The root is the one ${system} plays, so the root itself is always pure.`,
+    },
+    centsOff: {
+      heading: 'Cents off pure',
+      body: (note: string, system: string) =>
+        `How far a note is from its pure target, in cents. Here ${note} in ${system}, the note furthest from pure.`,
+    },
+    beats: {
+      heading: 'Beat rate',
+      body: (pair: string, system: string, i: number, j: number) =>
+        `Two notes beat where one note’s harmonic nearly meets the other’s: harmonic i of the lower against harmonic j of the upper. Here the ${pair} in ${system}, harmonics ${i} and ${j}. Up to 20 Hz this is heard as beats; faster, as roughness.`,
+      none: (system: string) =>
+        `Two notes beat where one note’s harmonic nearly meets the other’s, up to 20 Hz apart. In ${system} with this Timbre no pair of harmonics 1–8 comes that close, so nothing beats.`,
+    },
+    mapping: {
+      heading: 'The EDO mapping',
+      body: (n: number) =>
+        `${n}-EDO plays chords from its mapping: its nearest step to the pure fifth, major third and harmonic seventh, with every other interval built from those. Its fifth:`,
+    },
+    tonic: {
+      heading: 'Tonic, not Root',
+      body: 'A 12-note tuning system tunes its keys from its Tonic and never retunes them for the chord. A chord far from the Tonic can meet the wolf, as A♭ or F♯ major do in meantone on C.',
     },
   },
 
