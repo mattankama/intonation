@@ -1,0 +1,137 @@
+/**
+ * Acoustics core: the pure, UI-free source of every number the site shows.
+ * Import from here, never from the files behind it.
+ */
+export { type Ratio, ratio, ratioValue } from './ratio';
+export { CENTS_PER_OCTAVE, cents } from './cents';
+export { type Note, REFERENCE_NOTE, semitonesFromA4, edo12Frequency, edo12NoteName } from './pitch';
+export {
+  type TuningSystemId,
+  type EdoId,
+  type ChainSystemId,
+  type NamedTuningSystemId,
+  TUNING_SYSTEM_IDS,
+  EDO_MIN,
+  EDO_MAX,
+  edoSystem,
+  parseTuningSystem,
+  edoDivisions,
+  stepEdo,
+  edoStepsFromA4,
+  edoLandmarks,
+  isEdo,
+  type TuningSystemChoice,
+  type ChainOfFifths,
+  type ResolvedPitch,
+  type KeyConstruction,
+  type CommaId,
+  centsAboveTonic,
+  keySpelling,
+  tonicSpelling,
+  keyConstruction,
+  commaRatio,
+  noteName,
+  chainOfFifths,
+  resolvePitch,
+} from './tuning';
+export {
+  type Harmonics,
+  type TimbrePresetId,
+  TIMBRE_PRESET_IDS,
+  BRIGHTNESS_MIN,
+  BRIGHTNESS_MAX,
+  presetHarmonics,
+  withBrightness,
+  sumOfSquares,
+  timbreRms,
+  waveValue,
+  wavePeak,
+  type CustomTimbre,
+  type TimbreChoice,
+  HARMONIC_COUNT,
+  LEVEL_MAX,
+  isCustomTimbre,
+  customTimbreFrom,
+  customHarmonics,
+  editHarmonic,
+  timbreHarmonics,
+} from './timbre';
+export {
+  type ChordType,
+  type ChordIntervalId,
+  type ChordChoice,
+  type ChordTone,
+  type PureChord,
+  type PureChordChoice,
+  type ChordRemark,
+  type TunedNote,
+  type TunedChord,
+  CHORD_TYPES,
+  CHORD_INTERVALS,
+  CHORD_ROOT_OCTAVE,
+  tuneChord,
+  mappedSteps,
+  nearestSteps,
+  chordSize,
+  chordTones,
+  hasAlternativePureChord,
+  pureChord,
+} from './chord';
+export {
+  type Beat,
+  type NotePairBeats,
+  BEAT_HARMONICS,
+  BEAT_MAX_HZ,
+  BEAT_FLOOR,
+  chordBeats,
+} from './beats';
+export { type TuningTableRow, tuningTable } from './table';
+export { nearestPureInterval } from './interval';
+export {
+  type LatticeNode,
+  type PrimeFactors,
+  primeFactors,
+  octaveReduce,
+  nodeOfRatio,
+  ratioOfNode,
+  latticeNoteName,
+  chordProportion,
+} from './lattice';
+export {
+  type StepApproximation,
+  type ChartPoint,
+  EDO_TARGETS,
+  CHART_TARGETS,
+  approximate,
+  edoApproximations,
+  edoErrorChart,
+} from './edoApproximation';
+export { beatRate, centsBetween } from './twoTones';
+export {
+  type RoughnessLandscape,
+  LANDSCAPE_MAX_CENTS,
+  ROUGHNESS_CONSTANTS,
+  chordRoughness,
+  partialRoughness,
+  roughnessLandscape,
+  roughnessScale,
+  stackedChord,
+} from './roughness';
+export {
+  type CommaPumpId,
+  type PumpChord,
+  type PumpNote,
+  type PumpStep,
+  type TunedPumpChord,
+  COMMA_PUMP_IDS,
+  commaPumpChords,
+  commaPumpLength,
+  commaPumpComma,
+  commaPumpDrift,
+  runCommaPump,
+  tunePumpChord,
+  factorsCents,
+  factorsFraction,
+  octaveReduceFactors,
+  nodeOfFactors,
+} from './commaPump';

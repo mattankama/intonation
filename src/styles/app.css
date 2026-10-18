@@ -1,0 +1,1889 @@
+/* Intonation app styles. Values come from design-system tokens only (design-system/README.md). */
+
+:root {
+  --rail-width: 248px;
+  --inspector-width: 340px;
+  --black-key-width: calc(100% / 7 * 0.6);
+  --phone-breakpoint: 700px; /* documentation only: media queries can't read variables */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.ml-focusable:focus-visible,
+.tab-panel:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.button-tertiary {
+  font: var(--type-label);
+  background: var(--action-tertiary-bg);
+  color: var(--text-body);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+
+.button-primary {
+  font: var(--type-label);
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.button-primary:active {
+  background: var(--action-primary-bg-pressed);
+}
+
+.placeholder-text {
+  font: var(--type-body);
+  color: var(--text-disabled);
+}
+
+/* ---------- Wordmark: serif, brand red, no symbol ---------- */
+.wordmark {
+  font: 400 26px/1.2 var(--font-serif);
+  color: var(--text-brand);
+  white-space: nowrap;
+}
+.wordmark:hover {
+  text-decoration: none;
+}
+.wordmark-compact {
+  font-size: 20px;
+}
+
+/* ---------- Home: index template ---------- */
+.home {
+  min-height: 100%;
+  background: var(--surface-warm);
+}
+.home-masthead {
+  height: var(--masthead-height);
+  background: var(--surface-page);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-gutter);
+}
+.home-main {
+  max-width: var(--container-content);
+  margin: 0 auto;
+  padding: var(--space-section) var(--space-gutter);
+}
+.home-hero {
+  max-width: 60ch;
+  margin-bottom: var(--space-section);
+}
+.home-headline {
+  font: var(--type-display-sans-lg);
+  color: var(--text-heading);
+  margin-bottom: var(--heading-margin-bottom);
+}
+.home-intro {
+  font: var(--type-body-loose);
+}
+.lab-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+.lab-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+  background: var(--surface-card);
+  color: var(--text-body);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xxxl);
+}
+.lab-card:hover {
+  background: var(--surface-soft);
+  text-decoration: none;
+}
+.lab-card-preview {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  background: var(--surface-tint);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-sm);
+}
+/* Preview drawings (decision #18): flat ink on the tint, static; hover changes the card only. */
+.lab-card-preview * {
+  vector-effect: non-scaling-stroke;
+}
+.preview-ink {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.preview-thin {
+  stroke-width: 1;
+}
+.preview-guide {
+  fill: none;
+  stroke: var(--border-field);
+  stroke-width: 1;
+}
+.preview-frame {
+  fill: var(--surface-card);
+  stroke: var(--border-hairline);
+  stroke-width: 1;
+}
+.preview-contour {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+/* The smoothest valleys in ink; rougher levels fade. */
+.preview-contour[data-level='1'] {
+  stroke: var(--disabled-ink);
+}
+.preview-contour[data-level='2'] {
+  stroke: var(--border-field);
+}
+.preview-bar {
+  fill: var(--primary);
+}
+.preview-dot {
+  fill: var(--ink);
+}
+.preview-ring {
+  fill: var(--surface-card);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+.preview-link {
+  stroke: var(--ink);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 2;
+}
+.preview-column {
+  fill: var(--surface-card);
+}
+.preview-fill {
+  fill: var(--accent-gold-soft);
+}
+.lab-card-title {
+  font: var(--type-heading-card);
+}
+.lab-card-intro {
+  font: var(--type-body-loose);
+}
+
+@media (max-width: 974px) {
+  .lab-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .home-masthead,
+  .home-main {
+    padding-left: var(--space-xxxl);
+    padding-right: var(--space-xxxl);
+  }
+}
+@media (max-width: 600px) {
+  .lab-cards {
+    grid-template-columns: 1fr;
+  }
+  .home-masthead,
+  .home-main {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+  .home-headline {
+    font: var(--type-display-sans-md);
+  }
+  .lab-card {
+    padding: var(--space-xxl);
+  }
+}
+
+/* ---------- Lab page: Instrument workspace ---------- */
+.lab-layout {
+  display: grid;
+  grid-template-columns: var(--rail-width) minmax(0, 1fr) var(--inspector-width);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'rail centre inspector'
+    'rail keys keys';
+  height: 100vh;
+  height: 100dvh;
+  background: var(--surface-page);
+}
+
+.rail {
+  grid-area: rail;
+  background: var(--surface-soft);
+  border-right: var(--border-width) solid var(--border-hairline);
+  padding: var(--space-xl) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow: auto;
+}
+.rail .wordmark {
+  margin-bottom: var(--space-sm);
+}
+.rail-heading {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  margin-top: var(--space-sm);
+}
+
+.lab-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lab-nav-link {
+  display: block;
+  font: var(--type-label);
+  color: var(--text-body);
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+}
+.lab-nav-link:hover {
+  background: var(--ink-wash-8);
+  text-decoration: none;
+}
+.lab-nav-link[aria-current='page'] {
+  background: var(--ink-wash-8);
+  font-weight: 600;
+}
+
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field-label {
+  font: var(--type-label);
+}
+.field-control {
+  font: var(--type-body);
+  color: var(--text-body);
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-field);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  width: 100%;
+}
+.field-control[aria-invalid='true'] {
+  border-color: var(--error);
+}
+.field-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field-hint {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+/* A label with its current value on the right (sliders). */
+.field-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+.field-value {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+/* Sliders take the charcoal action colour: no chromatic colour on controls. */
+.field-range {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--action-primary-bg);
+}
+.field-range-ends {
+  display: flex;
+  justify-content: space-between;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+
+.mobilebar {
+  display: none;
+}
+
+.lab-centre {
+  grid-area: centre;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.lab-head {
+  padding: var(--space-md) var(--space-xxl) var(--space-xs);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.lab-title {
+  font: var(--type-heading-lg);
+  color: var(--text-heading);
+}
+.lab-intro {
+  font: var(--type-body);
+  flex: 1 1 24ch;
+}
+.lab-visual {
+  flex: 1;
+  min-height: 0;
+  margin: 0 var(--space-xxl) var(--space-md);
+  background: var(--surface-warm);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.inspector {
+  grid-area: inspector;
+  border-left: var(--border-width) solid var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.tabs {
+  display: flex;
+  border-bottom: var(--border-width) solid var(--border-hairline);
+}
+.tab {
+  flex: 1;
+  font: var(--type-label);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 14px 0;
+  cursor: pointer;
+}
+.tab[aria-selected='true'] {
+  border-bottom-color: var(--primary);
+  font-weight: 700;
+}
+.tab-panel {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+.tab-panel[hidden] {
+  display: none;
+}
+
+.keys {
+  grid-area: keys;
+  border-top: var(--border-width) solid var(--border-hairline);
+  padding: var(--space-xs) var(--space-xxl);
+  display: flex;
+  gap: var(--space-sm);
+  align-items: stretch;
+}
+.keys > .keyboard {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Chord buttons beside the keyboard (hidden on phones) ---------- */
+.chord-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 32px);
+  grid-auto-rows: 1fr;
+  gap: 4px;
+  align-content: stretch;
+}
+.chord-button {
+  padding: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.chord-button:active {
+  background: var(--accent-gold-soft);
+}
+
+/* ---------- Keyboard ---------- */
+.keyboard {
+  display: flex;
+  height: 96px;
+  user-select: none;
+  touch-action: none;
+}
+.keyboard-octave {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+.key {
+  padding: 0;
+  cursor: pointer;
+  border: none;
+}
+.key-white {
+  flex: 1;
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-field);
+  border-left: none;
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+}
+.keyboard-octave:first-child .key-white:first-of-type {
+  border-left: var(--border-width) solid var(--border-field);
+}
+.key-black {
+  position: absolute;
+  top: 0;
+  width: var(--black-key-width);
+  height: 58%;
+  background: var(--ink);
+  border-radius: 0 0 3px 3px;
+  z-index: 1;
+}
+.key-white:active,
+.key-white[data-down='true'],
+.key-white[data-held='true'] {
+  background: var(--accent-gold-soft);
+}
+.key-black:active,
+.key-black[data-down='true'],
+.key-black[data-held='true'] {
+  background: var(--primary-pressed);
+}
+.key-label {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  pointer-events: none;
+}
+/* Black keys carry their spelling (G♯ or A♭ depends on the tuning system). */
+.key-black {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 3px;
+}
+.key-black .key-label {
+  color: var(--text-inverse);
+  white-space: nowrap;
+}
+/* Computer-key hints, only where there is likely a hardware keyboard. */
+.key-shortcut {
+  display: none;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .key-white {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .key-shortcut {
+    display: block;
+    line-height: 16px;
+  }
+  .key-black .key-shortcut {
+    color: var(--text-inverse);
+    opacity: 0.7;
+  }
+}
+
+/* N-EDO keyboard (decision #8): one row of equal keys, ≈14px wide at N = 72 so a whole
+   octave fits on desktop beside the chord buttons (12px minimum at a 1280px window); it
+   scrolls sideways when the keys don't fit (phones). */
+.keyboard-steps {
+  overflow-x: auto;
+  touch-action: pan-x;
+}
+.key-step {
+  flex: 1 0 12px;
+  min-width: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0 4px;
+  background: var(--surface-tint);
+  border: var(--border-width) solid var(--border-field);
+  border-left: none;
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+  font-variant-numeric: tabular-nums;
+}
+.key-step:first-child {
+  border-left: var(--border-width) solid var(--border-field);
+}
+.key-step:has(.key-landmark) {
+  background: var(--surface-card);
+}
+.key-step:active,
+.key-step[data-down='true'],
+.key-step[data-held='true'] {
+  background: var(--accent-gold-soft);
+}
+/* The familiar note(s) a step is nearest, along the top of the key; then the computer key
+   and the step number at the bottom. */
+.key-landmark {
+  order: -1;
+  margin-bottom: auto;
+  width: 100%;
+  padding-top: 4px;
+  border-top: 3px solid var(--text-disabled);
+  font: var(--type-caption);
+  color: var(--text-body);
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.key-landmark[data-kind='natural'] {
+  border-top-color: var(--ink);
+  font-weight: 700;
+}
+/* Dense keyboards: step numbers run up the key. */
+.keyboard-steps[data-dense] .key-step .key-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* ---------- Sound waves Lab ---------- */
+.sw-visual {
+  align-self: stretch;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-xxl);
+  min-width: 0;
+}
+.sw-bars {
+  flex: 1 1 45%;
+  min-height: 90px;
+  display: flex;
+  gap: 4px;
+  border-bottom: var(--border-width) solid var(--border-field);
+}
+.sw-bar-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.sw-bar-track {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+.sw-bar {
+  width: 100%;
+  min-height: 1px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+}
+/* A muted harmonic keeps its level as an outline, so unmuting restores it. */
+.sw-bar-column[data-muted='true'] .sw-bar {
+  background: none;
+  border: var(--border-width) dashed var(--border-field);
+  border-bottom: none;
+}
+.sw-bar-number {
+  font: var(--type-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-disabled);
+  text-align: center;
+}
+.sw-wave {
+  flex: 1 1 55%;
+  min-height: 110px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sw-wave-plot {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  background: var(--surface-card);
+  border-radius: var(--radius-sm);
+}
+.sw-wave-axis {
+  stroke: var(--border-hairline);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.sw-wave-line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.sw-wave-caption {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+
+.sw-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font: var(--type-body);
+}
+.sw-reset {
+  align-self: flex-start;
+}
+.sw-heading {
+  font: var(--type-label-strong);
+  margin-top: var(--space-xs);
+}
+.sw-harmonics {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sw-harmonic,
+.sw-harmonics-head {
+  display: grid;
+  grid-template-columns: 3ch 1fr 4.5ch auto;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.sw-harmonics-head {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.sw-harmonics-head span:nth-child(3) {
+  text-align: right;
+}
+.sw-harmonic-number {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-disabled);
+}
+.sw-harmonic-level {
+  text-align: right;
+}
+.sw-harmonic[data-muted='true'] .sw-harmonic-level {
+  color: var(--text-disabled);
+  text-decoration: line-through;
+}
+.sw-mute {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--action-primary-bg);
+}
+
+/* ---------- Chord comparison Lab ---------- */
+.cc-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  overflow: auto;
+}
+.cc-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.cc-chord {
+  font: var(--type-heading-md);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+.cc-chord-detail {
+  font: var(--type-label);
+  color: var(--text-disabled);
+}
+.cc-hint {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.cc-columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(140px, 1fr);
+  gap: var(--space-xs);
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.cc-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  padding: var(--space-sm);
+  min-width: 0;
+}
+.cc-column-pure {
+  background: var(--band-teal);
+}
+/* Grey captions are too faint on the teal band. */
+.cc-column-pure .cc-column-sub,
+.cc-column-pure .cc-note-hz,
+.cc-column-pure .cc-beats-heading,
+.cc-column-pure .cc-beat[data-beats='0'] .cc-beat-rates {
+  color: var(--text-body);
+}
+.cc-column[data-playing] {
+  border-color: var(--accent-gold);
+}
+.cc-column-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  column-gap: var(--space-xs);
+  align-items: start;
+  min-height: 56px;
+}
+.cc-column-title {
+  font: var(--type-label-strong);
+  overflow-wrap: anywhere;
+}
+.cc-column-sub {
+  grid-row: 2;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.cc-play {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  padding: 6px 10px;
+}
+/* Decision #7: the pure chord on this column's own root; the pure column says whose root it uses. */
+.cc-play-pure,
+.cc-column-anchor {
+  grid-row: 3;
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 4px;
+}
+.cc-play-pure {
+  padding: 2px 8px;
+  font: var(--type-caption);
+}
+.cc-column-anchor {
+  font: var(--type-caption);
+  color: var(--text-body);
+}
+.cc-notes,
+.cc-systems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cc-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cc-note {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-xs);
+  padding: 4px 0;
+  border-bottom: var(--border-width) solid var(--border-hairline);
+  font-variant-numeric: tabular-nums;
+}
+.cc-note-name {
+  font: var(--type-label-strong);
+  overflow-wrap: anywhere;
+}
+.cc-note-hz {
+  grid-column: 1;
+  white-space: nowrap;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.cc-off {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.cc-off-value {
+  font: var(--type-label);
+}
+/* A small ±50¢ track with 0 in the middle; the mark sits at the note's cents off pure. */
+.cc-off-bar {
+  position: relative;
+  width: 56px;
+  height: 6px;
+  background: var(--surface-tint);
+  border-radius: 3px;
+}
+.cc-off-bar::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--text-disabled);
+}
+.cc-off-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--primary);
+  border-radius: 3px;
+}
+.cc-beats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cc-beats-heading {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.cc-beat {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  column-gap: var(--space-xs);
+  font: var(--type-caption);
+  font-variant-numeric: tabular-nums;
+}
+.cc-beat[data-beats='0'] .cc-beat-rates {
+  color: var(--text-disabled);
+}
+.cc-beat-rates {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.cc-beat-rate:first-child {
+  font-weight: 600;
+}
+.cc-remarks {
+  font: var(--type-caption);
+  border-top: var(--border-width) solid var(--border-hairline);
+  padding-top: 4px;
+}
+
+.cc-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.cc-controls-heading {
+  font: var(--type-label-strong);
+  margin-top: var(--space-xs);
+}
+.cc-systems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.cc-system {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cc-system-row {
+  display: flex;
+  gap: 6px;
+}
+.cc-remove {
+  flex-shrink: 0;
+  padding: 6px 10px;
+}
+.cc-add {
+  align-self: flex-start;
+}
+
+/* ---------- The math ---------- */
+.math-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font: var(--type-body);
+}
+.math-heading {
+  font: var(--type-heading-sm);
+}
+.worked-formula {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+}
+/* Long sums (up to 16 terms) scroll sideways rather than overflow the inspector. */
+.worked-formula > div {
+  overflow-x: auto;
+}
+.worked-formula math {
+  font-size: 18px;
+}
+/* Live values from the screen: bold on a light tint (decision #16). */
+.math-live {
+  font-weight: 700;
+  background: var(--band-teal);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.math-sources ul {
+  list-style: disc;
+  padding-left: 1.2em;
+  font: var(--type-caption);
+}
+
+/* ---------- Shared 3D scene (src/scene3d, decisions #13 and #17) ---------- */
+.scene3d {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  background: var(--canvas-warm);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.scene3d-canvas {
+  position: absolute !important;
+  inset: 0;
+  /* Drags and pinches inside the box move the scene, not the page. */
+  touch-action: none;
+}
+.scene3d-labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.scene3d-label {
+  font: var(--type-label);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--canvas) 78%, transparent);
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.scene3d-label-small {
+  font: var(--type-caption);
+  line-height: 16px;
+}
+.scene3d-label-accent {
+  color: var(--link);
+  font-weight: 700;
+}
+.scene3d-reset {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  z-index: 1;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  background: var(--canvas);
+}
+.scene3d-hint {
+  position: absolute;
+  left: var(--space-xs);
+  bottom: 6px;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  pointer-events: none;
+}
+.scene3d-notice {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xxl);
+  text-align: center;
+  font: var(--type-body);
+  color: var(--text-body);
+}
+
+/* ---------- Tuning systems Lab ---------- */
+.ts-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+}
+.ts-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-md);
+  font: var(--type-label);
+}
+.ts-legend-item,
+.ts-caption-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Data colours are allowed on 3D data marks and their legends only (design-system README). */
+.ts-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  flex: none;
+}
+.ts-scene {
+  flex: 1 1 60%;
+  min-height: 260px;
+}
+.ts-readout {
+  font: var(--type-label);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ts-ring-key {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-full);
+  flex: none;
+}
+/* In the inspector's Controls tab, one table under another; the tab panel scrolls. */
+.ts-tables {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+.ts-table {
+  border-collapse: collapse;
+  width: 100%;
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+.ts-table-caption {
+  text-align: left;
+  font: var(--type-label-strong);
+  padding-bottom: 4px;
+}
+.ts-table th,
+.ts-table td {
+  text-align: right;
+  padding: 2px 6px;
+  border-bottom: var(--border-width) solid var(--border-divider);
+  white-space: nowrap;
+}
+.ts-table th[scope='row'],
+.ts-table thead th:first-child {
+  text-align: left;
+}
+.ts-table thead th {
+  font: var(--type-caption);
+  color: var(--text-body);
+}
+.ts-note {
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  margin-left: -6px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font: var(--type-label-strong);
+}
+.ts-note:hover {
+  background: var(--action-tertiary-bg);
+}
+.ts-note[aria-pressed='true'] {
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+}
+.ts-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.ts-heading {
+  font: var(--type-label-strong);
+}
+.ts-slots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.ts-slot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.ts-remove {
+  padding: 2px 8px;
+}
+.ts-add {
+  align-self: flex-start;
+}
+
+/* ---------- EDO explorer Lab ---------- */
+.edo-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  overflow: auto;
+}
+.edo-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+}
+.edo-circle {
+  flex: 1 1 340px;
+  max-width: 480px;
+  margin: 0;
+}
+.edo-circle-svg,
+.edo-chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-sans);
+}
+.edo-ring {
+  fill: none;
+  stroke: var(--border-field);
+  stroke-width: 1;
+}
+.edo-step {
+  fill: var(--ink);
+}
+.edo-step[data-marked] {
+  fill: var(--link);
+}
+.edo-step-number {
+  font-size: 8px;
+  fill: var(--text-disabled);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.edo-step-number[data-marked] {
+  fill: var(--link);
+  font-weight: 600;
+}
+/* A pure target is an uncoloured ink ring (design-system README). */
+.edo-mark {
+  fill: var(--surface-page);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.edo-mark-link {
+  stroke: var(--ink);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 2;
+}
+.edo-mark-label {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+  dominant-baseline: central;
+}
+.edo-circle-title {
+  font-size: 16px;
+  font-weight: 600;
+  fill: var(--ink);
+  text-anchor: middle;
+}
+.edo-circle-sub {
+  font-size: 9px;
+  fill: var(--text-disabled);
+  text-anchor: middle;
+}
+.edo-caption {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.edo-table {
+  flex: 0 1 380px;
+  border-collapse: collapse;
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+}
+.edo-table-caption {
+  text-align: left;
+  font: var(--type-label-strong);
+  padding-bottom: 4px;
+}
+.edo-table th,
+.edo-table td {
+  text-align: right;
+  padding: 4px 8px;
+  border-bottom: var(--border-width) solid var(--border-divider);
+  white-space: nowrap;
+}
+.edo-table th[scope='row'],
+.edo-table thead th:first-child {
+  text-align: left;
+}
+.edo-table thead th {
+  font: var(--type-caption);
+  color: var(--text-body);
+}
+.edo-interval-name {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.edo-error {
+  font-weight: 600;
+}
+.edo-chart {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.edo-chart-heading {
+  font: var(--type-label-strong);
+}
+.edo-grid {
+  stroke: var(--border-divider);
+  stroke-width: 1;
+}
+.edo-axis-label {
+  font-size: 10px;
+  fill: var(--text-disabled);
+  dominant-baseline: central;
+}
+.edo-bar {
+  fill: var(--border-field);
+}
+.edo-bar[data-standout] {
+  fill: var(--ink);
+}
+.edo-bar[data-selected] {
+  fill: var(--link);
+}
+.edo-standout-label,
+.edo-selected-label {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+.edo-selected-label {
+  fill: var(--link);
+}
+.edo-bar-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+.edo-bar-hit:hover {
+  fill: var(--ink-wash-8);
+}
+.edo-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.edo-controls-heading {
+  font: var(--type-label-strong);
+  margin-top: var(--space-xs);
+}
+.edo-standouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.edo-standout {
+  padding: 6px 10px;
+}
+.edo-use {
+  align-self: flex-start;
+}
+.edo-standout[aria-pressed='true'] {
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+}
+.edo-chords {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.edo-chord {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: var(--space-xs);
+  padding: 4px 0;
+  border-bottom: var(--border-width) solid var(--border-divider);
+  font: var(--type-label);
+}
+.edo-chord-steps {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-disabled);
+}
+.edo-chord-play {
+  padding: 4px 10px;
+}
+.edo-chord-remarks {
+  grid-column: 1 / -1;
+  font: var(--type-caption);
+}
+
+/* ---------- Beats & roughness Lab ---------- */
+.br-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-sm);
+}
+.br-beats {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.br-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-md);
+  font: var(--type-label);
+}
+.br-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* The scenes' ink, teal and gold (design-system README); no data-system colours here. */
+.br-swatch {
+  flex: none;
+}
+.br-swatch-tone1,
+.br-swatch-sum,
+.br-swatch-swell,
+.br-swatch-pure {
+  background: var(--ink);
+}
+.br-swatch-tone2,
+.br-swatch-edo12 {
+  background: var(--link);
+}
+/* The sum is drawn over a soft-gold fill. */
+.br-swatch-sum {
+  box-shadow: 0 0 0 2px var(--accent-gold-soft);
+}
+/* The last chord played: an ink dot on a soft-gold disc. */
+.br-swatch-played {
+  background: radial-gradient(circle, var(--ink) 0 30%, var(--accent-gold-soft) 32%);
+}
+.br-swatch-line {
+  width: 16px;
+  height: 3px;
+  border-radius: var(--radius-full);
+}
+.br-swatch-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+}
+.br-scene {
+  flex: 1 1 auto;
+  min-height: 280px;
+}
+.br-caption {
+  font: var(--type-caption);
+  color: var(--text-body);
+}
+.br-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.br-rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px var(--space-xs);
+}
+.br-rate-label {
+  font: var(--type-label-strong);
+}
+.br-rate-value {
+  font: var(--type-heading-lg);
+  font-variant-numeric: tabular-nums;
+}
+.br-rate-unit,
+.br-tones,
+.br-note {
+  font: var(--type-label);
+  color: var(--text-body);
+}
+.br-controls-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxl);
+}
+.br-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.br-heading {
+  font: var(--type-label-strong);
+}
+.br-play {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+.br-play:active {
+  background: var(--action-primary-bg-pressed);
+}
+/* Roughness section (#29): stacked under the beats section; the column scrolls when both don't fit. */
+.br-visual {
+  overflow-y: auto;
+}
+.br-beats,
+.br-roughness {
+  flex: 1 0 auto;
+}
+.br-roughness {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-md);
+  border-top: var(--border-width) solid var(--border-hairline);
+}
+.br-roughness .br-scene {
+  min-height: 440px;
+}
+.br-roughness-intro {
+  font: var(--type-body);
+  color: var(--text-body);
+}
+.br-chord-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.br-chord-name {
+  font: var(--type-label-strong);
+}
+.br-chord-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-lg);
+  font: var(--type-label);
+}
+.br-chord-values div {
+  display: flex;
+  gap: 6px;
+}
+.br-chord-values dt {
+  color: var(--text-body);
+}
+.br-chord-values dd {
+  font-variant-numeric: tabular-nums;
+}
+.field-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  cursor: pointer;
+}
+.field-check input {
+  margin: 0;
+  accent-color: var(--action-primary-bg);
+}
+.br-pins {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.br-pins-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+.br-subheading {
+  font: var(--type-label-strong);
+}
+.br-pins-unit {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.br-pin-list {
+  display: flex;
+  flex-direction: column;
+}
+.br-pin {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+  border-bottom: var(--border-width) solid var(--border-hairline);
+}
+.br-pin[data-version='edo12'] {
+  padding-left: var(--space-md);
+}
+.br-pin-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  color: var(--text-body);
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: pointer;
+  text-align: left;
+}
+.br-pin-play span {
+  font-size: 10px;
+}
+.br-pin-roughness {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Just-intonation lattice Lab ---------- */
+.jl-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+}
+.jl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-md);
+  font: var(--type-label);
+  color: var(--text-body);
+}
+.jl-legend-item,
+.jl-readout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* The chord-shape key: the soft-gold fill the scene uses (decision #13). */
+.jl-shape-swatch {
+  flex: none;
+  fill: var(--accent-gold-soft);
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.jl-scene {
+  flex: 1 1 auto;
+  min-height: 300px;
+}
+.jl-readout {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+.jl-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.jl-limit {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.jl-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  cursor: pointer;
+}
+.jl-heading {
+  font: var(--type-label-strong);
+}
+.jl-chord {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.jl-chord-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: var(--type-label);
+  padding: 2px 0;
+  border-bottom: var(--border-width) solid var(--border-divider);
+}
+.jl-remove {
+  padding: 2px 8px;
+}
+.jl-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+.jl-play {
+  font: var(--type-label-strong);
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+.jl-play:disabled,
+.jl-actions .button-tertiary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+/* Comma explorer (#31): the outlined companion button, the teal path key, the drift line. */
+.jl-secondary {
+  font: var(--type-label);
+  background: transparent;
+  color: var(--text-body);
+  border: var(--border-width) solid var(--ink);
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+.jl-path-swatch {
+  flex: none;
+  fill: none;
+  stroke: var(--link);
+  stroke-width: 2;
+}
+.jl-pump-readout {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.jl-readout-line .jl-shape-swatch {
+  vertical-align: -1px;
+  margin-right: 6px;
+}
+.jl-drift {
+  font: var(--type-label-strong);
+}
+
+/* ---------- Phone: below 700px ---------- */
+@media (max-width: 699.98px) {
+  .lab-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(340px, 1fr) auto auto;
+    grid-template-areas:
+      'bar'
+      'menu'
+      'centre'
+      'inspector'
+      'keys';
+    height: auto;
+    min-height: 100dvh;
+  }
+  .rail {
+    display: none;
+    grid-area: menu;
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border-hairline);
+    padding: var(--space-md);
+  }
+  .rail[data-menu-open='true'] {
+    display: flex;
+  }
+  .rail .wordmark {
+    display: none;
+  }
+  .mobilebar {
+    grid-area: bar;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-md);
+    border-bottom: var(--border-width) solid var(--border-hairline);
+  }
+  .chip {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font: var(--type-label);
+    padding: 5px 8px;
+    border: var(--border-width) solid var(--border-field);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+  /* A long tuning-system chip gives way before the menu button does. */
+  .chip-shrink {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .menu-button {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .lab-head {
+    padding: var(--space-sm) var(--space-md) 4px;
+  }
+  .lab-visual {
+    margin: 0 var(--space-md) var(--space-sm);
+  }
+  .inspector {
+    border-left: none;
+    border-top: var(--border-width) solid var(--border-hairline);
+    max-height: 300px;
+  }
+  .keys {
+    padding: var(--space-xs);
+  }
+  .keyboard {
+    height: 80px;
+  }
+  .keyboard-octave + .keyboard-octave {
+    display: none;
+  }
+  .chord-buttons {
+    display: none;
+  }
+  /* The scene sits in a fixed-height box; outside it the page scrolls (decision #17). */
+  .ts-scene {
+    flex: none;
+    height: 340px;
+  }
+  .jl-scene {
+    flex: none;
+    height: 340px;
+  }
+  .br-scene,
+  .br-roughness .br-scene {
+    flex: none;
+    min-height: 0;
+    height: 340px;
+  }
+  .br-play {
+    padding: var(--button-padding-touch);
+  }
+  .scene3d-reset-text {
+    display: none;
+  }
+  .edo-visual {
+    padding: var(--space-sm) var(--space-md);
+  }
+  /* The error column matters most: drop the interval names and the pure sizes. */
+  .edo-interval-name,
+  .edo-col-pure {
+    display: none;
+  }
+  .edo-table th,
+  .edo-table td {
+    padding: 4px;
+  }
+  /* The chart keeps a readable size and scrolls sideways. */
+  .edo-chart-scroll {
+    overflow-x: auto;
+  }
+  .edo-chart-svg {
+    min-width: 560px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

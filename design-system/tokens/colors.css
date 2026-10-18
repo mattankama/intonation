@@ -25,6 +25,12 @@
 /* Bands */
 --band-teal:#d6e5e5;
 --band-forest:#33553c;
+/* Data colours: 3D scene marks and their legends only (see README) */
+--data-gold:#b8892a;
+--data-system-1:var(--primary);
+--data-system-2:var(--link);
+--data-system-3:var(--band-forest);
+--data-system-4:var(--data-gold);
 /* Washes */
 --ink-wash-8:rgba(22,21,19,.08);
 --ink-wash-14:rgba(22,21,19,.14);
