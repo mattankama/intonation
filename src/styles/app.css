@@ -437,6 +437,138 @@ button {
   }
 }
 
+/* ---------- Sound waves Lab ---------- */
+.sw-visual {
+  align-self: stretch;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-xxl);
+  min-width: 0;
+}
+.sw-bars {
+  flex: 1 1 45%;
+  min-height: 90px;
+  display: flex;
+  gap: 4px;
+  border-bottom: var(--border-width) solid var(--border-field);
+}
+.sw-bar-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.sw-bar-track {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+.sw-bar {
+  width: 100%;
+  min-height: 1px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+}
+/* A muted harmonic keeps its level as an outline, so unmuting restores it. */
+.sw-bar-column[data-muted='true'] .sw-bar {
+  background: none;
+  border: var(--border-width) dashed var(--border-field);
+  border-bottom: none;
+}
+.sw-bar-number {
+  font: var(--type-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-disabled);
+  text-align: center;
+}
+.sw-wave {
+  flex: 1 1 55%;
+  min-height: 110px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sw-wave-plot {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  background: var(--surface-card);
+  border-radius: var(--radius-sm);
+}
+.sw-wave-axis {
+  stroke: var(--border-hairline);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.sw-wave-line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.sw-wave-caption {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+
+.sw-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font: var(--type-body);
+}
+.sw-reset {
+  align-self: flex-start;
+}
+.sw-heading {
+  font: var(--type-label-strong);
+  margin-top: var(--space-xs);
+}
+.sw-harmonics {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sw-harmonic,
+.sw-harmonics-head {
+  display: grid;
+  grid-template-columns: 3ch 1fr 4.5ch auto;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.sw-harmonics-head {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.sw-harmonics-head span:nth-child(3) {
+  text-align: right;
+}
+.sw-harmonic-number {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-disabled);
+}
+.sw-harmonic-level {
+  text-align: right;
+}
+.sw-harmonic[data-muted='true'] .sw-harmonic-level {
+  color: var(--text-disabled);
+  text-decoration: line-through;
+}
+.sw-mute {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--action-primary-bg);
+}
+
 /* ---------- The math ---------- */
 .math-section {
   display: flex;
@@ -454,6 +586,10 @@ button {
   background: var(--surface-soft);
   border-radius: var(--radius-sm);
   padding: var(--space-xs) var(--space-sm);
+}
+/* Long sums (up to 16 terms) scroll sideways rather than overflow the inspector. */
+.worked-formula > div {
+  overflow-x: auto;
 }
 .worked-formula math {
   font-size: 18px;

@@ -63,7 +63,7 @@ test('computer keys play the keyboard: H holds A4 until released', async ({ page
   await page.keyboard.up('h');
   await expect(key(page, 'A4')).not.toHaveAttribute('data-held', 'true');
   await page.getByRole('tab', { name: 'The math' }).click();
-  await expect(page.getByRole('tabpanel').locator('[data-step="result"]')).toContainText('440.00');
+  await expect(page.getByRole('tabpanel').locator('[data-step="result"]').first()).toContainText('440.00');
 });
 
 test('computer keys don’t play while typing in a settings field', async ({ page }) => {

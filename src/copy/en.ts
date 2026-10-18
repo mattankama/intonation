@@ -5,6 +5,14 @@
 import type { TimbrePresetId } from '../core';
 import type { LabId } from '../labs/ids';
 
+const TIMBRE_PRESET_NAMES = {
+  sine: 'Sine',
+  organ: 'Organ-like',
+  string: 'String-like',
+  brass: 'Brass-like',
+  voice: 'Voice-like',
+} as const satisfies Record<TimbrePresetId, string>;
+
 export const copy = {
   siteName: 'Intonation',
 
@@ -68,13 +76,9 @@ export const copy = {
     },
     timbre: {
       label: 'Timbre',
-      presets: {
-        sine: 'Sine',
-        organ: 'Organ-like',
-        string: 'String-like',
-        brass: 'Brass-like',
-        voice: 'Voice-like',
-      } satisfies Record<TimbrePresetId, string>,
+      presets: TIMBRE_PRESET_NAMES,
+      /** The one Custom Timbre, named after the preset it was made from. */
+      custom: (from: TimbrePresetId) => `Custom (from ${TIMBRE_PRESET_NAMES[from].toLowerCase()})`,
     },
     brightness: {
       label: 'Brightness',
@@ -106,6 +110,43 @@ export const copy = {
     sources: {
       iso16: 'ISO 16:1975, Acoustics — Standard tuning frequency (standard musical pitch).',
       barbour: 'J. Murray Barbour, Tuning and Temperament: A Historical Survey (1951).',
+      fourier: 'Joseph Fourier, Théorie analytique de la chaleur (1822).',
+      helmholtz:
+        'Hermann von Helmholtz, On the Sensations of Tone, trans. Alexander J. Ellis, 2nd ed. (1885).',
+    },
+  },
+
+  soundWaves: {
+    harmonicsHeading: 'Harmonics',
+    columns: { harmonic: 'n', level: 'Level', mute: 'Mute' },
+    harmonicLevel: (n: number) => `Harmonic ${n} level`,
+    mute: (n: number) => `Mute harmonic ${n}`,
+    level: (percent: number) => `${percent}%`,
+    multiple: (n: number) => `${n}×`,
+    editingPreset: (preset: string) =>
+      `${preset} as heard. Move any slider or mute to make it your Custom Timbre, shared with every Lab.`,
+    editingCustom: (label: string) =>
+      `${label}: your Custom Timbre, used in every Lab. It lives in the page address, so a link shares it.`,
+    reset: 'Reset to preset',
+    barsLabel: 'Harmonic levels',
+    waveformLabel: 'Waveform: two periods of the sum of the harmonics',
+    waveformCaption: 'Two periods, scaled to fit',
+    silent: 'Every harmonic is at zero or muted, so there is no wave to draw.',
+  },
+
+  soundWavesMath: {
+    sum: {
+      heading: 'The Fourier sum',
+      body: 'The waveform is the sum of the sounding harmonics: sine waves at 1, 2, 3 … times the fundamental frequency f, each with the amplitude set on its slider. Muted and zero harmonics drop out.',
+      peak: 'The result is the tallest point of the waveform drawn on screen.',
+    },
+    loudness: {
+      heading: 'Loudness',
+      body: 'Every Timbre plays at the same loudness: before it sounds, its amplitudes are scaled so the wave’s root-mean-square (RMS) level matches every other Timbre. This is that RMS before scaling.',
+    },
+    phase: {
+      heading: 'Phase',
+      body: 'Every harmonic starts in sine phase, with no phase shift. Shifting a harmonic’s phase would change the picture of the waveform but not what you hear: the ear follows the strengths of the harmonics, not how their peaks line up.',
     },
   },
 
