@@ -86,6 +86,25 @@ export {
 } from './beats';
 export { type TuningTableRow, tuningTable } from './table';
 export { nearestPureInterval } from './interval';
+export {
+  type LatticeNode,
+  type PrimeFactors,
+  primeFactors,
+  octaveReduce,
+  nodeOfRatio,
+  ratioOfNode,
+  latticeNoteName,
+  chordProportion,
+} from './lattice';
+export {
+  type StepApproximation,
+  type ChartPoint,
+  EDO_TARGETS,
+  CHART_TARGETS,
+  approximate,
+  edoApproximations,
+  edoErrorChart,
+} from './edoApproximation';
 export { beatRate, centsBetween } from './twoTones';
 export {
   type RoughnessLandscape,

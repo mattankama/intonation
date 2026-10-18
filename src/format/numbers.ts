@@ -25,6 +25,12 @@ export function formatCents(value: number, context: DisplayContext): string {
   return `${formatDecimal(value, CENTS_DECIMALS[context])}¢`;
 }
 
+/** Cents with a sign: "+0.783¢" (wide), "−5.2¢" (narrow), "0.0¢" when it rounds to zero. */
+export function formatSignedCents(value: number, context: DisplayContext): string {
+  const shown = formatCents(value, context);
+  return value > 0 && Number(formatDecimal(value, CENTS_DECIMALS[context])) !== 0 ? `+${shown}` : shown;
+}
+
 export function formatHz(value: number): string {
   return `${formatDecimal(value, HZ_DECIMALS)} Hz`;
 }

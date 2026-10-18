@@ -1119,6 +1119,222 @@ button {
   align-self: flex-start;
 }
 
+/* ---------- EDO explorer Lab ---------- */
+.edo-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  overflow: auto;
+}
+.edo-hint {
+  font: var(--type-caption);
+  color: var(--text-body);
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm);
+}
+.edo-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+}
+.edo-circle {
+  flex: 1 1 340px;
+  max-width: 480px;
+  margin: 0;
+}
+.edo-circle-svg,
+.edo-chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-sans);
+}
+.edo-ring {
+  fill: none;
+  stroke: var(--border-field);
+  stroke-width: 1;
+}
+.edo-step {
+  fill: var(--ink);
+}
+.edo-step[data-marked] {
+  fill: var(--link);
+}
+.edo-step-number {
+  font-size: 8px;
+  fill: var(--text-disabled);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.edo-step-number[data-marked] {
+  fill: var(--link);
+  font-weight: 600;
+}
+/* A pure target is an uncoloured ink ring (design-system README). */
+.edo-mark {
+  fill: var(--surface-page);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.edo-mark-link {
+  stroke: var(--ink);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 2;
+}
+.edo-mark-label {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+  dominant-baseline: central;
+}
+.edo-circle-title {
+  font-size: 16px;
+  font-weight: 600;
+  fill: var(--ink);
+  text-anchor: middle;
+}
+.edo-circle-sub {
+  font-size: 9px;
+  fill: var(--text-disabled);
+  text-anchor: middle;
+}
+.edo-caption {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.edo-table {
+  flex: 0 1 380px;
+  border-collapse: collapse;
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+}
+.edo-table-caption {
+  text-align: left;
+  font: var(--type-label-strong);
+  padding-bottom: 4px;
+}
+.edo-table th,
+.edo-table td {
+  text-align: right;
+  padding: 4px 8px;
+  border-bottom: var(--border-width) solid var(--border-divider);
+  white-space: nowrap;
+}
+.edo-table th[scope='row'],
+.edo-table thead th:first-child {
+  text-align: left;
+}
+.edo-table thead th {
+  font: var(--type-caption);
+  color: var(--text-body);
+}
+.edo-interval-name {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.edo-error {
+  font-weight: 600;
+}
+.edo-chart {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.edo-chart-heading {
+  font: var(--type-label-strong);
+}
+.edo-grid {
+  stroke: var(--border-divider);
+  stroke-width: 1;
+}
+.edo-axis-label {
+  font-size: 10px;
+  fill: var(--text-disabled);
+  dominant-baseline: central;
+}
+.edo-bar {
+  fill: var(--border-field);
+}
+.edo-bar[data-standout] {
+  fill: var(--ink);
+}
+.edo-bar[data-selected] {
+  fill: var(--link);
+}
+.edo-standout-label,
+.edo-selected-label {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+.edo-selected-label {
+  fill: var(--link);
+}
+.edo-bar-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+.edo-bar-hit:hover {
+  fill: var(--ink-wash-8);
+}
+.edo-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.edo-controls-heading {
+  font: var(--type-label-strong);
+  margin-top: var(--space-xs);
+}
+.edo-standouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.edo-standout {
+  padding: 6px 10px;
+}
+.edo-standout[aria-pressed='true'] {
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+}
+.edo-chords {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.edo-chord {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: var(--space-xs);
+  padding: 4px 0;
+  border-bottom: var(--border-width) solid var(--border-divider);
+  font: var(--type-label);
+}
+.edo-chord-steps {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-disabled);
+}
+.edo-chord-play {
+  padding: 4px 10px;
+}
+.edo-chord-remarks {
+  grid-column: 1 / -1;
+  font: var(--type-caption);
+}
+
 /* ---------- Beats & roughness Lab ---------- */
 .br-visual {
   align-self: stretch;
@@ -1332,6 +1548,103 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Just-intonation lattice Lab ---------- */
+.jl-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+}
+.jl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-md);
+  font: var(--type-label);
+  color: var(--text-body);
+}
+.jl-legend-item,
+.jl-readout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* The chord-shape key: the soft-gold fill the scene uses (decision #13). */
+.jl-shape-swatch {
+  flex: none;
+  fill: var(--accent-gold-soft);
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.jl-scene {
+  flex: 1 1 auto;
+  min-height: 300px;
+}
+.jl-readout {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+.jl-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.jl-limit {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.jl-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  cursor: pointer;
+}
+.jl-heading {
+  font: var(--type-label-strong);
+}
+.jl-chord {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.jl-chord-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: var(--type-label);
+  padding: 2px 0;
+  border-bottom: var(--border-width) solid var(--border-divider);
+}
+.jl-remove {
+  padding: 2px 8px;
+}
+.jl-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+.jl-play {
+  font: var(--type-label-strong);
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+.jl-play:disabled,
+.jl-actions .button-tertiary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 /* ---------- Phone: below 700px ---------- */
 @media (max-width: 699.98px) {
   .lab-layout {
@@ -1418,6 +1731,10 @@ button {
   .ts-tables {
     overflow: visible;
   }
+  .jl-scene {
+    flex: none;
+    height: 340px;
+  }
   .br-scene,
   .br-roughness .br-scene {
     flex: none;
@@ -1429,6 +1746,25 @@ button {
   }
   .scene3d-reset-text {
     display: none;
+  }
+  .edo-visual {
+    padding: var(--space-sm) var(--space-md);
+  }
+  /* The error column matters most: drop the interval names and the pure sizes. */
+  .edo-interval-name,
+  .edo-col-pure {
+    display: none;
+  }
+  .edo-table th,
+  .edo-table td {
+    padding: 4px;
+  }
+  /* The chart keeps a readable size and scrolls sideways. */
+  .edo-chart-scroll {
+    overflow-x: auto;
+  }
+  .edo-chart-svg {
+    min-width: 560px;
   }
 }
 
