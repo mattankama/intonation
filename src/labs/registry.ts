@@ -11,6 +11,7 @@ import type { Settings } from '../state/settings';
 import { beatsAndRoughnessLab } from './beats-and-roughness';
 import { LAB_IDS, type LabId } from './ids';
 import { chordComparisonLab } from './chord-comparison';
+import { latticeLab } from './just-intonation-lattice';
 import { soundWavesLab } from './sound-waves';
 import { tuningSystemsLab } from './tuning-systems';
 
@@ -41,6 +42,7 @@ const components: Partial<Record<LabId, LabParts>> = {
   'beats-and-roughness': beatsAndRoughnessLab,
   'tuning-systems': tuningSystemsLab,
   'chord-comparison': chordComparisonLab,
+  'just-intonation-lattice': latticeLab,
 };
 
 export const LABS: readonly LabDefinition[] = LAB_IDS.map((id) => ({

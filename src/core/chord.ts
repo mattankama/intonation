@@ -9,7 +9,7 @@
  */
 import { CENTS_PER_OCTAVE } from './cents';
 import type { Note } from './pitch';
-import { type Ratio, multiplyRatios, ratio, ratioValue } from './ratio';
+import { type Ratio, multiplyRatios, ratio, ratioValue, wholeNumbers } from './ratio';
 import {
   type Tuning,
   edoLandmarks,
@@ -149,14 +149,9 @@ export interface PureChord {
   readonly proportion: readonly number[];
 }
 
-const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b));
-
 export function pureChord(choice: ChordChoice): PureChord {
   const ratios = chordTones(choice).map((tone) => tone.ratio);
-  const lcm = ratios.reduce((l, r) => (l * r.den) / gcd(l, r.den), 1);
-  const whole = ratios.map((r) => (r.num * lcm) / r.den);
-  const common = whole.reduce(gcd);
-  return { ratios, proportion: whole.map((w) => w / common) };
+  return { ratios, proportion: wholeNumbers(ratios) };
 }
 
 /** Chords are played with the root in octave 4 (from C4 up to B4). */

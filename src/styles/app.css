@@ -1224,6 +1224,103 @@ button {
   background: var(--action-primary-bg-pressed);
 }
 
+/* ---------- Just-intonation lattice Lab ---------- */
+.jl-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+}
+.jl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-md);
+  font: var(--type-label);
+  color: var(--text-body);
+}
+.jl-legend-item,
+.jl-readout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* The chord-shape key: the soft-gold fill the scene uses (decision #13). */
+.jl-shape-swatch {
+  flex: none;
+  fill: var(--accent-gold-soft);
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.jl-scene {
+  flex: 1 1 auto;
+  min-height: 300px;
+}
+.jl-readout {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+.jl-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.jl-limit {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.jl-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  cursor: pointer;
+}
+.jl-heading {
+  font: var(--type-label-strong);
+}
+.jl-chord {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.jl-chord-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: var(--type-label);
+  padding: 2px 0;
+  border-bottom: var(--border-width) solid var(--border-divider);
+}
+.jl-remove {
+  padding: 2px 8px;
+}
+.jl-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+.jl-play {
+  font: var(--type-label-strong);
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+.jl-play:disabled,
+.jl-actions .button-tertiary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 /* ---------- Phone: below 700px ---------- */
 @media (max-width: 699.98px) {
   .lab-layout {
@@ -1309,6 +1406,10 @@ button {
   }
   .ts-tables {
     overflow: visible;
+  }
+  .jl-scene {
+    flex: none;
+    height: 340px;
   }
   .br-scene {
     flex: none;
