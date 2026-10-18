@@ -4,6 +4,7 @@ import { Link } from '../state/Link';
 import { settingsHref, useSettings } from '../state/useSettings';
 import { Wordmark } from '../shell/Wordmark';
 import { useDocumentTitle } from '../shell/useDocumentTitle';
+import { LabPreview } from './LabPreview';
 
 /** The home page, in the design system's index template (decision #18). */
 export function HomePage() {
@@ -24,8 +25,7 @@ export function HomePage() {
           {LABS.map((lab) => (
             <li key={lab.id}>
               <Link className="lab-card ml-focusable" href={settingsHref(lab.path, settings)}>
-                {/* Placeholder until the SVG ink previews land (issue #32). */}
-                <div className="lab-card-preview" aria-hidden="true" />
+                <LabPreview lab={lab.id} />
                 <h3 className="lab-card-title">{lab.title}</h3>
                 <p className="lab-card-intro">{lab.intro}</p>
               </Link>
