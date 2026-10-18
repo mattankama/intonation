@@ -56,7 +56,7 @@ test('The math works out the beat rate from the live frequencies', async ({ page
   await expect(mathSection(math, 'Why the sum swells').locator('[data-step="result"]')).toContainText('0.250');
   // Sine tones have no other harmonics to beat.
   await expect(mathSection(math, 'Harmonics beat faster')).toHaveCount(0);
-  await expect(math.getByText('Plomp', { exact: false })).toBeVisible();
+  await expect(math.locator('.math-sources').getByText('Plomp', { exact: false })).toBeVisible();
 });
 
 test('with harmonics, The math shows the 2nd harmonics beating twice as fast', async ({ page }) => {
@@ -146,7 +146,7 @@ test('without 3D graphics the ribbon is replaced by a notice and the beat rate s
     } as typeof original;
   });
   await page.goto('/beats-and-roughness');
-  await expect(page.getByText('This view needs 3D graphics, which this browser can’t show.')).toBeVisible();
+  await expect(scene(page).getByText('This view needs 3D graphics, which this browser can’t show.')).toBeVisible();
   await gap(page).fill('2');
   await expect(beatRate(page)).toHaveText('2.00 Hz');
 });
@@ -158,6 +158,6 @@ test.describe('on a phone', () => {
     await page.goto('/beats-and-roughness');
     await expect(scene(page).locator('canvas')).toBeVisible();
     await expect(scene(page).getByRole('button', { name: 'Reset view' })).toBeVisible();
-    await expect(page.locator('.br-caption')).toContainText('half second');
+    await expect(page.locator('.br-beats .br-caption')).toContainText('half second');
   });
 });

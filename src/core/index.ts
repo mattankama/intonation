@@ -106,3 +106,13 @@ export {
   edoErrorChart,
 } from './edoApproximation';
 export { beatRate, centsBetween } from './twoTones';
+export {
+  type RoughnessLandscape,
+  LANDSCAPE_MAX_CENTS,
+  ROUGHNESS_CONSTANTS,
+  chordRoughness,
+  partialRoughness,
+  roughnessLandscape,
+  roughnessScale,
+  stackedChord,
+} from './roughness';
