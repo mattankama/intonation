@@ -11,10 +11,10 @@ import {
   stepEdo,
 } from '../../core';
 import { copy } from '../../copy/en';
-import { systemColorVar } from '../../scene3d';
 import { TonicSelect } from '../../shell/TuningFields';
 import type { LabProps } from '../registry';
-import { useComparedSystems } from './state';
+import { TuningTables } from './TuningTables';
+import { useComparedSystems, usePicks } from './state';
 import { MAX_SYSTEMS } from './systems';
 
 const text = copy.tuningSystemsLab;
@@ -34,9 +34,10 @@ function freeEdo(taken: readonly TuningSystemId[]): TuningSystemId {
   return edoSystem(FIRST_OTHER_EDO);
 }
 
-/** Choose up to four tuning systems to compare; the Tonic they are all built from. */
+/** Choose up to four tuning systems to compare; the Tonic they are all built from; every note in a table. */
 export function TuningSystemsControls({ settings }: LabProps) {
   const [systems, setSystems] = useComparedSystems();
+  const [picks, onPick] = usePicks(systems, settings);
   const replace = (k: number, system: TuningSystemId) => {
     if (systems.some((s, i) => i !== k && s === system)) return;
     setSystems(systems.map((s, i) => (i === k ? system : s)));
@@ -70,6 +71,7 @@ export function TuningSystemsControls({ settings }: LabProps) {
       )}
       {/* The rail hides the Tonic while the shared system is an EDO; the spiral still uses it. */}
       {isEdo(settings.tuningSystem) && <TonicSelect hint={text.tonicHint} />}
+      <TuningTables systems={systems} tonic={settings.tonic} picks={picks} onPick={onPick} />
     </div>
   );
 }
@@ -96,8 +98,7 @@ function SystemSlot({
     <li className="ts-slot">
       <div className="field">
         <div className="field-label-row">
-          <label className="field-label ts-slot-label" htmlFor={id}>
-            <span className="ts-swatch" style={{ background: systemColorVar(k) }} aria-hidden="true" />
+          <label className="field-label" htmlFor={id}>
             {label}
           </label>
           {removable && (

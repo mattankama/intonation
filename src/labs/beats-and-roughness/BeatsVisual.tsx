@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { BEAT_MAX_HZ, timbreHarmonics } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatHz } from '../../format/numbers';
-import { lazyScene, systemColorVar, usePhoneLayout } from '../../scene3d';
+import { lazyScene, usePhoneLayout } from '../../scene3d';
 import type { LabProps } from '../registry';
 import type { BeatsRibbonProps } from './BeatsRibbon';
 import { type TwoTones, twoTones, useGap, usePlaying, useToneSync } from './beatsState';
@@ -13,12 +13,12 @@ const BeatsRibbon = lazyScene<BeatsRibbonProps>(() => import('./BeatsRibbon'), {
   className: 'br-scene',
 });
 
-/** Ribbon key entries and their data colours (the swatch index matches the scene). */
+/** Ribbon key entries; each swatch class matches the scene's ink, teal and gold. */
 const LEGEND = [
-  { label: text.legend.tone1, k: 1, kind: 'line' },
-  { label: text.legend.tone2, k: 2, kind: 'line' },
-  { label: text.legend.sum, k: 0, kind: 'line' },
-  { label: text.legend.swell, k: 3, kind: 'dot' },
+  { label: text.legend.tone1, swatch: 'line br-swatch-tone1' },
+  { label: text.legend.tone2, swatch: 'line br-swatch-tone2' },
+  { label: text.legend.sum, swatch: 'line br-swatch-sum' },
+  { label: text.legend.swell, swatch: 'dot br-swatch-swell' },
 ] as const;
 
 /** The beats section: the interference ribbon, its key and the beat rate. */
@@ -36,9 +36,9 @@ export function BeatsVisual({ settings }: LabProps) {
   return (
     <section className="br-beats" data-playing={playing} aria-label={text.heading}>
       <ul className="br-legend" aria-label={text.legendLabel}>
-        {LEGEND.map(({ label, k, kind }) => (
+        {LEGEND.map(({ label, swatch }) => (
           <li key={label} className="br-legend-item">
-            <span className={`br-swatch br-swatch-${kind}`} style={{ background: systemColorVar(k) }} aria-hidden="true" />
+            <span className={`br-swatch br-swatch-${swatch}`} aria-hidden="true" />
             {label}
           </li>
         ))}

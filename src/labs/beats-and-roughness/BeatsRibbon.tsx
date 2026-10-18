@@ -101,7 +101,8 @@ function RibbonContent({ harmonics, gap, playing, phone }: BeatsRibbonProps) {
     draw();
   });
 
-  marks.color(colors.systems[1], colors.systems[2], colors.systems[0], colors.guide, colors.systems[3]);
+  // Ink drawing (design-system README): tone 1 ink, tone 2 teal, the sum ink over a soft-gold fill.
+  marks.color(colors.ink, colors.accent, colors.ink, colors.fill, colors.ink);
 
   const baselines = useMemo(
     () =>
@@ -163,7 +164,7 @@ function useRibbonMarks() {
       'position',
       new BufferAttribute(new Float32Array(Math.ceil(CAPACITY / HATCH_EVERY) * 6), 3).setUsage(DynamicDrawUsage),
     );
-    const hatch = new LineSegments(hatchGeometry, new LineBasicMaterial({ transparent: true, opacity: 0.5 }));
+    const hatch = new LineSegments(hatchGeometry, new LineBasicMaterial({ transparent: true, opacity: 0.9 }));
     hatch.frustumCulled = false;
     const dotGeometry = new SphereGeometry(0.065, 16, 12);
     const dotMaterial = new MeshBasicMaterial();

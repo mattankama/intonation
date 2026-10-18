@@ -1069,8 +1069,7 @@ button {
   font: var(--type-label);
 }
 .ts-legend-item,
-.ts-caption-name,
-.ts-slot-label {
+.ts-caption-name {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1099,17 +1098,12 @@ button {
   border-radius: var(--radius-full);
   flex: none;
 }
+/* In the inspector's Controls tab, one table under another; the tab panel scrolls. */
 .ts-tables {
-  flex: 1 1 40%;
-  min-height: 0;
-  overflow: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  align-items: start;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-md);
-  padding: var(--space-sm);
-  background: var(--surface-card);
-  border-radius: var(--radius-md);
+  margin-top: var(--space-sm);
 }
 .ts-table {
   border-collapse: collapse;
@@ -1426,9 +1420,27 @@ button {
   align-items: center;
   gap: 6px;
 }
-/* Data colours are allowed on 3D data marks and their legends only (design-system README). */
+/* The scenes' ink, teal and gold (design-system README); no data-system colours here. */
 .br-swatch {
   flex: none;
+}
+.br-swatch-tone1,
+.br-swatch-sum,
+.br-swatch-swell,
+.br-swatch-pure {
+  background: var(--ink);
+}
+.br-swatch-tone2,
+.br-swatch-edo12 {
+  background: var(--link);
+}
+/* The sum is drawn over a soft-gold fill. */
+.br-swatch-sum {
+  box-shadow: 0 0 0 2px var(--accent-gold-soft);
+}
+/* The last chord played: an ink dot on a soft-gold disc. */
+.br-swatch-played {
+  background: radial-gradient(circle, var(--ink) 0 30%, var(--accent-gold-soft) 32%);
 }
 .br-swatch-line {
   width: 16px;
@@ -1817,9 +1829,6 @@ button {
   .ts-scene {
     flex: none;
     height: 340px;
-  }
-  .ts-tables {
-    overflow: visible;
   }
   .jl-scene {
     flex: none;
