@@ -40,3 +40,12 @@ export function phaseAlignedStart(noteStart: number, frequency: number, earliest
   const periods = Math.ceil((earliest - noteStart) * frequency);
   return noteStart + Math.max(0, periods) / frequency;
 }
+
+/**
+ * A note that began at `noteStart` at frequency `from` and moved to `to` at time `at`:
+ * the start time it would have had at `to` all along to be in the same phase now. Pass it
+ * to phaseAlignedStart afterwards so Timbre crossfades stay in phase.
+ */
+export function retimedStart(noteStart: number, from: number, to: number, at: number): number {
+  return at - ((at - noteStart) * from) / to;
+}

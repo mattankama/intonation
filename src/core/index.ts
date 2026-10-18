@@ -96,3 +96,4 @@ export {
   latticeNoteName,
   chordProportion,
 } from './lattice';
+export { beatRate, centsBetween } from './twoTones';
