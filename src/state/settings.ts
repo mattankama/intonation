@@ -15,7 +15,7 @@ import {
   TIMBRE_PRESET_IDS,
   parseTuningSystem,
   type TimbreChoice,
-  type Tuning,
+  type TuningSystemChoice,
   type TuningSystemId,
   isCustomTimbre,
   tonicSpelling,
@@ -36,7 +36,7 @@ export interface Settings {
 }
 
 /** The tuning system and its Tonic, as the acoustics core takes them. */
-export function tuningOf(settings: Settings): Tuning {
+export function systemChoiceOf(settings: Settings): TuningSystemChoice {
   return { system: settings.tuningSystem, tonic: settings.tonic };
 }
 

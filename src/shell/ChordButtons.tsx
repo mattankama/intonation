@@ -1,5 +1,5 @@
 import { playChord } from '../audio/chords';
-import { type Tuning, isEdo, tonicSpelling, tuneChord } from '../core';
+import { type TuningSystemChoice, isEdo, tonicSpelling, tuneChord } from '../core';
 import { copy } from '../copy/en';
 
 /**
@@ -19,8 +19,8 @@ const CHORD_BUTTONS = [
  * Chord buttons beside the keyboard (decision #12): each plays a whole chord in the
  * current tuning system with one click, from its Tonic (from C in an EDO). Hidden on phones.
  */
-export function ChordButtons({ tuning, referencePitch }: { tuning: Tuning; referencePitch: number }) {
-  const tonic = isEdo(tuning.system) ? 0 : tuning.tonic;
+export function ChordButtons({ systemChoice, referencePitch }: { systemChoice: TuningSystemChoice; referencePitch: number }) {
+  const tonic = isEdo(systemChoice.system) ? 0 : systemChoice.tonic;
   const text = copy.chordButtons;
   return (
     <div className="chord-buttons" role="group" aria-label={text.label} title={text.hint}>
@@ -36,7 +36,7 @@ export function ChordButtons({ tuning, referencePitch }: { tuning: Tuning; refer
             aria-label={text.play(name)}
             onClick={() =>
               playChord(
-                tuneChord(tuning, { root, type, inversion: 0, pure: '5-limit' }, referencePitch).notes.map(
+                tuneChord(systemChoice, { root, type, inversion: 0, pure: '5-limit' }, referencePitch).notes.map(
                   (note) => note.frequency,
                 ),
               )

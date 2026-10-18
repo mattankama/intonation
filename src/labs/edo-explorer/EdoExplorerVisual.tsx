@@ -1,10 +1,10 @@
-import { edoApproximations, edoSystem, isEdo } from '../../core';
+import { edoApproximations, edoSystem } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatRatio, formatSignedCents } from '../../format/numbers';
 import type { LabProps } from '../registry';
 import { EdoCircle } from './EdoCircle';
 import { EdoErrorChart } from './EdoErrorChart';
-import { exploredEdo, useChooseEdo } from './exploredEdo';
+import { useExploredEdo } from './exploredEdo';
 
 const text = copy.edoExplorer;
 
@@ -13,15 +13,11 @@ const text = copy.edoExplorer;
  * steps, the exact errors in a table, and the error chart across every N.
  */
 export function EdoExplorerVisual({ settings }: LabProps) {
-  const n = exploredEdo(settings);
-  const choose = useChooseEdo();
+  const { n, choose } = useExploredEdo(settings);
   const approximations = edoApproximations(n);
   const edoName = copy.settings.tuningSystem.name(edoSystem(n));
   return (
     <div className="edo-visual">
-      {!isEdo(settings.tuningSystem) && (
-        <p className="edo-hint">{text.notEdo(copy.settings.tuningSystem.name(settings.tuningSystem))}</p>
-      )}
       <div className="edo-top">
         <EdoCircle n={n} approximations={approximations} />
         <table className="edo-table">

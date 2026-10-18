@@ -1,11 +1,11 @@
 import { useCallback, useId, useMemo, useState } from 'react';
 import { audioEngine } from '../audio/engine';
-import { type Note, type TuningSystemId, isEdo, resolvePitch, tonicSpelling } from '../core';
+import { type Note, type TuningSystemId, resolvePitch } from '../core';
 import { copy } from '../copy/en';
 import type { LabDefinition } from '../labs/registry';
 import { Sources } from '../math/MathParts';
 import { NoteMath, noteMathSources } from '../math/NoteMath';
-import { tuningOf } from '../state/settings';
+import { systemChoiceOf } from '../state/settings';
 import { useSettings } from '../state/useSettings';
 import { ChordButtons } from './ChordButtons';
 import { Inspector } from './Inspector';
@@ -32,30 +32,30 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
   useDocumentTitle(copy.shell.documentTitle(lab.title));
   useAudioSettings(settings);
 
-  const tuning = useMemo(() => tuningOf(settings), [settings]);
+  const systemChoice = useMemo(() => systemChoiceOf(settings), [settings]);
   const frequencyOf = useCallback(
-    (note: Note) => resolvePitch(tuning, note, settings.referencePitch).frequency,
-    [tuning, settings.referencePitch],
+    (note: Note) => resolvePitch(systemChoice, note, settings.referencePitch).frequency,
+    [systemChoice, settings.referencePitch],
   );
   // A key of another tuning system (another N, say) is a different note: forget it.
-  const lastNote = played?.system === tuning.system ? played.note : null;
+  const lastNote = played?.system === systemChoice.system ? played.note : null;
   const onNoteOn = (note: Note) => {
     audioEngine.noteOn(voiceId(note), frequencyOf(note));
-    setPlayed({ note, system: tuning.system });
+    setPlayed({ note, system: systemChoice.system });
   };
   const onNoteOff = (note: Note) => audioEngine.noteOff(voiceId(note));
   const onPluck = (note: Note) => {
     audioEngine.pluck(voiceId(note), frequencyOf(note));
-    setPlayed({ note, system: tuning.system });
+    setPlayed({ note, system: systemChoice.system });
   };
 
   const { Visual, Controls, Math } = lab;
   // A source cited by both the note and the Lab is listed once.
-  const sources = [...new Set([...(lastNote ? noteMathSources(tuning) : []), ...(lab.sources ?? [])])];
+  const sources = [...new Set([...(lastNote ? noteMathSources(systemChoice) : []), ...(lab.sources ?? [])])];
   const math = (
     <>
       {lastNote ? (
-        <NoteMath note={lastNote} tuning={tuning} referencePitch={settings.referencePitch} />
+        <NoteMath note={lastNote} systemChoice={systemChoice} referencePitch={settings.referencePitch} />
       ) : (
         <p className="placeholder-text">{copy.math.empty}</p>
       )}
@@ -78,10 +78,7 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
       <header className="mobilebar">
         <Wordmark compact />
         <span className="chip chip-shrink">
-          {copy.settings.tuningSystem.chip(
-            copy.settings.tuningSystem.name(tuning.system, 'short'),
-            isEdo(tuning.system) ? null : tonicSpelling(tuning.tonic),
-          )}
+          {copy.settings.tuningSystem.withTonic(systemChoice, 'short')}
         </span>
         <span className="chip">
           {copy.settings.referencePitch.chip(String(settings.referencePitch))}
@@ -124,8 +121,8 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
       />
 
       <div className="keys">
-        <Keyboard tuning={tuning} onNoteOn={onNoteOn} onNoteOff={onNoteOff} onPluck={onPluck} />
-        <ChordButtons tuning={tuning} referencePitch={settings.referencePitch} />
+        <Keyboard systemChoice={systemChoice} onNoteOn={onNoteOn} onNoteOff={onNoteOff} onPluck={onPluck} />
+        <ChordButtons systemChoice={systemChoice} referencePitch={settings.referencePitch} />
       </div>
     </div>
   );

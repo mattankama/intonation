@@ -132,11 +132,11 @@ describe('a chord in a 12-note tuning system', () => {
   });
 
   it('builds every note from the 12 keys, never an invented note', () => {
-    const tuning = meantoneIn(C);
+    const systemChoice = meantoneIn(C);
     const keys = Array.from({ length: 36 }, (_, i) =>
-      resolvePitch(tuning, { pitchClass: i % 12, octave: 4 + Math.floor(i / 12) }, 440).frequency,
+      resolvePitch(systemChoice, { pitchClass: i % 12, octave: 4 + Math.floor(i / 12) }, 440).frequency,
     );
-    const tuned = tuneChord(tuning, chord({ root: 11, type: 'dominant-7th', inversion: 2 }), 440);
+    const tuned = tuneChord(systemChoice, chord({ root: 11, type: 'dominant-7th', inversion: 2 }), 440);
     for (const note of tuned.notes) expect(keys).toContain(note.frequency);
   });
 

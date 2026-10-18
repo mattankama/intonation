@@ -115,6 +115,54 @@ test('Play holds both tones until Stop; the slider retunes tone 2 without restar
   await expect.poll(async () => (await audio()).stopped).toBe(2);
 });
 
+test.describe('with reduced motion', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  test('the ribbon holds still while the tones play, and says so', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __frames: number };
+      w.__frames = 0;
+      const original = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (callback) => {
+        w.__frames += 1;
+        return original(callback);
+      };
+    });
+    const frames = () => page.evaluate(() => (window as unknown as { __frames: number }).__frames);
+    await page.goto('/beats-and-roughness');
+    await expect(scene(page).locator('canvas')).toBeVisible();
+    await playButton(page).click();
+    await expect(page.locator('.br-beats')).toHaveAttribute('data-playing', 'true');
+    await expect(page.locator('.br-beats .br-caption')).toContainText('held still');
+    await page.waitForTimeout(300);
+    const before = await frames();
+    await page.waitForTimeout(700);
+    // An animated ribbon asks for ~40 frames in 0.7 s; a held one asks for none.
+    expect((await frames()) - before).toBeLessThan(5);
+  });
+});
+
+test('without reduced motion the ribbon animates while the tones play', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __frames: number };
+    w.__frames = 0;
+    const original = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = (callback) => {
+      w.__frames += 1;
+      return original(callback);
+    };
+  });
+  const frames = () => page.evaluate(() => (window as unknown as { __frames: number }).__frames);
+  await page.goto('/beats-and-roughness');
+  await expect(scene(page).locator('canvas')).toBeVisible();
+  await playButton(page).click();
+  await expect(page.locator('.br-beats .br-caption')).not.toContainText('held still');
+  await page.waitForTimeout(300);
+  const before = await frames();
+  await page.waitForTimeout(700);
+  expect((await frames()) - before).toBeGreaterThan(10);
+});
+
 test('leaving the Lab stops the tones', async ({ page }) => {
   await page.addInitScript(() => {
     const w = window as unknown as { __stopped: number; OscillatorNode: typeof OscillatorNode };

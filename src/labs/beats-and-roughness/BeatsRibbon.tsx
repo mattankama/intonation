@@ -48,11 +48,15 @@ export interface BeatsRibbonProps {
   gap: number;
   playing: boolean;
   phone: boolean;
+  /** Reduced motion: one held frame (both tones starting in step) instead of the moving ribbon. */
+  still: boolean;
 }
 
 /**
  * The 3D interference ribbon (issue #28): tone 1, tone 2 and their sum side by side,
- * with markers where the tones are in step. Animates only while the tones play.
+ * with markers where the tones are in step. Animates only while the tones play, and never
+ * under reduced motion: then it holds the frame where both tones start in step, which still
+ * shows the sum swelling and fading at the beat rate.
  * Loaded lazily (with three.js) by BeatsVisual.
  */
 export default function BeatsRibbon(props: BeatsRibbonProps) {
@@ -65,7 +69,7 @@ export default function BeatsRibbon(props: BeatsRibbonProps) {
 
 const x = (t: number, seconds: number) => HALF * (1 + (2 * t) / seconds);
 
-function RibbonContent({ harmonics, gap, playing, phone }: BeatsRibbonProps) {
+function RibbonContent({ harmonics, gap, playing, phone, still }: BeatsRibbonProps) {
   const colors = useSceneColors();
   const invalidate = useThree((s) => s.invalidate);
   const seconds = ribbonSeconds(phone);
@@ -85,23 +89,24 @@ function RibbonContent({ harmonics, gap, playing, phone }: BeatsRibbonProps) {
 
   // Both tones start in step: restart the phase whenever playing starts.
   useEffect(() => {
-    if (!playing) return;
+    if (!playing && !still) return;
     phase.current = 0;
     lastFrame.current = performance.now();
     draw();
-  }, [playing, draw]);
+  }, [playing, still, draw]);
 
   useEffect(draw, [draw, harmonics, gap, seconds]);
 
   useFrame(() => {
-    if (!playing) return;
+    if (!playing || still) return;
     const now = performance.now();
     phase.current = advancePhase(phase.current, live.current.gap, (now - lastFrame.current) / 1000);
     lastFrame.current = now;
     draw();
   });
 
-  marks.color(colors.systems[1], colors.systems[2], colors.systems[0], colors.guide, colors.systems[3]);
+  // Ink drawing (design-system README): tone 1 ink, tone 2 teal, the sum ink over a soft-gold fill.
+  marks.color(colors.ink, colors.accent, colors.ink, colors.fill, colors.ink);
 
   const baselines = useMemo(
     () =>
@@ -163,7 +168,7 @@ function useRibbonMarks() {
       'position',
       new BufferAttribute(new Float32Array(Math.ceil(CAPACITY / HATCH_EVERY) * 6), 3).setUsage(DynamicDrawUsage),
     );
-    const hatch = new LineSegments(hatchGeometry, new LineBasicMaterial({ transparent: true, opacity: 0.5 }));
+    const hatch = new LineSegments(hatchGeometry, new LineBasicMaterial({ transparent: true, opacity: 0.9 }));
     hatch.frustumCulled = false;
     const dotGeometry = new SphereGeometry(0.065, 16, 12);
     const dotMaterial = new MeshBasicMaterial();

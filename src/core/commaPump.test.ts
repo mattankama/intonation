@@ -118,6 +118,23 @@ describe('exact pitches as prime exponents', () => {
     });
   });
 
+  it('keeps every chord in one register however far it drifts: 100 loops on, notes stay within −300¢ … 900¢', () => {
+    for (const id of COMMA_PUMP_IDS) {
+      const run = runCommaPump(id, 100 * commaPumpLength(id));
+      const home = run.at(-1)!;
+      expect(home.loop).toBe(100);
+      // The root really has drifted by 100 commas on the lattice …
+      expect(nodeOfFactors(home.root)).toEqual(nodeOfFactors(commaPumpDrift(id, 100)));
+      // … but what sounds is voiced within one octave from 300¢ below the Tonic.
+      for (const step of run.slice(-commaPumpLength(id))) {
+        for (const note of step.notes) {
+          expect(factorsCents(note.pitch)).toBeGreaterThanOrEqual(-300);
+          expect(factorsCents(note.pitch)).toBeLessThan(900);
+        }
+      }
+    }
+  });
+
   it('octave-reduces like ratios do: 80/81 → 160/81', () => {
     expect(octaveReduceFactors(pitch(80, 81))).toEqual(pitch(160, 81));
   });

@@ -23,6 +23,16 @@ test('the pitch spiral mounts with the four default systems and their tables', a
   await expect(fSharp).toContainText('+11.7¢');
 });
 
+test('the tables sit in the inspector’s Controls tab; the spiral stays in the centre', async ({ page }) => {
+  await page.goto('/tuning-systems');
+  const controls = page.getByRole('tabpanel', { name: 'Controls' });
+  await expect(controls.getByRole('table', { name: 'Pythagorean', exact: true })).toBeVisible();
+  await expect(page.locator('.lab-visual').getByRole('table')).toHaveCount(0);
+  await expect(page.locator('.lab-visual').getByRole('group', { name: 'Pitch spiral' })).toBeVisible();
+  // Data colours mark the spiral's legend and the tables' captions, never a control.
+  await expect(controls.locator('.field .ts-swatch')).toHaveCount(0);
+});
+
 test('a shared URL restores the compared systems, N-EDOs included', async ({ page }) => {
   await page.goto('/tuning-systems?systems=31-edo,just');
   await expect(legend(page).getByRole('listitem')).toHaveText(['31-EDO', '5-limit just intonation']);

@@ -2,7 +2,7 @@
  * The roughness section's set-up (issue #29; decision #15 Roughness landscape framing):
  * - the bottom note, C3 / C4 / C5, in the URL (?bottom=C3; C4 is left out);
  * - "Show 12-EDO versions", in the URL (?edo12=1);
- * - the pinned chords: the nine chord types in root position at pure tuning, as stacked
+ * - the pinned chords: the nine chord types in root position as pure chords, as stacked
  *   intervals (lower = bottom → middle, upper = middle → top). The landscape holds three-note
  *   chords, so the 7th chords are pinned without their fifth (root, third, seventh);
  * - the grid size: ~200 × 200 on desktop, ~60 × 60 on phones (decision #17).

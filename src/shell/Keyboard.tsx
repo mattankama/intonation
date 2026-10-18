@@ -9,7 +9,7 @@ import {
 } from 'react';
 import {
   type Note,
-  type Tuning,
+  type TuningSystemChoice,
   centsAboveTonic,
   edo12NoteName,
   edoLandmarks,
@@ -41,7 +41,7 @@ const OCTAVES = [4, 5];
 
 export interface KeyboardProps {
   /** Names each key by this tuning system's spelling, or by step in an N-EDO. */
-  tuning: Tuning;
+  systemChoice: TuningSystemChoice;
   /** Start a held note (pointer down). */
   onNoteOn(note: Note): void;
   /** Release a held note (pointer up / leave). */
@@ -106,7 +106,7 @@ function useComputerKeys(
   return held;
 }
 
-interface KeyButtonProps extends Omit<KeyboardProps, 'tuning'> {
+interface KeyButtonProps extends Omit<KeyboardProps, 'systemChoice'> {
   note: Note;
   /** The accessible name, e.g. "G♯4" or "step 10 of 31, octave 4". */
   name: string;
@@ -181,16 +181,16 @@ function KeyButton({
  * C4 (in an N-EDO, from step 0 of octave 4, the step nearest C4).
  */
 export function Keyboard(props: KeyboardProps) {
-  const n = stepEdo(props.tuning.system);
+  const n = stepEdo(props.systemChoice.system);
   // A new N starts a new keyboard, with the computer-key range back at its start.
   return n === null ? <PianoKeyboard {...props} /> : <StepKeyboard key={n} n={n} {...props} />;
 }
 
 /** Two octaves of piano keys from C4. */
-function PianoKeyboard({ tuning, ...handlers }: KeyboardProps) {
+function PianoKeyboard({ systemChoice, ...handlers }: KeyboardProps) {
   const held = useComputerKeys(noteForKeyCode, handlers.onNoteOn, handlers.onNoteOff);
   const key = (note: Note, colour: 'white' | 'black', style?: CSSProperties) => {
-    const name = noteName(tuning, note);
+    const name = noteName(systemChoice, note);
     return (
       <KeyButton
         key={edo12NoteName(note)}
@@ -204,7 +204,7 @@ function PianoKeyboard({ tuning, ...handlers }: KeyboardProps) {
       >
         {/* Black keys are narrow: they show the spelling alone (e.g. "G♯"). */}
         <span className="key-label">
-          {colour === 'white' ? name : keySpelling(tuning, note.pitchClass)}
+          {colour === 'white' ? name : keySpelling(systemChoice, note.pitchClass)}
         </span>
       </KeyButton>
     );
@@ -257,7 +257,7 @@ const ownsArrows = (target: EventTarget | null) =>
  * landmarks on the steps nearest the 12 familiar notes. Computer keys play a range of
  * consecutive steps, which ← → shift one step at a time.
  */
-function StepKeyboard({ n, tuning, ...handlers }: KeyboardProps & { n: number }) {
+function StepKeyboard({ n, systemChoice, ...handlers }: KeyboardProps & { n: number }) {
   const total = OCTAVES.length * n;
   const noteAt = (index: number): Note => ({
     pitchClass: index % n,
@@ -317,11 +317,11 @@ function StepKeyboard({ n, tuning, ...handlers }: KeyboardProps & { n: number })
             key={index}
             {...handlers}
             note={note}
-            name={noteName(tuning, note)}
+            name={noteName(systemChoice, note)}
             className="key-step"
             shortcut={stepShortcutFor(index - start)}
             held={held.has(noteKey(note))}
-            description={formatCents(centsAboveTonic(tuning, step), 'controls')}
+            description={formatCents(centsAboveTonic(systemChoice, step), 'controls')}
           >
             {kind && (
               <span className="key-landmark" data-kind={kind} aria-hidden="true">

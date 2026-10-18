@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { beatRate, timbreHarmonics } from '../../core';
 import { copy } from '../../copy/en';
-import { HZ_DECIMALS, formatDecimal } from '../../format/numbers';
-import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
+import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents, twoDecimalHz, unit } from '../../math/MathParts';
 import type { LabProps } from '../registry';
 import { twoTones, useGap } from './beatsState';
 
@@ -11,21 +10,6 @@ const SOURCES = copy.math.sources;
 
 export const BEATS_SOURCES = [SOURCES.helmholtz, SOURCES.plompLevelt];
 
-const hz = (value: number) => formatDecimal(value, HZ_DECIMALS);
-const c3 = (value: number) => formatDecimal(value, 3);
-const unit = (symbol: string) => (
-  <>
-    <mspace width="0.1em" />
-    <mtext>{symbol}</mtext>
-  </>
-);
-const sub = (name: string, index: string) => (
-  <msub>
-    <mi>{name}</mi>
-    <mn>{index}</mn>
-  </msub>
-);
-const log2 = sub('log', '2');
 const difference = (f2: ReactNode, f1: ReactNode) => (
   <>
     {f2}
@@ -38,9 +22,9 @@ const difference = (f2: ReactNode, f1: ReactNode) => (
 export function BeatsMath({ settings }: LabProps) {
   const [gap] = useGap();
   const { f1, f2, rate, cents } = twoTones(settings, gap);
-  const hasOvertones = timbreHarmonics(settings.timbre, settings.brightness).some((a, i) => i > 0 && a > 0);
-  const liveF1 = <Live>{hz(f1)}</Live>;
-  const liveF2 = <Live>{hz(f2)}</Live>;
+  const hasHarmonicsAboveFirst = timbreHarmonics(settings.timbre, settings.brightness).some((a, i) => i > 0 && a > 0);
+  const liveF1 = <Live>{twoDecimalHz(f1)}</Live>;
+  const liveF2 = <Live>{twoDecimalHz(f2)}</Live>;
 
   return (
     <>
@@ -65,7 +49,7 @@ export function BeatsMath({ settings }: LabProps) {
             <>
               <mi>b</mi>
               <mo>=</mo>
-              <mn>{hz(rate)}</mn>
+              <mn>{twoDecimalHz(rate)}</mn>
               {unit('Hz')}
             </>
           }
@@ -105,7 +89,7 @@ export function BeatsMath({ settings }: LabProps) {
             <>
               <mi>c</mi>
               <mo>=</mo>
-              <mn>{c3(cents)}</mn>
+              <mn>{threeDecimalCents(cents)}</mn>
               {unit('¢')}
             </>
           }
@@ -132,7 +116,7 @@ export function BeatsMath({ settings }: LabProps) {
                 <mo>=</mo>
                 <mfrac>
                   <mn>1</mn>
-                  <Live>{hz(rate)}</Live>
+                  <Live>{twoDecimalHz(rate)}</Live>
                 </mfrac>
               </>
             }
@@ -140,7 +124,7 @@ export function BeatsMath({ settings }: LabProps) {
               <>
                 <mi>T</mi>
                 <mo>=</mo>
-                <mn>{c3(1 / rate)}</mn>
+                <mn>{threeDecimalCents(1 / rate)}</mn>
                 {unit('s')}
               </>
             }
@@ -150,7 +134,7 @@ export function BeatsMath({ settings }: LabProps) {
         )}
       </MathSection>
 
-      {hasOvertones && (
+      {hasHarmonicsAboveFirst && (
         <MathSection heading={text.harmonics.heading}>
           <p>{text.harmonics.body}</p>
           <WorkedFormula
@@ -183,7 +167,7 @@ export function BeatsMath({ settings }: LabProps) {
               <>
                 {sub('b', '2')}
                 <mo>=</mo>
-                <mn>{hz(beatRate(2 * f1, 2 * f2))}</mn>
+                <mn>{twoDecimalHz(beatRate(2 * f1, 2 * f2))}</mn>
                 {unit('Hz')}
               </>
             }

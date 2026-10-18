@@ -90,6 +90,30 @@ test('up to four tuning systems; an N-EDO column notes where its mapping differs
   await expect(page.locator('.cc-column')).toHaveCount(4);
 });
 
+test('the pure chord you hear is the one the cents are measured from (decision #7)', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __started: number[]; OscillatorNode: typeof OscillatorNode };
+    w.__started = [];
+    const Original = w.OscillatorNode;
+    w.OscillatorNode = class extends Original {
+      constructor(context: BaseAudioContext, options?: OscillatorOptions) {
+        super(context, options);
+        w.__started.push(Math.round((options?.frequency ?? 0) * 100) / 100);
+      }
+    };
+  });
+  const started = () => page.evaluate(() => (window as unknown as { __started: number[] }).__started);
+  await page.goto('/chord-comparison?compare=meantone.12-edo');
+  // The pure column is built on the first system's root, and says so.
+  await expect(column(page, 'Pure chord')).toContainText('On the root of ¼-comma meantone in C');
+  await expect(notes(page, 'Pure chord').getByRole('listitem').last()).toContainText('263.18 Hz');
+
+  // Every system column plays the pure chord on its own root.
+  await column(page, '12-EDO').getByRole('button', { name: 'Play the pure chord on the root of 12-EDO' }).click();
+  await expect.poll(started).toEqual([261.63, 327.03, 392.44]);
+  await expect(column(page, '12-EDO')).toHaveAttribute('data-playing', 'true');
+});
+
 test('play buttons play one column, and play all in turn walks every column', async ({ page }) => {
   const oscillators = await countOscillators(page);
   await page.goto('/chord-comparison');

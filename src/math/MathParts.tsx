@@ -7,8 +7,9 @@
  * - Values taken from the screen are wrapped in <Live>: bold on a light tint.
  * - Each Lab's math ends with a Sources list.
  */
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { copy } from '../copy/en';
+import { CENTS_DECIMALS, HZ_DECIMALS, formatDecimal } from '../format/numbers';
 
 export function MathSection({ heading, children }: { heading: string; children: ReactNode }) {
   return (
@@ -63,3 +64,63 @@ export function Sources({ items }: { items: readonly string[] }) {
     </section>
   );
 }
+
+// --- Shared MathML pieces -------------------------------------------------------------------
+
+/** A cents value as The math shows it: 3 decimals, typographic minus, no unit ("−21.506"). */
+export const threeDecimalCents = (value: number) => formatDecimal(value, CENTS_DECIMALS.math);
+
+/** A frequency as The math shows it: 2 decimals, no unit ("440.00"). */
+export const twoDecimalHz = (value: number) => formatDecimal(value, HZ_DECIMALS);
+
+/** A whole number with a typographic minus ("−3"). */
+export const wholeNumber = (value: number) => formatDecimal(value, 0);
+
+/** A unit after a number: a thin space, then the unit upright ("¢", "Hz"). */
+export const unit = (symbol: string) => (
+  <>
+    <mspace width="0.1em" />
+    <mtext>{symbol}</mtext>
+  </>
+);
+
+/**
+ * A name with a subscript: f₁, f_A4, f_pure. A numeric index is a number (<mn>); any other
+ * index is an upright label (<mtext>).
+ */
+export const sub = (name: string, index: string) => (
+  <msub>
+    <mi>{name}</mi>
+    {/^\d+$/.test(index) ? <mn>{index}</mn> : <mtext>{index}</mtext>}
+  </msub>
+);
+
+/** log₂ */
+export const log2 = (
+  <msub>
+    <mi>log</mi>
+    <mn>2</mn>
+  </msub>
+);
+
+/** base^exponent, with a numeric base. */
+export const power = (base: string, exponent: ReactNode) => (
+  <msup>
+    <mn>{base}</mn>
+    {exponent}
+  </msup>
+);
+
+/** "(a, b, c)" as a MathML row of identifiers or numbers. */
+export const triple = (items: readonly ReactNode[]) => (
+  <>
+    <mo>(</mo>
+    {items.map((item, i) => (
+      <Fragment key={i}>
+        {i > 0 && <mo>,</mo>}
+        {item}
+      </Fragment>
+    ))}
+    <mo>)</mo>
+  </>
+);

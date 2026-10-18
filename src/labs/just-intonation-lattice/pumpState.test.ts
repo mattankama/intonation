@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_LOOPS, maxPumpStep, pumpLimit, readPump, writePump } from './pump';
+import { MAX_PUMP_STEP, pumpLimit, readPump, writePump } from './pumpState';
 
 const read = (query: string) => readPump(new URLSearchParams(query));
 const write = (query: string, state: Parameters<typeof writePump>[1]) =>
@@ -16,16 +16,22 @@ describe('the comma explorer in the URL (?pump= and ?step=)', () => {
     expect(read('pump=septimal&step=5')).toEqual({ id: 'septimal', step: 5 });
   });
 
+  it('loops repeat until Reset: hundreds of loops on is still a step', () => {
+    expect(read('pump=syntonic&step=400')).toEqual({ id: 'syntonic', step: 400 });
+    expect(read('pump=pythagorean&step=1200')).toEqual({ id: 'pythagorean', step: 1200 });
+  });
+
   it('ignores a step that is not a whole number in range', () => {
     expect(read('pump=syntonic&step=-1')).toEqual({ id: 'syntonic', step: 0 });
     expect(read('pump=syntonic&step=2.5')).toEqual({ id: 'syntonic', step: 0 });
     expect(read('pump=syntonic&step=x')).toEqual({ id: 'syntonic', step: 0 });
-    expect(read(`pump=syntonic&step=${maxPumpStep('syntonic') + 1}`)).toEqual({ id: 'syntonic', step: 0 });
+    expect(read('pump=syntonic&step=1e3')).toEqual({ id: 'syntonic', step: 0 });
+    expect(read('pump=syntonic&step=99999999999')).toEqual({ id: 'syntonic', step: 0 });
+    expect(read(`pump=syntonic&step=${MAX_PUMP_STEP + 1}`)).toEqual({ id: 'syntonic', step: 0 });
   });
 
-  it(`stops after ${MAX_LOOPS} loops`, () => {
-    expect(maxPumpStep('syntonic')).toBe(4 * MAX_LOOPS);
-    expect(maxPumpStep('pythagorean')).toBe(12 * MAX_LOOPS);
+  it('only guards against hand-edited URLs: the bound is thousands of clicks away', () => {
+    expect(MAX_PUMP_STEP).toBeGreaterThanOrEqual(10_000);
   });
 
   it('writes the preset always and the step unless 0, keeping other parameters', () => {

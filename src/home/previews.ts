@@ -16,8 +16,8 @@ import {
 } from '../core';
 import { DEFAULT_BOTTOM, bottomFrequency, landscapePins } from '../labs/beats-and-roughness/landscape';
 import { readChordState } from '../labs/chord-comparison/chordState';
-import { exploredEdo } from '../labs/edo-explorer/exploredEdo';
-import { TONIC_TRIAD } from '../labs/just-intonation-lattice/chord';
+import { defaultEdo } from '../labs/edo-explorer/exploredEdo';
+import { TONIC_TRIAD } from '../labs/just-intonation-lattice/latticeState';
 import { latticeEdges, latticeGrid, nodePosition } from '../labs/just-intonation-lattice/geometry';
 import { chordColumns } from '../labs/chord-comparison/useChordComparison';
 import { DEFAULT_SYSTEMS } from '../labs/tuning-systems/systems';
@@ -205,9 +205,9 @@ const COLUMN_GAP = 6;
 const COLUMN_CENTS = 25;
 
 export function chordColumnsPreview(): ChordColumnsPreview {
-  const { pureRoot, systems } = chordColumns(readChordState(new URLSearchParams()), DEFAULT_SETTINGS);
+  const { pure, systems } = chordColumns(readChordState(new URLSearchParams()), DEFAULT_SETTINGS);
   const offsets: { system: TuningSystemId | null; cents: number[] }[] = [
-    { system: null, cents: pureRoot.notes.map(() => 0) },
+    { system: null, cents: pure.frequencies.map(() => 0) },
     ...systems.map((c) => ({ system: c.system, cents: c.tuned.notes.map((n) => n.centsOffPure) })),
   ];
   const width = (PREVIEW_WIDTH - 2 * MARGIN - COLUMN_GAP * (offsets.length - 1)) / offsets.length;
@@ -279,7 +279,7 @@ const onCircle = (fraction: number, radius: number): Point => ({
 });
 
 export function edoCirclePreview(): EdoCirclePreview {
-  const n = exploredEdo(DEFAULT_SETTINGS);
+  const n = defaultEdo(DEFAULT_SETTINGS.tuningSystem);
   const steps = Array.from({ length: n }, (_, k) => onCircle(k / n, EDO_RADIUS));
   const marks = edoApproximations(n).map((a) => ({
     point: onCircle(a.pureCents / 1200, EDO_MARK_RADIUS),

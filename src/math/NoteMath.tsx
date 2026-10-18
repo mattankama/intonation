@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import {
   type KeyConstruction,
   type Note,
-  type Tuning,
+  type TuningSystemChoice,
   cents,
   centsAboveTonic,
   commaRatio,
@@ -20,15 +20,15 @@ import {
   tonicSpelling,
 } from '../core';
 import { copy } from '../copy/en';
-import { HZ_DECIMALS, formatDecimal, formatRatio } from '../format/numbers';
-import { Live, MathSection, WorkedFormula } from './MathParts';
+import { formatRatio } from '../format/numbers';
+import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents, twoDecimalHz, unit, wholeNumber } from './MathParts';
 
 const SOURCES = copy.math.sources;
 
 /** Sources for the note section, by tuning system. */
-export function noteMathSources(tuning: Tuning): readonly string[] {
-  if (isEdo(tuning.system)) return [SOURCES.iso16, SOURCES.barbour];
-  switch (tuning.system) {
+export function noteMathSources(systemChoice: TuningSystemChoice): readonly string[] {
+  if (isEdo(systemChoice.system)) return [SOURCES.iso16, SOURCES.barbour];
+  switch (systemChoice.system) {
     case 'pythagorean':
       return [SOURCES.barbour, SOURCES.scala];
     case 'meantone':
@@ -44,62 +44,39 @@ export function noteMathSources(tuning: Tuning): readonly string[] {
   }
 }
 
-const CENTS_DECIMALS = 3;
-const centsText = (value: number) => formatDecimal(value, CENTS_DECIMALS);
-const centsUnit = (
-  <>
-    <mspace width="0.1em" />
-    <mtext>¢</mtext>
-  </>
-);
-
-const fA4 = (
-  <msub>
-    <mi>f</mi>
-    <mtext>A4</mtext>
-  </msub>
-);
-const rP = (
-  <msub>
-    <mi>r</mi>
-    <mtext>P</mtext>
-  </msub>
-);
-const cP = (
-  <msub>
-    <mi>c</mi>
-    <mtext>P</mtext>
-  </msub>
-);
+const centsUnit = unit('¢');
+const fA4 = sub('f', 'A4');
+const rP = sub('r', 'P');
+const cP = sub('c', 'P');
 
 /** The note just played: how its key is built, then its frequency from the Reference pitch. */
 export function NoteMath({
   note,
-  tuning,
+  systemChoice,
   referencePitch,
 }: {
   note: Note;
-  tuning: Tuning;
+  systemChoice: TuningSystemChoice;
   referencePitch: number;
 }) {
-  const construction = keyConstruction(tuning, note.pitchClass);
-  const n = stepEdo(tuning.system);
+  const construction = keyConstruction(systemChoice, note.pitchClass);
+  const n = stepEdo(systemChoice.system);
   return (
     <>
       {n !== null ? (
         <>
-          <EdoStepSection n={n} note={note} tuning={tuning} />
-          <EdoFrequencySection n={n} note={note} tuning={tuning} referencePitch={referencePitch} />
+          <EdoStepSection n={n} note={note} systemChoice={systemChoice} />
+          <EdoFrequencySection n={n} note={note} systemChoice={systemChoice} referencePitch={referencePitch} />
         </>
       ) : construction ? (
         <>
-          <ConstructionSection construction={construction} tuning={tuning} />
-          <FrequencySection note={note} tuning={tuning} referencePitch={referencePitch} />
+          <ConstructionSection construction={construction} systemChoice={systemChoice} />
+          <FrequencySection note={note} systemChoice={systemChoice} referencePitch={referencePitch} />
         </>
       ) : (
         <Edo12Section note={note} referencePitch={referencePitch} />
       )}
-      {tuning.system === 'vallotti' && (
+      {systemChoice.system === 'vallotti' && (
         <MathSection heading={copy.math.vallotti.heading}>
           <p>{copy.math.vallotti.body}</p>
         </MathSection>
@@ -114,28 +91,22 @@ export function NoteMath({
 /** How a key of a 12-note system is built: an exact ratio, or a fraction of a comma. */
 function ConstructionSection({
   construction,
-  tuning,
+  systemChoice,
 }: {
   construction: KeyConstruction;
-  tuning: Tuning;
+  systemChoice: TuningSystemChoice;
 }) {
   const text = copy.math.key;
   const { spelling, fifths, pythagorean, comma, commaFraction, ratio } = construction;
   const commaName = copy.math.commas[comma];
-  const route = text.fifths(spelling, fifths, tonicSpelling(tuning.tonic));
+  const route = text.fifths(spelling, fifths, tonicSpelling(systemChoice.tonic));
   const centsResult = (
     <>
       <mi>c</mi>
       <mo>=</mo>
-      <Live>{centsText(construction.cents)}</Live>
+      <Live>{threeDecimalCents(construction.cents)}</Live>
       {centsUnit}
     </>
-  );
-  const log2 = (
-    <msub>
-      <mi>log</mi>
-      <mn>2</mn>
-    </msub>
   );
 
   // Only pure fifths on the way: the key is its Pythagorean ratio.
@@ -144,7 +115,7 @@ function ConstructionSection({
       <MathSection heading={text.heading(spelling)}>
         <p>
           {fifths === 0
-            ? text.tonic(spelling, copy.settings.tuningSystem.name(tuning.system))
+            ? text.tonic(spelling, copy.settings.tuningSystem.name(systemChoice.system))
             : `${route} ${text.pure}`}
         </p>
         <WorkedFormula
@@ -212,7 +183,7 @@ function ConstructionSection({
                   <mn>{formatRatio(commaRatio(comma))}</mn>
                   <mo>)</mo>
                 </mrow>
-                <Live>{formatDecimal(-n, 0)}</Live>
+                <Live>{wholeNumber(-n)}</Live>
               </msup>
             </>
           }
@@ -255,11 +226,11 @@ function ConstructionSection({
           <>
             <mi>c</mi>
             <mo>=</mo>
-            <Live>{centsText(cents(pythagorean))}</Live>
+            <Live>{threeDecimalCents(cents(pythagorean))}</Live>
             {sign}
             <Live>{formatRatio(f)}</Live>
             <mo>·</mo>
-            <Live>{centsText(cents(commaRatio(comma)))}</Live>
+            <Live>{threeDecimalCents(cents(commaRatio(comma)))}</Live>
           </>
         }
         result={centsResult}
@@ -271,14 +242,14 @@ function ConstructionSection({
 /** A key's frequency from the Reference pitch: f = f_A4 · 2^(c/1200). */
 function FrequencySection({
   note,
-  tuning,
+  systemChoice,
   referencePitch,
 }: {
   note: Note;
-  tuning: Tuning;
+  systemChoice: TuningSystemChoice;
   referencePitch: number;
 }) {
-  const { frequency, centsFromA4 } = resolvePitch(tuning, note, referencePitch);
+  const { frequency, centsFromA4 } = resolvePitch(systemChoice, note, referencePitch);
   const exponent = (c: ReactNode) => (
     <msup>
       <mn>2</mn>
@@ -291,7 +262,7 @@ function FrequencySection({
   );
   return (
     <MathSection heading={copy.math.frequency.heading}>
-      <p>{copy.math.frequency.body(noteName(tuning, note))}</p>
+      <p>{copy.math.frequency.body(noteName(systemChoice, note))}</p>
       <WorkedFormula
         general={
           <>
@@ -306,16 +277,16 @@ function FrequencySection({
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(referencePitch, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(referencePitch)}</Live>
             <mo>·</mo>
-            {exponent(<Live>{centsText(centsFromA4)}</Live>)}
+            {exponent(<Live>{threeDecimalCents(centsFromA4)}</Live>)}
           </>
         }
         result={
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(frequency, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(frequency)}</Live>
             <mspace width="0.25em" />
             <mtext>Hz</mtext>
           </>
@@ -354,12 +325,12 @@ function Edo12Section({ note, referencePitch }: { note: Note; referencePitch: nu
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(referencePitch, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(referencePitch)}</Live>
             <mo>·</mo>
             <msup>
               <mn>2</mn>
               <mrow>
-                <Live>{formatDecimal(n, 0)}</Live>
+                <Live>{wholeNumber(n)}</Live>
                 <mo>/</mo>
                 <mn>12</mn>
               </mrow>
@@ -370,7 +341,7 @@ function Edo12Section({ note, referencePitch }: { note: Note; referencePitch: nu
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(frequency, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(frequency)}</Live>
             <mspace width="0.25em" />
             <mtext>Hz</mtext>
           </>
@@ -382,7 +353,7 @@ function Edo12Section({ note, referencePitch }: { note: Note; referencePitch: nu
 }
 
 /** Where an N-EDO step sits in the octave: c = 1200 · s / N cents above step 0. */
-function EdoStepSection({ n, note, tuning }: { n: number; note: Note; tuning: Tuning }) {
+function EdoStepSection({ n, note, systemChoice }: { n: number; note: Note; systemChoice: TuningSystemChoice }) {
   const step = note.pitchClass;
   const fraction = (s: ReactNode, divisions: ReactNode) => (
     <>
@@ -398,15 +369,15 @@ function EdoStepSection({ n, note, tuning }: { n: number; note: Note; tuning: Tu
   );
   return (
     <MathSection heading={copy.math.note.heading}>
-      <p>{copy.math.edoStep.body(keySpelling(tuning, step), n)}</p>
+      <p>{copy.math.edoStep.body(keySpelling(systemChoice, step), n)}</p>
       <WorkedFormula
         general={fraction(<mi>s</mi>, <mi>N</mi>)}
-        substituted={fraction(<Live>{formatDecimal(step, 0)}</Live>, <Live>{formatDecimal(n, 0)}</Live>)}
+        substituted={fraction(<Live>{wholeNumber(step)}</Live>, <Live>{wholeNumber(n)}</Live>)}
         result={
           <>
             <mi>c</mi>
             <mo>=</mo>
-            <Live>{centsText(centsAboveTonic(tuning, step))}</Live>
+            <Live>{threeDecimalCents(centsAboveTonic(systemChoice, step))}</Live>
             {centsUnit}
           </>
         }
@@ -419,16 +390,16 @@ function EdoStepSection({ n, note, tuning }: { n: number; note: Note; tuning: Tu
 function EdoFrequencySection({
   n,
   note,
-  tuning,
+  systemChoice,
   referencePitch,
 }: {
   n: number;
   note: Note;
-  tuning: Tuning;
+  systemChoice: TuningSystemChoice;
   referencePitch: number;
 }) {
   const k = edoStepsFromA4(n, note);
-  const { frequency } = resolvePitch(tuning, note, referencePitch);
+  const { frequency } = resolvePitch(systemChoice, note, referencePitch);
   const power = (steps: ReactNode, divisions: ReactNode) => (
     <msup>
       <mn>2</mn>
@@ -439,7 +410,7 @@ function EdoFrequencySection({
       </mrow>
     </msup>
   );
-  const stepOfA = keySpelling(tuning, edoLandmarks(n)[9]!);
+  const stepOfA = keySpelling(systemChoice, edoLandmarks(n)[9]!);
   return (
     <MathSection heading={copy.math.frequency.heading}>
       <p>{copy.math.edoFrequency.body(n, stepOfA)}</p>
@@ -457,22 +428,22 @@ function EdoFrequencySection({
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(referencePitch, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(referencePitch)}</Live>
             <mo>·</mo>
-            {power(<Live>{formatDecimal(k, 0)}</Live>, <Live>{formatDecimal(n, 0)}</Live>)}
+            {power(<Live>{wholeNumber(k)}</Live>, <Live>{wholeNumber(n)}</Live>)}
           </>
         }
         result={
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(frequency, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(frequency)}</Live>
             <mspace width="0.25em" />
             <mtext>Hz</mtext>
           </>
         }
       />
-      <p>{copy.math.edoFrequency.steps(noteName(tuning, note), k)}</p>
+      <p>{copy.math.edoFrequency.steps(noteName(systemChoice, note), k)}</p>
     </MathSection>
   );
 }

@@ -9,8 +9,11 @@ import {
   type CommaPumpId,
   type NamedTuningSystemId,
   type TimbrePresetId,
+  type TuningSystemChoice,
   type TuningSystemId,
+  isEdo,
   stepEdo,
+  tonicSpelling,
 } from '../core';
 import type { LabId } from '../labs/ids';
 
@@ -151,8 +154,14 @@ export const copy = {
         const named = system as NamedTuningSystemId;
         return (length === 'short' ? TUNING_SYSTEM_SHORT_NAMES : TUNING_SYSTEM_NAMES)[named];
       },
-      /** The phone top-bar chip; the Tonic is left out for EDOs. */
-      chip: (system: string, tonic: string | null) => (tonic ? `${system} in ${tonic}` : system),
+      /**
+       * A tuning system with its Tonic: "¼-comma meantone in C"; just "31-EDO" for an EDO
+       * (EDOs ignore the Tonic). The phone top-bar chip and Chord comparison's column headings.
+       */
+      withTonic(choice: TuningSystemChoice, length: 'full' | 'short' = 'full'): string {
+        const name = this.name(choice.system, length);
+        return isEdo(choice.system) ? name : `${name} in ${tonicSpelling(choice.tonic)}`;
+      },
     },
     edoSteps: {
       label: 'Steps per octave',
@@ -322,9 +331,12 @@ export const copy = {
     playAll: 'Play all in turn',
     stop: 'Stop',
     play: (column: string) => `Play ${column}`,
+    /** Decision #7: each system's pure chord is built on the root that system produces. */
+    playPure: (column: string) => `Play the pure chord on the root of ${column}`,
+    pureShort: 'Pure',
     pureHeading: 'Pure chord',
-    /** A column's heading: "¼-comma meantone in C"; EDOs have no Tonic. */
-    systemHeading: (system: string, tonic: string | null) => (tonic ? `${system} in ${tonic}` : system),
+    /** The pure column is the first compared system's target. */
+    pureAnchor: (column: string) => `On the root of ${column}`,
     notesLabel: (column: string) => `Notes of the chord in ${column}, highest first`,
     centsOff: 'Cents off pure',
     /** An N-EDO note in a column, short: "step 10". */
@@ -398,11 +410,12 @@ export const copy = {
     chartCaption: 'Largest error among 3/2, 5/4 and 6/5. Click a bar to explore that N.',
     chartBar: (n: number, error: string, interval: string) => `${n}-EDO: ${error} (${interval})`,
     nLabel: 'Equal divisions, N',
-    nHint: 'From 5 to 72. N sets the tuning system, so the keyboard plays it too.',
+    nHint: 'From 5 to 72. The scale and chords below play this N-EDO.',
     standoutsLabel: 'Standouts',
     standout: (n: number) => `${n}-EDO`,
-    notEdo: (system: string) =>
-      `The keyboard plays ${system}. Choose N to explore an EDO and play it on the keyboard.`,
+    useAsTuningSystem: (edo: string) => `Use ${edo} as the tuning system`,
+    keyboardPlays: (system: string) => `The keyboard plays ${system}, the tuning system.`,
+    isTuningSystem: (edo: string) => `${edo} is the tuning system: the keyboard plays it too.`,
     playHeading: 'Play',
     playScale: (n: number) => `Play the scale (${n} steps)`,
     stop: 'Stop',
@@ -465,6 +478,7 @@ export const copy = {
     phase: {
       heading: 'Phase',
       body: 'Every harmonic starts in sine phase, with no phase shift. Shifting a harmonic’s phase would change the picture of the waveform but not what you hear: the ear follows the strengths of the harmonics, not how their peaks line up.',
+      forEvery: 'for every',
     },
   },
 
@@ -574,7 +588,6 @@ export const copy = {
       reset: 'Reset',
       drone: 'Drone on 1/1',
       droneHint: 'Holds the starting note at its original pitch, so you can hear the drift against it.',
-      maxed: (loops: number) => `That’s ${loops} loops: Reset to start again.`,
       legend: { path: 'Path of the roots', chord: 'Current chord' },
       readout: {
         position: (index: number, total: number, home: boolean) =>
@@ -648,8 +661,9 @@ export const copy = {
     lanes: { tone1: 'Tone 1', tone2: 'Tone 2', sum: 'Sum' },
     now: 'now',
     ago: (seconds: string) => `${seconds} s ago`,
-    caption: (phone: boolean) =>
-      `The last ${phone ? 'half second' : 'second'}. The waves are drawn slowed down so each cycle shows; the beats keep their real timing.`,
+    caption: (phone: boolean, still: boolean) =>
+      `The last ${phone ? 'half second' : 'second'}. The waves are drawn slowed down so each cycle shows; the beats keep their real timing.` +
+      (still ? ' Your device asks for reduced motion, so the ribbon is held still where the tones start in step.' : ''),
     rateLabel: 'Beat rate',
     rateUnit: 'beats per second',
     tones: (f1: string, f2: string, gapCents: string) =>
@@ -720,7 +734,7 @@ export const copy = {
     showEdo12: 'Show 12-EDO versions',
     showEdo12Hint: 'Adds each chord as 12-EDO plays it, joined to its pure version.',
     pinsHeading: 'Chords on the landscape',
-    pinsHint: 'Root position at pure tuning; the 7th chords leave out their fifth to fit three notes.',
+    pinsHint: 'Root position, as pure chords; the 7th chords leave out their fifth to fit three notes.',
     pinsRoughness: 'Relative roughness',
   },
 

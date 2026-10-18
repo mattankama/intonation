@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { type Tuning, type TuningSystemId, keySpelling, noteName, tuningTable } from '../../core';
+import { type TuningSystemChoice, type TuningSystemId, keySpelling, noteName, tuningTable } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatRatio } from '../../format/numbers';
 import { InkDot, InkLine, InkRing, Scene3D, SceneLabel, type SceneView, type Vec3, useSceneColors } from '../../scene3d/scene';
@@ -103,8 +103,8 @@ function SystemHelix({
   picks: readonly Pick[];
   onPick: (pick: Pick) => void;
 }) {
-  const tuning: Tuning = useMemo(() => ({ system, tonic }), [system, tonic]);
-  const rows = useMemo(() => tuningTable(tuning), [tuning]);
+  const systemChoice: TuningSystemChoice = useMemo(() => ({ system, tonic }), [system, tonic]);
+  const rows = useMemo(() => tuningTable(systemChoice), [systemChoice]);
   const helix = useMemo(
     () => Array.from({ length: (octaves * 1200) / SAMPLE + 1 }, (_, i) => spiralPoint(i * SAMPLE, radius)),
     [octaves, radius],
@@ -124,7 +124,7 @@ function SystemHelix({
               {picked && (
                 <SceneLabel
                   position={[position[0], position[1] + 0.3, position[2]]}
-                  text={`${noteName(tuning, pick.note)} · ${formatCents(row.cents, 'controls')}`}
+                  text={`${noteName(systemChoice, pick.note)} · ${formatCents(row.cents, 'controls')}`}
                 />
               )}
             </group>

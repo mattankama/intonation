@@ -6,10 +6,8 @@ import {
   type TunedNote,
   chordTones,
   isCustomTimbre,
-  isEdo,
   pureChord,
   stepEdo,
-  tonicSpelling,
 } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatDecimal, formatHz, formatRatio } from '../../format/numbers';
@@ -42,8 +40,7 @@ function shortName(column: SystemColumn, note: TunedNote): string {
 
 /** A column's heading: the tuning system, with its Tonic for a 12-note system. */
 export function columnHeading(column: SystemColumn): string {
-  const name = copy.settings.tuningSystem.name(column.system);
-  return text.systemHeading(name, isEdo(column.system) ? null : tonicSpelling(column.tuning.tonic));
+  return copy.settings.tuningSystem.withTonic(column.systemChoice);
 }
 
 export function remarkText(remark: ChordRemark): string {
@@ -63,9 +60,12 @@ export function remarkText(remark: ChordRemark): string {
   }
 }
 
+/** Which chord is sounding: the pure column, a system column, or a system column's pure chord. */
+type PlayingKey = 'pure' | `system:${number}` | `pure:${number}`;
+
 /** Plays one column, or every column in turn, and says which is sounding. */
 function useChordPlayback() {
-  const [playing, setPlaying] = useState<number | null>(null);
+  const [playing, setPlaying] = useState<PlayingKey | null>(null);
   const [inTurn, setInTurn] = useState(false);
   const timers = useRef<number[]>([]);
   const clear = () => {
@@ -89,21 +89,21 @@ function useChordPlayback() {
   return {
     playing,
     inTurn,
-    play(index: number, frequencies: readonly number[]) {
+    play(key: PlayingKey, frequencies: readonly number[]) {
       clear();
       playChord(frequencies);
-      setPlaying(index);
+      setPlaying(key);
       setInTurn(false);
       later(CHORD_SECONDS, finish);
     },
     /** The first chord starts at once, inside the click, so audio may start. */
-    playAll(columns: readonly (readonly number[])[]) {
+    playAll(columns: readonly { key: PlayingKey; frequencies: readonly number[] }[]) {
       clear();
       setInTurn(true);
-      columns.forEach((frequencies, index) => {
+      columns.forEach(({ key, frequencies }, index) => {
         const start = () => {
           playChord(frequencies);
-          setPlaying(index);
+          setPlaying(key);
         };
         if (index === 0) start();
         else later(index * TURN_SECONDS, start);
@@ -180,18 +180,21 @@ export function ChordComparisonVisual({ settings }: LabProps) {
   const pure = pureChord(chord);
   const chordName = copy.chords.name(copy.chords.roots[chord.root]!, chord.type);
   const sine = !isCustomTimbre(settings.timbre) && settings.timbre === 'sine';
-  const allFrequencies = [
-    columns.pure.frequencies,
-    ...columns.systems.map((c) => c.tuned.notes.map((n) => n.frequency)),
+  const inTurn: { key: PlayingKey; frequencies: readonly number[] }[] = [
+    { key: 'pure', frequencies: columns.pure.frequencies },
+    ...columns.systems.map((c, k) => ({
+      key: `system:${k}` as const,
+      frequencies: c.tuned.notes.map((n) => n.frequency),
+    })),
   ];
   const highestFirst = <T,>(items: readonly T[]) => items.map((item, i) => ({ item, i })).reverse();
 
-  const playButton = (index: number, label: string) => (
+  const playButton = (key: PlayingKey, frequencies: readonly number[], label: string) => (
     <button
       type="button"
       className="button-tertiary ml-focusable cc-play"
       aria-label={text.play(label)}
-      onClick={() => playback.play(index, allFrequencies[index]!)}
+      onClick={() => playback.play(key, frequencies)}
     >
       <span aria-hidden="true">▶</span>
     </button>
@@ -207,7 +210,7 @@ export function ChordComparisonVisual({ settings }: LabProps) {
         <button
           type="button"
           className="button-primary ml-focusable"
-          onClick={() => (playback.inTurn ? playback.stop() : playback.playAll(allFrequencies))}
+          onClick={() => (playback.inTurn ? playback.stop() : playback.playAll(inTurn))}
         >
           {playback.inTurn ? text.stop : text.playAll}
         </button>
@@ -215,11 +218,12 @@ export function ChordComparisonVisual({ settings }: LabProps) {
       {sine && <p className="cc-hint">{text.sineHint}</p>}
 
       <div className="cc-columns" aria-labelledby={headingId} role="group">
-        <section className="cc-column cc-column-pure" data-playing={playback.playing === 0 || undefined}>
+        <section className="cc-column cc-column-pure" data-playing={playback.playing === 'pure' || undefined}>
           <header className="cc-column-head">
             <h3 className="cc-column-title">{text.pureHeading}</h3>
             <p className="cc-column-sub">{pure.proportion.join(':')}</p>
-            {playButton(0, text.pureHeading)}
+            {playButton('pure', columns.pure.frequencies, text.pureHeading)}
+            <p className="cc-column-anchor">{text.pureAnchor(columnHeading(columns.pure.anchor))}</p>
           </header>
           <ol className="cc-notes" aria-label={text.notesLabel(text.pureHeading)}>
             {highestFirst(pure.ratios).map(({ item: r, i }) => (
@@ -239,12 +243,21 @@ export function ChordComparisonVisual({ settings }: LabProps) {
               key={column.system}
               className="cc-column"
               data-system={column.system}
-              data-playing={playback.playing === c + 1 || undefined}
+              data-playing={playback.playing === `system:${c}` || playback.playing === `pure:${c}` || undefined}
             >
               <header className="cc-column-head">
                 <h3 className="cc-column-title">{heading}</h3>
                 <p className="cc-column-sub">{text.centsOff}</p>
-                {playButton(c + 1, heading)}
+                {playButton(`system:${c}`, inTurn[c + 1]!.frequencies, heading)}
+                <button
+                  type="button"
+                  className="button-tertiary ml-focusable cc-play-pure"
+                  aria-label={text.playPure(heading)}
+                  data-playing={playback.playing === `pure:${c}` || undefined}
+                  onClick={() => playback.play(`pure:${c}`, column.pureFrequencies)}
+                >
+                  <span aria-hidden="true">▶</span> {text.pureShort}
+                </button>
               </header>
               <ol className="cc-notes" aria-label={text.notesLabel(heading)}>
                 {highestFirst(column.tuned.notes).map(({ item: note, i }) => (

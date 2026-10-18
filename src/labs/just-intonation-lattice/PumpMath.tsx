@@ -4,24 +4,24 @@ import {
   commaPumpComma,
   commaPumpDrift,
   factorsCents,
-  factorsFraction,
   latticeNoteName,
   nodeOfFactors,
   octaveReduceFactors,
 } from '../../core';
 import { copy } from '../../copy/en';
-import { formatRatio } from '../../format/numbers';
-import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
+import { formatPitchRatio, formatRatio } from '../../format/numbers';
+import { Live, MathSection, WorkedFormula, log2, threeDecimalCents, unit, wholeNumber } from '../../math/MathParts';
 import type { LabProps } from '../registry';
-import { FactorsFormula, c3, log2, unit, whole } from './mathParts';
-import type { PumpState } from './pump';
-import { loopSymbols, pitchLabel, stepSymbol, usePumpPicture } from './pumpState';
+import { FactorsFormula } from './FactorsFormula';
+import type { PumpState } from './pumpState';
+import { loopSymbols, pitchLabel, stepSymbol } from './labels';
+import { usePumpPicture } from './pumpPicture';
 
 const text = copy.latticeMath;
 const pumpText = text.pump;
 
 /** A pitch's ratio as the lattice shows it: octave-reduced, exact. */
-const reduced = (pitch: PrimeFactors) => formatRatio(factorsFraction(octaveReduceFactors(pitch)));
+const reduced = (pitch: PrimeFactors) => formatPitchRatio(octaveReduceFactors(pitch));
 
 /**
  * The comma explorer's math (issue #31): how the current chord is placed (the note it
@@ -91,7 +91,7 @@ export function PumpMath({ settings, pump }: LabProps & { pump: PumpState }) {
           {pumpText.comma.body(
             loopSymbols(tonic, id),
             latticeNoteName(tonic, nodeOfFactors(comma)),
-            formatRatio(factorsFraction(comma)),
+            formatPitchRatio(comma),
           )}
         </p>
         <WorkedFormula
@@ -113,7 +113,7 @@ export function PumpMath({ settings, pump }: LabProps & { pump: PumpState }) {
               <mo>·</mo>
               {log2}
               <mo>(</mo>
-              <Live>{formatRatio(factorsFraction(comma))}</Live>
+              <Live>{formatPitchRatio(comma)}</Live>
               <mo>)</mo>
             </>
           }
@@ -121,7 +121,7 @@ export function PumpMath({ settings, pump }: LabProps & { pump: PumpState }) {
             <>
               <mi>c</mi>
               <mo>=</mo>
-              <mn>{c3(commaCents)}</mn>
+              <mn>{threeDecimalCents(commaCents)}</mn>
               {unit('¢')}
             </>
           }
@@ -144,10 +144,10 @@ export function PumpMath({ settings, pump }: LabProps & { pump: PumpState }) {
               <>
                 <mi>Δ</mi>
                 <mo>=</mo>
-                <Live>{whole(current.loop)}</Live>
+                <Live>{wholeNumber(current.loop)}</Live>
                 <mo>·</mo>
                 <mo>(</mo>
-                <mn>{c3(commaCents)}</mn>
+                <mn>{threeDecimalCents(commaCents)}</mn>
                 {unit('¢')}
                 <mo>)</mo>
               </>
@@ -156,7 +156,7 @@ export function PumpMath({ settings, pump }: LabProps & { pump: PumpState }) {
               <>
                 <mi>Δ</mi>
                 <mo>=</mo>
-                <mn>{c3(factorsCents(commaPumpDrift(id, current.loop)))}</mn>
+                <mn>{threeDecimalCents(factorsCents(commaPumpDrift(id, current.loop)))}</mn>
                 {unit('¢')}
               </>
             }

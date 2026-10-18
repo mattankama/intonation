@@ -8,8 +8,8 @@
  */
 import type { LatticeNode } from '../../core';
 import type { SceneView } from '../../scene3d/scene';
-import type { Limit } from './chord';
-import { sameNode } from './chord';
+import type { Limit } from './latticeState';
+import { sameNode } from './latticeState';
 
 export type Vec3 = readonly [number, number, number];
 

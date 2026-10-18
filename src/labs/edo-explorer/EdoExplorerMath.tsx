@@ -2,9 +2,9 @@ import { Fragment } from 'react';
 import { CENTS_PER_OCTAVE, approximate, edoErrorChart, edoSystem, mappedSteps, ratio } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatDecimal, formatRatio } from '../../format/numbers';
-import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
+import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents } from '../../math/MathParts';
 import type { LabProps } from '../registry';
-import { exploredEdo } from './exploredEdo';
+import { useExploredEdo } from './exploredEdo';
 
 const text = copy.edoExplorerMath;
 const names = copy.edoExplorer.targetNames;
@@ -17,32 +17,17 @@ const MAJOR_THIRD = ratio(5, 4);
 const MINOR_THIRD = ratio(6, 5);
 const CHART = edoErrorChart();
 
-const log2 = (
-  <msub>
-    <mi>log</mi>
-    <mn>2</mn>
-  </msub>
-);
 /** s with a ratio subscript: s₃/₂. */
-const stepOf = (r: string) => (
-  <msub>
-    <mi>s</mi>
-    <mn>{r}</mn>
-  </msub>
-);
-const errorOf = (r: string) => (
-  <msub>
-    <mi>e</mi>
-    <mn>{r}</mn>
-  </msub>
-);
+const stepOf = (r: string) => sub('s', r);
+/** e with a ratio subscript: e₃/₂. */
+const errorOf = (r: string) => sub('e', r);
 
 /**
  * The math of the explored N: the fifth's nearest step and its error, the measure the
  * error chart plots, and how chords come from the EDO mapping instead.
  */
 export function EdoExplorerMath({ settings }: LabProps) {
-  const n = exploredEdo(settings);
+  const { n } = useExploredEdo(settings);
   const edo = copy.settings.tuningSystem.name(edoSystem(n));
   const fifth = approximate(n, FIFTH);
   const exact = n * Math.log2(3 / 2);
@@ -120,9 +105,9 @@ export function EdoExplorerMath({ settings }: LabProps) {
             <>
               <mi>e</mi>
               <mo>=</mo>
-              <Live>{formatDecimal(fifth.stepCents, 3)}</Live>
+              <Live>{threeDecimalCents(fifth.stepCents)}</Live>
               <mo>−</mo>
-              <Live>{formatDecimal(fifth.pureCents, 3)}</Live>
+              <Live>{threeDecimalCents(fifth.pureCents)}</Live>
             </>
           }
           result={
@@ -164,7 +149,7 @@ export function EdoExplorerMath({ settings }: LabProps) {
               {chartTargets.map((a, i) => (
                 <Fragment key={i}>
                   {i > 0 && <mo>,</mo>}
-                  <Live>{formatDecimal(Math.abs(a.error), 3)}</Live>
+                  <Live>{threeDecimalCents(Math.abs(a.error))}</Live>
                 </Fragment>
               ))}
               <mo>)</mo>

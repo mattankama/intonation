@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import {
   type NotePairBeats,
   type TunedChord,
-  type Tuning,
+  type TuningSystemChoice,
   type TuningSystemId,
   chordBeats,
   timbreHarmonics,
@@ -35,32 +35,48 @@ export function useChordComparison(): [ChordComparisonState, (change: Partial<Ch
 /** One column: a tuning system's version of the chord, with its beats. */
 export interface SystemColumn {
   readonly system: TuningSystemId;
-  readonly tuning: Tuning;
+  readonly systemChoice: TuningSystemChoice;
   readonly tuned: TunedChord;
   readonly beats: readonly NotePairBeats[];
+  /**
+   * The pure chord this column's cents off pure are measured from: built on the root this
+   * system produces (decision #7), bass first.
+   */
+  readonly pureFrequencies: readonly number[];
 }
 
 export interface ChordColumns {
-  /** The pure chord on 12-EDO's root, as the shared baseline column. */
-  readonly pure: { readonly frequencies: readonly number[]; readonly beats: readonly NotePairBeats[] };
-  /** The 12-EDO version, whose root the pure column is built on. */
-  readonly pureRoot: TunedChord;
+  /**
+   * The pure chord column: the pure chord on the FIRST compared system's root, the same
+   * target that column (and The math) measures against. Every column has its own in
+   * `pureFrequencies`, since each system produces its own root.
+   */
+  readonly pure: {
+    readonly anchor: SystemColumn;
+    readonly frequencies: readonly number[];
+    readonly beats: readonly NotePairBeats[];
+  };
   readonly systems: readonly SystemColumn[];
 }
 
 /** Every column the Lab shows, from its state and the shared settings. */
 export function chordColumns(state: ChordComparisonState, settings: Settings): ChordColumns {
   const harmonics = timbreHarmonics(settings.timbre, settings.brightness);
-  const tune = (tuning: Tuning) => tuneChord(tuning, state.chord, settings.referencePitch);
-  const pureRoot = tune({ system: '12-edo', tonic: settings.tonic });
-  const pureFrequencies = pureRoot.notes.map((n) => n.pureFrequency);
+  const column = (system: TuningSystemId): SystemColumn => {
+    const systemChoice = { system, tonic: settings.tonic };
+    const tuned = tuneChord(systemChoice, state.chord, settings.referencePitch);
+    return {
+      system,
+      systemChoice,
+      tuned,
+      beats: chordBeats(tuned.notes.map((n) => n.frequency), harmonics),
+      pureFrequencies: tuned.notes.map((n) => n.pureFrequency),
+    };
+  };
+  const systems = comparedSystems(state.systems, settings).map(column);
+  const anchor = systems[0] ?? column('12-edo');
   return {
-    pure: { frequencies: pureFrequencies, beats: chordBeats(pureFrequencies, harmonics) },
-    pureRoot,
-    systems: comparedSystems(state.systems, settings).map((system) => {
-      const tuning = { system, tonic: settings.tonic };
-      const tuned = tune(tuning);
-      return { system, tuning, tuned, beats: chordBeats(tuned.notes.map((n) => n.frequency), harmonics) };
-    }),
+    pure: { anchor, frequencies: anchor.pureFrequencies, beats: chordBeats(anchor.pureFrequencies, harmonics) },
+    systems,
   };
 }

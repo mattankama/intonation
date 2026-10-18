@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { type ChordType, stackedChord } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatDecimal, formatHz } from '../../format/numbers';
-import { lazyScene, systemColorVar } from '../../scene3d';
+import { lazyScene } from '../../scene3d';
 import type { LabProps } from '../registry';
 import type { RoughnessSceneProps, ScenePin } from './RoughnessScene';
 import { PINS, type PlayedChord, pinName, playStacked, useLandscape, usePlayedChord, useShowEdo12 } from './roughnessState';
@@ -30,11 +30,11 @@ const PIN_LAYOUT: Record<ChordType, { stem: number; side: 'left' | 'right' }> = 
   sus2: { stem: 1.75, side: 'left' },
 };
 
-/** Key entries: ink for pure chords, the data colours for 12-EDO versions and the last chord. */
+/** Key entries, matching the scene: ink pure chords, teal 12-EDO versions, the gold-backed last chord. */
 const LEGEND = [
-  { label: text.legend.pure, color: 'var(--ink)' },
-  { label: text.legend.edo12, color: systemColorVar(1) },
-  { label: text.legend.played, color: systemColorVar(3) },
+  { label: text.legend.pure, kind: 'pure' },
+  { label: text.legend.edo12, kind: 'edo12' },
+  { label: text.legend.played, kind: 'played' },
 ] as const;
 
 /** The roughness section: the landscape, its key, and the last chord played. */
@@ -78,9 +78,9 @@ export function RoughnessVisual({ settings }: LabProps) {
     <section className="br-roughness" aria-label={text.heading} data-points={points}>
       <p className="br-roughness-intro">{text.intro}</p>
       <ul className="br-legend" aria-label={text.legendLabel}>
-        {LEGEND.map(({ label, color }) => (
+        {LEGEND.map(({ label, kind }) => (
           <li key={label} className="br-legend-item">
-            <span className="br-swatch br-swatch-dot" style={{ background: color }} aria-hidden="true" />
+            <span className={`br-swatch br-swatch-dot br-swatch-${kind}`} aria-hidden="true" />
             {label}
           </li>
         ))}

@@ -2,12 +2,13 @@ import { Fragment } from 'react';
 import { cents, primeFactors, ratioValue, tonicSpelling } from '../../core';
 import { copy } from '../../copy/en';
 import { formatHz, formatRatio } from '../../format/numbers';
-import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
+import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents, unit } from '../../math/MathParts';
 import type { LabProps } from '../registry';
-import { FactorsFormula, c3, log2, sub, unit } from './mathParts';
+import { FactorsFormula } from './FactorsFormula';
 import { PumpMath } from './PumpMath';
-import { usePump } from './pumpState';
-import { chordNote, chordNotes, proportionText, tonicFrequency, useLattice } from './state';
+import { chordNote, chordNotes, proportionText } from './labels';
+import { tonicFrequency } from './sound';
+import { useLattice, usePump } from './urlState';
 
 const text = copy.latticeMath;
 const SOURCES = copy.math.sources;
@@ -74,7 +75,7 @@ function ChordMath({ settings }: LabProps) {
               <>
                 <mi>c</mi>
                 <mo>=</mo>
-                <mn>{c3(cents(note.ratio))}</mn>
+                <mn>{threeDecimalCents(cents(note.ratio))}</mn>
                 {unit('¢')}
               </>
             }

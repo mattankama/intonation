@@ -11,7 +11,7 @@ import { CENTS_PER_OCTAVE } from './cents';
 import type { Note } from './pitch';
 import { type Ratio, multiplyRatios, ratio, ratioValue, wholeNumbers } from './ratio';
 import {
-  type Tuning,
+  type TuningSystemChoice,
   edoLandmarks,
   isChain,
   keyFifths,
@@ -209,9 +209,9 @@ const mod = (n: number, m: number) => ((n % m) + m) % m;
  * system each note is the key a whole number of semitones above the root's key (never
  * an invented note). The pure chord sits on the root the system produces.
  */
-export function tuneChord(tuning: Tuning, choice: ChordChoice, referencePitchHz: number): TunedChord {
+export function tuneChord(systemChoice: TuningSystemChoice, choice: ChordChoice, referencePitchHz: number): TunedChord {
   const tones = chordTones(choice);
-  const n = stepEdo(tuning.system);
+  const n = stepEdo(systemChoice.system);
   // Keys per octave, the root's key (counted from octave 4's first key) and each interval's
   // keys above it: semitones in a 12-note system, mapped steps in any other N-EDO.
   const keys = n ?? 12;
@@ -226,15 +226,15 @@ export function tuneChord(tuning: Tuning, choice: ChordChoice, referencePitchHz:
     tone,
     note: noteAt(rootKey + keysAbove(tone.interval) + keys * tone.octaves),
   }));
-  const rootFrequency = resolvePitch(tuning, noteAt(rootKey), referencePitchHz).frequency;
+  const rootFrequency = resolvePitch(systemChoice, noteAt(rootKey), referencePitchHz).frequency;
   return {
     notes: notes.map(({ tone, note }) => {
-      const frequency = resolvePitch(tuning, note, referencePitchHz).frequency;
+      const frequency = resolvePitch(systemChoice, note, referencePitchHz).frequency;
       const pureFrequency = rootFrequency * ratioValue(tone.ratio);
       return {
         interval: tone.interval,
         note,
-        name: noteName(tuning, note),
+        name: noteName(systemChoice, note),
         frequency,
         pureFrequency,
         // The root (or the root raised an octave) is pure by definition.
@@ -242,7 +242,7 @@ export function tuneChord(tuning: Tuning, choice: ChordChoice, referencePitchHz:
           tone.interval === 'unison' ? 0 : CENTS_PER_OCTAVE * Math.log2(frequency / pureFrequency),
       };
     }),
-    remarks: n === null ? borrowedKeys(tuning, choice.root, notes) : edoRemarks(n, tones),
+    remarks: n === null ? borrowedKeys(systemChoice, choice.root, notes) : edoRemarks(n, tones),
   };
 }
 
@@ -305,14 +305,14 @@ function edoRemarks(n: number, tones: readonly ChordTone[]): ChordRemark[] {
 
 /** The keys a 12-note system plays under another name in this chord. */
 function borrowedKeys(
-  tuning: Tuning,
+  systemChoice: TuningSystemChoice,
   root: number,
   notes: readonly { tone: ChordTone; note: Note }[],
 ): ChordRemark[] {
-  if (!isChain(tuning.system)) return [];
-  const rootFifths = ROOT_FIFTHS[root] ?? keyFifths(tuning, root);
+  if (!isChain(systemChoice.system)) return [];
+  const rootFifths = ROOT_FIFTHS[root] ?? keyFifths(systemChoice, root);
   return notes.flatMap(({ tone, note }) => {
-    const key = keySpelling(tuning, note.pitchClass);
+    const key = keySpelling(systemChoice, note.pitchClass);
     const as = spellFifths(rootFifths + CHORD_INTERVALS[tone.interval].fifths);
     return key === as ? [] : [{ kind: 'borrowed' as const, key, as }];
   });

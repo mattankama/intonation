@@ -35,6 +35,17 @@ test('the comma explorer steps the syntonic pump home 21.5¢ flat, then keeps go
   await expect(drift(page)).toHaveText('Not home yet: step to the end of the loop.');
 });
 
+test('loops repeat until Reset: a hundred Pythagorean loops on, the drift and labels stay exact', async ({ page }) => {
+  await page.goto(`${PATH}?pump=pythagorean&step=1200`);
+  await expect(page).toHaveURL(/step=1200/);
+  await expect(drift(page)).toHaveText('After 100 loops: +2346.0¢');
+  await expect(readout(page)).toContainText('3¹²⁰⁰/2¹⁹⁰¹');
+  await expect(page.getByRole('button', { name: 'Next chord' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Next chord' }).click();
+  await expect(page).toHaveURL(/step=1201/);
+  await expect(scene(page).locator('canvas')).toBeVisible();
+});
+
 test('a shared URL restores the pump; the septimal pump turns the lattice to ×7', async ({ page }) => {
   await page.goto(`${PATH}?pump=septimal&step=3`);
   await expect(page.getByLabel('Progression')).toHaveValue('septimal');

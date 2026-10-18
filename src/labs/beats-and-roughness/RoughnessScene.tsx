@@ -54,7 +54,7 @@ export interface RoughnessSceneProps {
 
 /**
  * The 3D roughness landscape (issue #29): every three-note chord on the bottom note, lower ×
- * upper interval, height = relative roughness; the chord types pinned at pure tuning. Click
+ * upper interval, height = relative roughness; the chord types pinned as pure chords. Click
  * anywhere to hear that chord. Loaded lazily (with three.js) by RoughnessVisual.
  */
 export default function RoughnessScene(props: RoughnessSceneProps) {
@@ -71,7 +71,7 @@ function LandscapeContent({ landscape, pins, played, phone, onPlay }: RoughnessS
   const element = useThree((s) => s.gl.domElement);
 
   surface.fill.material.color.set(colors.background);
-  surface.wire.material.color.set(colors.systems[0]);
+  surface.wire.material.color.set(colors.ink);
 
   const onClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -96,7 +96,8 @@ function LandscapeContent({ landscape, pins, played, phone, onPlay }: RoughnessS
       />
       <primitive object={surface.wire} />
       {pins.map((pin) => {
-        const color = pin.version === 'pure' ? colors.ink : colors.systems[1];
+        // Pure chords are the ink targets; their 12-EDO versions are teal.
+        const color = pin.version === 'pure' ? colors.ink : colors.accent;
         const base = scenePoint(pin.lower, pin.upper, Math.min(1, pin.height));
         const head = top(pin);
         const named = played?.name === pin.name;
@@ -116,13 +117,18 @@ function LandscapeContent({ landscape, pins, played, phone, onPlay }: RoughnessS
           </group>
         );
       })}
-      {played && (
-        <InkDot
-          position={scenePoint(played.lower, played.upper, Math.min(1, played.height))}
-          color={colors.systems[3]}
-          size={0.08}
-        />
-      )}
+      {played && <PlayedMark position={scenePoint(played.lower, played.upper, Math.min(1, played.height))} />}
+    </>
+  );
+}
+
+/** The chord sounding: an ink dot on a soft-gold disc, the gold of the lattice's chord shapes. */
+function PlayedMark({ position }: { position: Vec3 }) {
+  const colors = useSceneColors();
+  return (
+    <>
+      <InkDot position={position} color={colors.fill} size={0.15} />
+      <InkDot position={position} color={colors.ink} size={0.06} />
     </>
   );
 }
@@ -246,7 +252,7 @@ function useSurface(landscape: RoughnessLandscape, phone: boolean) {
     }
     const wireGeometry = new BufferGeometry();
     wireGeometry.setAttribute('position', new BufferAttribute(new Float32Array(segments), 3));
-    const wire = new LineSegments(wireGeometry, new LineBasicMaterial({ transparent: true, opacity: 0.55 }));
+    const wire = new LineSegments(wireGeometry, new LineBasicMaterial({ transparent: true, opacity: 0.4 }));
     wire.raycast = () => {};
     return { fill, wire };
   }, [landscape, phone]);
