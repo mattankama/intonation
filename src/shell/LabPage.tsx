@@ -49,7 +49,8 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
   };
 
   const { Visual, Controls, Math } = lab;
-  const sources = [...(lastNote ? noteMathSources(tuning) : []), ...(lab.sources ?? [])];
+  // A source cited by both the note and the Lab is listed once.
+  const sources = [...new Set([...(lastNote ? noteMathSources(tuning) : []), ...(lab.sources ?? [])])];
   const math = (
     <>
       {lastNote ? (

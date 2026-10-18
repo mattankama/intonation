@@ -259,6 +259,57 @@ export const copy = {
     },
   },
 
+  scene3d: {
+    unavailable: 'This view needs 3D graphics, which this browser can’t show.',
+    resetView: 'Reset view',
+    resetViewShort: 'Reset view',
+    hint: 'Drag to rotate · scroll or pinch to zoom',
+  },
+
+  tuningSystemsLab: {
+    sceneLabel: 'Pitch spiral',
+    legendLabel: 'Systems compared',
+    systemsHeading: 'Systems compared',
+    slot: (k: number) => `System ${k}`,
+    edoSteps: (k: number) => `Steps per octave, system ${k}`,
+    add: 'Add a tuning system',
+    remove: (name: string) => `Remove ${name}`,
+    tonicHint: 'Every system on the spiral is built from this Tonic.',
+    pickHint: 'Click a note on the spiral or in a table to hear it, then a second note for the interval.',
+    tablesLabel: 'Every note of each system',
+    columns: { note: 'Note', cents: 'Cents', ratio: 'Ratio', fromEdo12: 'From 12-EDO' },
+    noRatio: '—',
+    pureTarget: (ratio: string) => `pure ${ratio}`,
+    pureTargetKey: 'Pure target of the interval',
+    picked: (note: string) => `${note}. Pick a second note for the interval.`,
+    pickedNote: (note: string, system: string) => `${note} (${system})`,
+    interval: (low: string, high: string, size: string, pure: string, target: string, off: string | null) =>
+      `${low} → ${high}: ${size}. The pure ${pure} is ${target}, so this is ${off === null ? 'pure' : off}.`,
+    offPure: (cents: string, wide: boolean) => `${cents} ${wide ? 'wide' : 'narrow'}`,
+  },
+
+  tuningSystemsMath: {
+    fromEdo12: {
+      heading: 'Cents from 12-EDO',
+      body: (note: string) =>
+        `${note} sits c cents above the Tonic. The nearest 12-EDO note is k semitones above the Tonic, at 100·k cents, so the difference is:`,
+    },
+    ratio: {
+      heading: 'From ratio to cents',
+      body: (note: string) =>
+        `${note} is an exact ratio r above the Tonic. Cents measure it on a scale where every octave is 1200¢:`,
+    },
+    interval: {
+      heading: 'The interval',
+      body: 'The interval between the two notes is the difference of their cents. It aims at the nearest 5-limit pure interval, the ink ring on the spiral; the gap is how far it is off pure:',
+    },
+    spiral: {
+      heading: 'One turn per octave',
+      body: 'Each note sits at an angle around the spiral in proportion to its cents above the Tonic, which is at the front; going up an octave makes one full turn and one step up.',
+      empty: 'Pick a note to see where it sits.',
+    },
+  },
+
   notFound: {
     title: 'Page not found',
     body: 'There is no page at this address.',

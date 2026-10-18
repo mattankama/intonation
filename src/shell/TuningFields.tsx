@@ -99,9 +99,18 @@ export function EdoStepsField() {
 
 /** Tonic: the note the tuning system is built from. Not offered for EDOs, where it does nothing. */
 export function TonicField() {
+  const [settings] = useSettings();
+  if (isEdo(settings.tuningSystem)) return null;
+  return <TonicSelect hint={copy.settings.tonic.hint} />;
+}
+
+/**
+ * The shared Tonic picker, always shown. A Lab that builds several tuning systems from the
+ * Tonic (Tuning systems) offers it in its Controls while the rail hides it for an EDO.
+ */
+export function TonicSelect({ hint }: { hint: string }) {
   const [settings, update] = useSettings();
   const id = useId();
-  if (isEdo(settings.tuningSystem)) return null;
   return (
     <div className="field">
       <label className="field-label" htmlFor={id}>
@@ -121,7 +130,7 @@ export function TonicField() {
         ))}
       </select>
       <span id={`${id}-hint`} className="field-hint">
-        {copy.settings.tonic.hint}
+        {hint}
       </span>
     </div>
   );
