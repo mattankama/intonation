@@ -3,18 +3,11 @@ import { COMMA_PUMP_IDS, type CommaPumpId } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents } from '../../format/numbers';
 import type { LabProps } from '../registry';
-import { MAX_LOOPS, type PumpState } from './pump';
-import {
-  nextChord,
-  playToHome,
-  pumpDescription,
-  setDrone,
-  stopPump,
-  useDrone,
-  usePump,
-  usePumpPicture,
-  usePumpPlaying,
-} from './pumpState';
+import { MAX_LOOPS, type PumpState } from './pumpState';
+import { pumpDescription } from './labels';
+import { nextChord, playToHome, setDrone, stopPump, useDrone, usePumpPlaying } from './pumpPlayback';
+import { usePumpPicture } from './pumpPicture';
+import { usePump } from './urlState';
 
 const text = copy.latticeLab.pump;
 

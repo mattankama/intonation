@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_CHORD_NOTES, readLattice, setLimit, toggleNode, writeLattice } from './chord';
+import { MAX_CHORD_NOTES, readLattice, setLimit, toggleNode, writeLattice } from './latticeState';
 
 const node = (three: number, five = 0, seven = 0) => ({ three, five, seven });
 const read = (query: string) => readLattice(new URLSearchParams(query));

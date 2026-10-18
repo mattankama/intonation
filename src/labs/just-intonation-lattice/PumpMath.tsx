@@ -14,8 +14,9 @@ import { formatRatio } from '../../format/numbers';
 import { Live, MathSection, WorkedFormula, log2, threeDecimalCents, unit, wholeNumber } from '../../math/MathParts';
 import type { LabProps } from '../registry';
 import { FactorsFormula } from './FactorsFormula';
-import type { PumpState } from './pump';
-import { loopSymbols, pitchLabel, stepSymbol, usePumpPicture } from './pumpState';
+import type { PumpState } from './pumpState';
+import { loopSymbols, pitchLabel, stepSymbol } from './labels';
+import { usePumpPicture } from './pumpPicture';
 
 const text = copy.latticeMath;
 const pumpText = text.pump;

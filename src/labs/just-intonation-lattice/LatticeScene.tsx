@@ -13,7 +13,7 @@ import {
 import { type LatticeNode, latticeNoteName } from '../../core';
 import { copy } from '../../copy/en';
 import { InkDot, InkLine, Scene3D, SceneLabel, type SceneView, useSceneColors } from '../../scene3d/scene';
-import { TONIC_TRIAD, type Limit, sameNode } from './chord';
+import { TONIC_TRIAD, type Limit, sameNode } from './latticeState';
 import {
   type EdgeKind,
   REVEAL_ROTATION,
@@ -24,7 +24,7 @@ import {
   latticeView,
   nodePosition,
 } from './geometry';
-import { nodeRatioText } from './pumpState';
+import { nodeRatioText } from './labels';
 
 const text = copy.latticeLab;
 

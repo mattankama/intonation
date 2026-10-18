@@ -4,11 +4,13 @@ import { copy } from '../../copy/en';
 import { usePhoneLayout } from '../../scene3d';
 import { TonicSelect } from '../../shell/TuningFields';
 import type { LabProps } from '../registry';
-import { type Limit, sameNode, setLimit, toggleNode } from './chord';
+import { type Limit, sameNode, setLimit, toggleNode } from './latticeState';
 import { latticeGrid } from './geometry';
 import { PumpControls } from './PumpControls';
-import { stopPump, usePump } from './pumpState';
-import { chordNote, chordNotes, playChord, useLattice } from './state';
+import { chordNote, chordNotes } from './labels';
+import { stopPump } from './pumpPlayback';
+import { playChord } from './sound';
+import { useLattice, usePump } from './urlState';
 
 const text = copy.latticeLab;
 

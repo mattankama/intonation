@@ -17,7 +17,7 @@ import {
 import { DEFAULT_BOTTOM, bottomFrequency, landscapePins } from '../labs/beats-and-roughness/landscape';
 import { readChordState } from '../labs/chord-comparison/chordState';
 import { exploredEdo } from '../labs/edo-explorer/exploredEdo';
-import { TONIC_TRIAD } from '../labs/just-intonation-lattice/chord';
+import { TONIC_TRIAD } from '../labs/just-intonation-lattice/latticeState';
 import { latticeEdges, latticeGrid, nodePosition } from '../labs/just-intonation-lattice/geometry';
 import { chordColumns } from '../labs/chord-comparison/useChordComparison';
 import { DEFAULT_SYSTEMS } from '../labs/tuning-systems/systems';

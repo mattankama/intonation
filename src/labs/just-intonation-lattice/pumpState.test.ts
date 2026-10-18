@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_LOOPS, maxPumpStep, pumpLimit, readPump, writePump } from './pump';
+import { MAX_LOOPS, maxPumpStep, pumpLimit, readPump, writePump } from './pumpState';
 
 const read = (query: string) => readPump(new URLSearchParams(query));
 const write = (query: string, state: Parameters<typeof writePump>[1]) =>

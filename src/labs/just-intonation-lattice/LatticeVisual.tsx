@@ -4,10 +4,13 @@ import { formatRatio, formatSignedCents } from '../../format/numbers';
 import { lazyScene, usePhoneLayout } from '../../scene3d';
 import type { LabProps } from '../registry';
 import type { LatticeSceneProps } from './LatticeScene';
-import { toggleNode } from './chord';
+import { toggleNode } from './latticeState';
 import { pumpView } from './geometry';
-import { type PumpPicture, pitchLabel, playNode, stepSymbol, usePump, usePumpPicture, usePumpSound } from './pumpState';
-import { chordNotes, playChord, proportionText, useLattice } from './state';
+import { chordNotes, pitchLabel, proportionText, stepSymbol } from './labels';
+import { usePumpSound } from './pumpPlayback';
+import { type PumpPicture, usePumpPicture } from './pumpPicture';
+import { playChord, playNode } from './sound';
+import { useLattice, usePump } from './urlState';
 
 const text = copy.latticeLab;
 const LatticeScene = lazyScene<LatticeSceneProps>(() => import('./LatticeScene'), {

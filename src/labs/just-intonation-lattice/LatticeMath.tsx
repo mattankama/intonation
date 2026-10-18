@@ -6,8 +6,9 @@ import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents, unit } 
 import type { LabProps } from '../registry';
 import { FactorsFormula } from './FactorsFormula';
 import { PumpMath } from './PumpMath';
-import { usePump } from './pumpState';
-import { chordNote, chordNotes, proportionText, tonicFrequency, useLattice } from './state';
+import { chordNote, chordNotes, proportionText } from './labels';
+import { tonicFrequency } from './sound';
+import { useLattice, usePump } from './urlState';
 
 const text = copy.latticeMath;
 const SOURCES = copy.math.sources;
