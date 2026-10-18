@@ -4,6 +4,7 @@ import { LABS } from '../labs/registry';
 import { Link } from '../state/Link';
 import { settingsHref, useSettings } from '../state/useSettings';
 import { ReferencePitchField } from './ReferencePitchField';
+import { TonicField, TuningSystemField } from './TuningFields';
 import { TimbreField } from './TimbreField';
 import { VolumeField } from './VolumeField';
 
@@ -33,6 +34,8 @@ export function LabNav({ current }: { current: LabId }) {
 export function SettingsFields() {
   return (
     <div className="settings-fields">
+      <TuningSystemField />
+      <TonicField />
       <ReferencePitchField />
       <TimbreField />
       <VolumeField />

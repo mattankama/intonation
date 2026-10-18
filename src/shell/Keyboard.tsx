@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { type Note, edo12NoteName } from '../core';
+import { type Note, type Tuning, edo12NoteName, keySpelling, noteName } from '../core';
 import { copy } from '../copy/en';
 import { computerKeyFor, noteForKeyCode } from './computerKeys';
 
@@ -22,6 +22,8 @@ const BLACK_KEYS = [
 const OCTAVES = [4, 5];
 
 export interface KeyboardProps {
+  /** Names each key by this tuning system's spelling. */
+  tuning: Tuning;
   /** Start a held note (pointer down). */
   onNoteOn(note: Note): void;
   /** Release a held note (pointer up / leave). */
@@ -82,10 +84,10 @@ function useComputerKeys(onNoteOn: (note: Note) => void, onNoteOff: (note: Note)
 }
 
 /** The on-screen keyboard, two octaves from C4. */
-export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
+export function Keyboard({ tuning, onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
   const held = useComputerKeys(onNoteOn, onNoteOff);
   const key = (note: Note, colour: 'white' | 'black', style?: CSSProperties) => {
-    const name = edo12NoteName(note);
+    const name = noteName(tuning, note);
     const shortcut = computerKeyFor(note);
     const down = (e: PointerEvent<HTMLButtonElement>) => {
       if (e.button !== 0) return;
@@ -106,7 +108,7 @@ export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
     };
     return (
       <button
-        key={name}
+        key={edo12NoteName(note)}
         type="button"
         className={`key key-${colour} ml-focusable`}
         style={style}
@@ -124,7 +126,10 @@ export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
             {shortcut}
           </span>
         )}
-        {colour === 'white' && <span className="key-label">{name}</span>}
+        {/* Black keys are narrow: they show the spelling alone (e.g. "G♯"). */}
+        <span className="key-label">
+          {colour === 'white' ? name : keySpelling(tuning, note.pitchClass)}
+        </span>
       </button>
     );
   };

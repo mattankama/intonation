@@ -408,6 +408,18 @@ button {
   color: var(--text-disabled);
   pointer-events: none;
 }
+/* Black keys carry their spelling (G♯ or A♭ depends on the tuning system). */
+.key-black {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 3px;
+}
+.key-black .key-label {
+  color: var(--text-inverse);
+  white-space: nowrap;
+}
 /* Computer-key hints, only where there is likely a hardware keyboard. */
 .key-shortcut {
   display: none;
@@ -420,12 +432,6 @@ button {
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-  }
-  .key-black {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding-bottom: 2px;
   }
   .key-shortcut {
     display: block;
@@ -515,6 +521,12 @@ button {
     border: var(--border-width) solid var(--border-field);
     border-radius: var(--radius-sm);
     white-space: nowrap;
+  }
+  /* A long tuning-system chip gives way before the menu button does. */
+  .chip-shrink {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .menu-button {
     margin-left: auto;

@@ -1,10 +1,11 @@
-import { useCallback, useId, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import { audioEngine } from '../audio/engine';
-import { type Note, edo12Frequency, edo12NoteName } from '../core';
+import { type Note, edo12NoteName, isEdo, resolvePitch, tonicSpelling } from '../core';
 import { copy } from '../copy/en';
 import type { LabDefinition } from '../labs/registry';
 import { Sources } from '../math/MathParts';
-import { NOTE_MATH_SOURCES, NoteMath } from '../math/NoteMath';
+import { NoteMath, noteMathSources } from '../math/NoteMath';
+import { tuningOf } from '../state/settings';
 import { useSettings } from '../state/useSettings';
 import { Inspector } from './Inspector';
 import { Keyboard } from './Keyboard';
@@ -26,9 +27,10 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
   useDocumentTitle(copy.shell.documentTitle(lab.title));
   useAudioSettings(settings);
 
+  const tuning = useMemo(() => tuningOf(settings), [settings]);
   const frequencyOf = useCallback(
-    (note: Note) => edo12Frequency(note, settings.referencePitch),
-    [settings.referencePitch],
+    (note: Note) => resolvePitch(tuning, note, settings.referencePitch).frequency,
+    [tuning, settings.referencePitch],
   );
   const onNoteOn = (note: Note) => {
     audioEngine.noteOn(edo12NoteName(note), frequencyOf(note));
@@ -41,11 +43,11 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
   };
 
   const { Visual, Controls, Math } = lab;
-  const sources = [...(lastNote ? NOTE_MATH_SOURCES : []), ...(lab.sources ?? [])];
+  const sources = [...(lastNote ? noteMathSources(tuning) : []), ...(lab.sources ?? [])];
   const math = (
     <>
       {lastNote ? (
-        <NoteMath note={lastNote} referencePitch={settings.referencePitch} />
+        <NoteMath note={lastNote} tuning={tuning} referencePitch={settings.referencePitch} />
       ) : (
         <p className="placeholder-text">{copy.math.empty}</p>
       )}
@@ -67,7 +69,12 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
 
       <header className="mobilebar">
         <Wordmark compact />
-        <span className="chip">{copy.shell.tuningChip}</span>
+        <span className="chip chip-shrink">
+          {copy.settings.tuningSystem.chip(
+            copy.settings.tuningSystem.shortNames[tuning.system],
+            isEdo(tuning.system) ? null : tonicSpelling(tuning.tonic),
+          )}
+        </span>
         <span className="chip">
           {copy.settings.referencePitch.chip(String(settings.referencePitch))}
         </span>
@@ -109,7 +116,7 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
       />
 
       <div className="keys">
-        <Keyboard onNoteOn={onNoteOn} onNoteOff={onNoteOff} onPluck={onPluck} />
+        <Keyboard tuning={tuning} onNoteOn={onNoteOn} onNoteOff={onNoteOff} onPluck={onPluck} />
       </div>
     </div>
   );
