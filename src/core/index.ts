@@ -7,7 +7,18 @@ export { CENTS_PER_OCTAVE, cents } from './cents';
 export { type Note, REFERENCE_NOTE, semitonesFromA4, edo12Frequency, edo12NoteName } from './pitch';
 export {
   type TuningSystemId,
+  type EdoId,
+  type ChainSystemId,
+  type NamedTuningSystemId,
   TUNING_SYSTEM_IDS,
+  EDO_MIN,
+  EDO_MAX,
+  edoSystem,
+  parseTuningSystem,
+  edoDivisions,
+  stepEdo,
+  edoStepsFromA4,
+  edoLandmarks,
   isEdo,
   type Tuning,
   type ChainOfFifths,

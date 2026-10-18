@@ -1,6 +1,8 @@
 /**
  * A note of a 12-note tuning system, addressed by pitch class and octave in
  * scientific pitch notation: pitch class 0 is C, 9 is A; C4 is middle C.
+ * In an N-EDO other than 12-EDO, `pitchClass` is the step within the octave (0…N−1),
+ * step 0 being the step nearest C, so octave 4 starts at the step nearest C4.
  */
 export interface Note {
   readonly pitchClass: number;

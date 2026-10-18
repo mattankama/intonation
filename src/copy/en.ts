@@ -2,8 +2,47 @@
  * Every user-facing string on the site, in one place so it can be translated later.
  * Vocabulary follows GLOSSARY.md.
  */
-import type { CommaId, TimbrePresetId, TuningSystemId } from '../core';
+import {
+  type CommaId,
+  type NamedTuningSystemId,
+  type TimbrePresetId,
+  type TuningSystemId,
+  stepEdo,
+} from '../core';
 import type { LabId } from '../labs/ids';
+
+const TUNING_SYSTEM_NAMES = {
+  '12-edo': '12-EDO',
+  pythagorean: 'Pythagorean',
+  just: '5-limit just intonation',
+  meantone: '¼-comma meantone',
+  'werckmeister-iii': 'Werckmeister III',
+  vallotti: 'Vallotti',
+  'kirnberger-iii': 'Kirnberger III',
+} satisfies Record<NamedTuningSystemId, string>;
+
+/** Shorter names for the phone top-bar chip. */
+const TUNING_SYSTEM_SHORT_NAMES = {
+  '12-edo': '12-EDO',
+  pythagorean: 'Pythagorean',
+  just: '5-limit JI',
+  meantone: 'Meantone',
+  'werckmeister-iii': 'Werckmeister III',
+  vallotti: 'Vallotti',
+  'kirnberger-iii': 'Kirnberger III',
+} satisfies Record<NamedTuningSystemId, string>;
+
+/** 1st, 2nd, 3rd, 4th … 11th, 12th, 13th … 21st. */
+function ordinal(n: number): string {
+  const suffix =
+    n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10];
+  return `${n}${suffix ?? 'th'}`;
+}
+
+const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
+/** "3 steps" / "1 step". */
+const stepCount = (k: number) => `${Math.abs(k)} step${Math.abs(k) === 1 ? '' : 's'}`;
 
 const TIMBRE_PRESET_NAMES = {
   sine: 'Sine',
@@ -67,27 +106,23 @@ export const copy = {
   settings: {
     tuningSystem: {
       label: 'Tuning system',
-      names: {
-        '12-edo': '12-EDO',
-        pythagorean: 'Pythagorean',
-        just: '5-limit just intonation',
-        meantone: '¼-comma meantone',
-        'werckmeister-iii': 'Werckmeister III',
-        vallotti: 'Vallotti',
-        'kirnberger-iii': 'Kirnberger III',
-      } satisfies Record<TuningSystemId, string>,
-      /** Shorter names for the phone top-bar chip. */
-      shortNames: {
-        '12-edo': '12-EDO',
-        pythagorean: 'Pythagorean',
-        just: '5-limit JI',
-        meantone: 'Meantone',
-        'werckmeister-iii': 'Werckmeister III',
-        vallotti: 'Vallotti',
-        'kirnberger-iii': 'Kirnberger III',
-      } satisfies Record<TuningSystemId, string>,
+      names: TUNING_SYSTEM_NAMES,
+      /** The menu entry for every N-EDO other than 12-EDO; N is chosen beside it. */
+      otherEdo: 'N-EDO',
+      /** A tuning system's name: "31-EDO" for an N-EDO, else its menu name (or short name). */
+      name(system: TuningSystemId, length: 'full' | 'short' = 'full'): string {
+        const n = stepEdo(system);
+        if (n !== null) return `${n}-EDO`;
+        // Every other system is 12-EDO or a chain, each with a name of its own.
+        const named = system as NamedTuningSystemId;
+        return (length === 'short' ? TUNING_SYSTEM_SHORT_NAMES : TUNING_SYSTEM_NAMES)[named];
+      },
       /** The phone top-bar chip; the Tonic is left out for EDOs. */
       chip: (system: string, tonic: string | null) => (tonic ? `${system} in ${tonic}` : system),
+    },
+    edoSteps: {
+      label: 'Steps per octave',
+      hint: 'N equal steps; A4 is always one of them.',
     },
     tonic: {
       label: 'Tonic',
@@ -148,6 +183,18 @@ export const copy = {
       pythagorean: 'Pythagorean',
       syntonic: 'syntonic',
     } satisfies Record<CommaId, string>,
+    edoStep: {
+      body: (step: string, n: number) =>
+        `${n}-EDO splits the octave into ${n} equal steps. ${capitalise(step)} sits s steps above step 0, the step nearest C.`,
+    },
+    edoFrequency: {
+      body: (n: number, stepOfA: string) =>
+        `A4 is ${stepOfA} and sounds at the Reference pitch. Each step multiplies the frequency by the ${ordinal(n)} root of 2, so a note k steps from A4 sounds at:`,
+      steps: (note: string, k: number) =>
+        k === 0
+          ? `${capitalise(note)} is A4 itself, so k = 0.`
+          : `${capitalise(note)} is ${stepCount(k)} ${k > 0 ? 'above' : 'below'} A4, so k = ${k < 0 ? '−' : ''}${Math.abs(k)}.`,
+    },
     frequency: {
       heading: 'Its frequency',
       body: (name: string) =>

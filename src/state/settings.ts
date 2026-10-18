@@ -13,7 +13,7 @@ import {
   HARMONIC_COUNT,
   LEVEL_MAX,
   TIMBRE_PRESET_IDS,
-  TUNING_SYSTEM_IDS,
+  parseTuningSystem,
   type TimbreChoice,
   type Tuning,
   type TuningSystemId,
@@ -69,7 +69,7 @@ export const SETTING_FIELDS: SettingFields = {
   tuningSystem: {
     key: 'tuning',
     defaultValue: '12-edo',
-    parse: (raw) => TUNING_SYSTEM_IDS.find((id) => id === raw),
+    parse: parseTuningSystem,
     format: (id) => id,
   },
   tonic: {

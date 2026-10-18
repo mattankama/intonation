@@ -21,11 +21,21 @@ export type ChainSystemId =
   | 'kirnberger-iii'
   | 'just';
 
-/** Every tuning system the shared settings offer. */
-export type TuningSystemId = '12-edo' | ChainSystemId;
+/** An equal division of the octave into N steps, e.g. '31-edo'; '12-edo' is standard 12-EDO. */
+export type EdoId = `${number}-edo`;
 
-/** The tuning systems in menu order (the spec's order). */
-export const TUNING_SYSTEM_IDS: readonly TuningSystemId[] = [
+/** Every tuning system the shared settings offer: the chains, and N-EDO for N = 5…72. */
+export type TuningSystemId = EdoId | ChainSystemId;
+
+/** The N-EDOs offered (decision #8). */
+export const EDO_MIN = 5;
+export const EDO_MAX = 72;
+
+/** The N-EDO tuning system. */
+export const edoSystem = (n: number): EdoId => `${n}-edo`;
+
+/** The named tuning systems in menu order (the spec's order); any other N-EDO joins them. */
+export const TUNING_SYSTEM_IDS = [
   '12-edo',
   'pythagorean',
   'just',
@@ -33,10 +43,60 @@ export const TUNING_SYSTEM_IDS: readonly TuningSystemId[] = [
   'werckmeister-iii',
   'vallotti',
   'kirnberger-iii',
-];
+] as const satisfies readonly TuningSystemId[];
+
+/** A tuning system with a name of its own: 12-EDO and the historical chains. */
+export type NamedTuningSystemId = (typeof TUNING_SYSTEM_IDS)[number];
 
 /** Whether a tuning system is an EDO, where the Tonic makes no difference. */
-export const isEdo = (system: TuningSystemId): boolean => system === '12-edo';
+export const isEdo = (system: TuningSystemId): system is EdoId => system.endsWith('-edo');
+
+/** The number of steps per octave of an EDO (31 for 31-EDO); null for a 12-note chain. */
+export function edoDivisions(system: TuningSystemId): number | null {
+  return isEdo(system) ? Number(system.slice(0, -'-edo'.length)) : null;
+}
+
+/**
+ * The N of an N-EDO other than 12-EDO, whose keys are steps rather than the 12 familiar
+ * notes; null for 12-EDO and the 12-note chains, whose keys are pitch classes.
+ */
+export function stepEdo(system: TuningSystemId): number | null {
+  const n = edoDivisions(system);
+  return n === 12 ? null : n;
+}
+
+/**
+ * A tuning system from its id, e.g. 'meantone' or '31-edo' (N from 5 to 72, written
+ * without leading zeros); undefined for anything else.
+ */
+export function parseTuningSystem(raw: string): TuningSystemId | undefined {
+  const named = TUNING_SYSTEM_IDS.find((id) => id === raw);
+  if (named) return named;
+  const match = /^([1-9]\d*)-edo$/.exec(raw);
+  const n = match ? Number(match[1]) : NaN;
+  return n >= EDO_MIN && n <= EDO_MAX ? edoSystem(n) : undefined;
+}
+
+/**
+ * The step of an N-EDO that A sits on, counting from step 0, the step nearest C. A4 is
+ * always a step (decision #8), so the steps are laid out from it: C is the step nearest
+ * 900¢ below A (a tie goes to the higher step).
+ */
+const edoStepOfA = (n: number) => -Math.round((-9 * n) / 12);
+
+/**
+ * The steps nearest the 12 familiar notes C, C♯ … B (indexed by pitch class), counted from
+ * step 0 of the octave; B can land on N, the next octave's step 0. Nearness is to each
+ * note's 12-EDO pitch with A on its step; several notes can share a step in a small EDO.
+ */
+export function edoLandmarks(n: number): readonly number[] {
+  const a = edoStepOfA(n);
+  return Array.from({ length: 12 }, (_, pc) => a + Math.round(((pc - 9) * n) / 12));
+}
+
+/** Signed steps of an N-EDO note from A4 (pitchClass holds the step within the octave). */
+export const edoStepsFromA4 = (n: number, note: Note): number =>
+  (note.octave - REFERENCE_NOTE.octave) * n + note.pitchClass - edoStepOfA(n);
 
 /** A tuning system and the Tonic it is built from (pitch class, 0 = C). */
 export interface Tuning {
@@ -113,6 +173,8 @@ const CHAIN_SYSTEMS: Record<ChainSystemId, ChainSystem> = {
   just: { comma: 'syntonic', start: -5, narrowed: fifthsAt([-2, 2], ratio(1, 1)), wolf: true },
 };
 
+const isChain = (system: TuningSystemId): system is ChainSystemId => system in CHAIN_SYSTEMS;
+
 const PURE_FIFTH_CENTS = cents(ratio(3, 2));
 const commaCents = (system: ChainSystem) => cents(COMMAS[system.comma]);
 
@@ -155,14 +217,19 @@ const intervalAboveTonic = (tuning: Tuning, pitchClass: number) => mod(pitchClas
  * (e.g. +13.685 for the Pythagorean C♯ in C). Built from the chain, so it never wraps.
  */
 function deviationFromEdo12(tuning: Tuning, pitchClass: number): number {
-  if (tuning.system === '12-edo') return 0;
+  if (!isChain(tuning.system)) return 0;
   const system = CHAIN_SYSTEMS[tuning.system];
   const k = chainPosition(system, intervalAboveTonic(tuning, pitchClass));
   return k * (PURE_FIFTH_CENTS - 700) - ratioValue(commaFraction(system, k)) * commaCents(system);
 }
 
-/** Cents of a key above the Tonic, from 0 up to (not including) 1200. */
+/**
+ * Cents of a key above the Tonic, from 0 up to (not including) 1200. In an N-EDO other
+ * than 12-EDO the key is a step, measured from step 0 (the Tonic makes no difference).
+ */
 export function centsAboveTonic(tuning: Tuning, pitchClass: number): number {
+  const n = stepEdo(tuning.system);
+  if (n !== null) return (1200 * mod(pitchClass, n)) / n;
   return 100 * intervalAboveTonic(tuning, pitchClass) + deviationFromEdo12(tuning, pitchClass);
 }
 
@@ -180,6 +247,15 @@ export interface ResolvedPitch {
  * every other note sits at its own cents from A4 in the system: f = f_A4 · 2^(c/1200).
  */
 export function resolvePitch(tuning: Tuning, note: Note, referencePitchHz: number): ResolvedPitch {
+  const n = stepEdo(tuning.system);
+  if (n !== null) {
+    const centsFromA4 = (1200 * edoStepsFromA4(n, note)) / n;
+    return {
+      frequency: referencePitchHz * 2 ** (centsFromA4 / 1200),
+      centsAboveTonic: centsAboveTonic(tuning, note.pitchClass),
+      centsFromA4,
+    };
+  }
   const centsFromA4 =
     100 * semitonesFromA4(note) +
     deviationFromEdo12(tuning, note.pitchClass) -
@@ -233,21 +309,32 @@ const FAMILIAR_FIFTHS = [0, 7, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5];
 
 /** Fifths above C of the spelling a tuning system gives a key. */
 function keyFifths(tuning: Tuning, pitchClass: number): number {
-  if (tuning.system === '12-edo') return at(FAMILIAR_FIFTHS, mod(pitchClass, 12));
+  if (!isChain(tuning.system)) return at(FAMILIAR_FIFTHS, mod(pitchClass, 12));
   const system = CHAIN_SYSTEMS[tuning.system];
   return tonicFifths(tuning) + chainPosition(system, intervalAboveTonic(tuning, pitchClass));
 }
 
-/** The historical spelling of a key in a tuning system, e.g. "G♯" or "A♭". */
+/** An N-EDO key, named by its step (decision #8): "step 10 of 31". */
+const stepName = (n: number, step: number) => `step ${mod(step, n)} of ${n}`;
+
+/**
+ * The historical spelling of a key in a tuning system, e.g. "G♯" or "A♭". Letter names
+ * belong to 12-EDO and the 12-note systems; any other N-EDO names the step, "step 10 of 31".
+ */
 export function keySpelling(tuning: Tuning, pitchClass: number): string {
+  const n = stepEdo(tuning.system);
+  if (n !== null) return stepName(n, pitchClass);
   return spellFifths(keyFifths(tuning, pitchClass));
 }
 
 /**
  * A note's name in its tuning system with its octave, e.g. "G♯4". The octave number goes
- * with the letter, so the key above B4 spelled B♯ is "B♯4", not "B♯5".
+ * with the letter, so the key above B4 spelled B♯ is "B♯4", not "B♯5". An N-EDO note is
+ * its step and octave, "step 10 of 31, octave 4" (octave 4 starts at the step nearest C4).
  */
 export function noteName(tuning: Tuning, note: Note): string {
+  const n = stepEdo(tuning.system);
+  if (n !== null) return `${stepName(n, note.pitchClass)}, octave ${note.octave}`;
   const position = keyFifths(tuning, note.pitchClass);
   const { letter, accidental } = letterAndAccidental(position);
   const natural = at(FIFTHS_NATURALS, letter);
@@ -267,7 +354,7 @@ export interface ChainOfFifths {
 
 /** How a 12-note system is built from its Tonic; null for an EDO, which has no chain. */
 export function chainOfFifths(tuning: Tuning): ChainOfFifths | null {
-  if (tuning.system === '12-edo') return null;
+  if (!isChain(tuning.system)) return null;
   const system = CHAIN_SYSTEMS[tuning.system];
   const positions = Array.from({ length: 12 }, (_, i) => system.start + i);
   const notes = positions.map((k) => spellFifths(tonicFifths(tuning) + k));
@@ -303,9 +390,9 @@ export interface KeyConstruction {
   readonly cents: number;
 }
 
-/** The construction of a key; null for 12-EDO, which is not built from fifths. */
+/** The construction of a key; null for an EDO, which is not built from fifths. */
 export function keyConstruction(tuning: Tuning, pitchClass: number): KeyConstruction | null {
-  if (tuning.system === '12-edo') return null;
+  if (!isChain(tuning.system)) return null;
   const system = CHAIN_SYSTEMS[tuning.system];
   const k = chainPosition(system, intervalAboveTonic(tuning, pitchClass));
   const pythagorean = pythagoreanRatio(k);

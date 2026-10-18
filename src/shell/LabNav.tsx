@@ -4,7 +4,7 @@ import { LABS } from '../labs/registry';
 import { Link } from '../state/Link';
 import { settingsHref, useSettings } from '../state/useSettings';
 import { ReferencePitchField } from './ReferencePitchField';
-import { TonicField, TuningSystemField } from './TuningFields';
+import { EdoStepsField, TonicField, TuningSystemField } from './TuningFields';
 import { TimbreField } from './TimbreField';
 import { VolumeField } from './VolumeField';
 
@@ -36,6 +36,7 @@ export function SettingsFields() {
     <div className="settings-fields">
       <TuningSystemField />
       <TonicField />
+      <EdoStepsField />
       <ReferencePitchField />
       <TimbreField />
       <VolumeField />

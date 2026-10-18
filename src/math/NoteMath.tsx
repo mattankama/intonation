@@ -4,13 +4,19 @@ import {
   type Note,
   type Tuning,
   cents,
+  centsAboveTonic,
   commaRatio,
   edo12Frequency,
   edo12NoteName,
+  edoLandmarks,
+  edoStepsFromA4,
+  isEdo,
   keyConstruction,
+  keySpelling,
   noteName,
   resolvePitch,
   semitonesFromA4,
+  stepEdo,
   tonicSpelling,
 } from '../core';
 import { copy } from '../copy/en';
@@ -21,9 +27,8 @@ const SOURCES = copy.math.sources;
 
 /** Sources for the note section, by tuning system. */
 export function noteMathSources(tuning: Tuning): readonly string[] {
+  if (isEdo(tuning.system)) return [SOURCES.iso16, SOURCES.barbour];
   switch (tuning.system) {
-    case '12-edo':
-      return [SOURCES.iso16, SOURCES.barbour];
     case 'pythagorean':
       return [SOURCES.barbour, SOURCES.scala];
     case 'meantone':
@@ -78,9 +83,15 @@ export function NoteMath({
   referencePitch: number;
 }) {
   const construction = keyConstruction(tuning, note.pitchClass);
+  const n = stepEdo(tuning.system);
   return (
     <>
-      {construction ? (
+      {n !== null ? (
+        <>
+          <EdoStepSection n={n} note={note} tuning={tuning} />
+          <EdoFrequencySection n={n} note={note} tuning={tuning} referencePitch={referencePitch} />
+        </>
+      ) : construction ? (
         <>
           <ConstructionSection construction={construction} tuning={tuning} />
           <FrequencySection note={note} tuning={tuning} referencePitch={referencePitch} />
@@ -133,7 +144,7 @@ function ConstructionSection({
       <MathSection heading={text.heading(spelling)}>
         <p>
           {fifths === 0
-            ? text.tonic(spelling, copy.settings.tuningSystem.names[tuning.system])
+            ? text.tonic(spelling, copy.settings.tuningSystem.name(tuning.system))
             : `${route} ${text.pure}`}
         </p>
         <WorkedFormula
@@ -366,6 +377,102 @@ function Edo12Section({ note, referencePitch }: { note: Note; referencePitch: nu
         }
       />
       <p>{copy.math.note.semitones(name, n)}</p>
+    </MathSection>
+  );
+}
+
+/** Where an N-EDO step sits in the octave: c = 1200 · s / N cents above step 0. */
+function EdoStepSection({ n, note, tuning }: { n: number; note: Note; tuning: Tuning }) {
+  const step = note.pitchClass;
+  const fraction = (s: ReactNode, divisions: ReactNode) => (
+    <>
+      <mi>c</mi>
+      <mo>=</mo>
+      <mn>1200</mn>
+      <mo>·</mo>
+      <mfrac>
+        {s}
+        {divisions}
+      </mfrac>
+    </>
+  );
+  return (
+    <MathSection heading={copy.math.note.heading}>
+      <p>{copy.math.edoStep.body(keySpelling(tuning, step), n)}</p>
+      <WorkedFormula
+        general={fraction(<mi>s</mi>, <mi>N</mi>)}
+        substituted={fraction(<Live>{formatDecimal(step, 0)}</Live>, <Live>{formatDecimal(n, 0)}</Live>)}
+        result={
+          <>
+            <mi>c</mi>
+            <mo>=</mo>
+            <Live>{centsText(centsAboveTonic(tuning, step))}</Live>
+            {centsUnit}
+          </>
+        }
+      />
+    </MathSection>
+  );
+}
+
+/** An N-EDO note's frequency: k steps from A4, each a factor of 2^(1/N). */
+function EdoFrequencySection({
+  n,
+  note,
+  tuning,
+  referencePitch,
+}: {
+  n: number;
+  note: Note;
+  tuning: Tuning;
+  referencePitch: number;
+}) {
+  const k = edoStepsFromA4(n, note);
+  const { frequency } = resolvePitch(tuning, note, referencePitch);
+  const power = (steps: ReactNode, divisions: ReactNode) => (
+    <msup>
+      <mn>2</mn>
+      <mrow>
+        {steps}
+        <mo>/</mo>
+        {divisions}
+      </mrow>
+    </msup>
+  );
+  const stepOfA = keySpelling(tuning, edoLandmarks(n)[9]!);
+  return (
+    <MathSection heading={copy.math.frequency.heading}>
+      <p>{copy.math.edoFrequency.body(n, stepOfA)}</p>
+      <WorkedFormula
+        general={
+          <>
+            <mi>f</mi>
+            <mo>=</mo>
+            {fA4}
+            <mo>·</mo>
+            {power(<mi>k</mi>, <mi>N</mi>)}
+          </>
+        }
+        substituted={
+          <>
+            <mi>f</mi>
+            <mo>=</mo>
+            <Live>{formatDecimal(referencePitch, HZ_DECIMALS)}</Live>
+            <mo>·</mo>
+            {power(<Live>{formatDecimal(k, 0)}</Live>, <Live>{formatDecimal(n, 0)}</Live>)}
+          </>
+        }
+        result={
+          <>
+            <mi>f</mi>
+            <mo>=</mo>
+            <Live>{formatDecimal(frequency, HZ_DECIMALS)}</Live>
+            <mspace width="0.25em" />
+            <mtext>Hz</mtext>
+          </>
+        }
+      />
+      <p>{copy.math.edoFrequency.steps(noteName(tuning, note), k)}</p>
     </MathSection>
   );
 }
