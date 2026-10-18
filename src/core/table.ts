@@ -5,7 +5,7 @@
 import type { Note } from './pitch';
 import { type Ratio, ratio } from './ratio';
 import {
-  type Tuning,
+  type TuningSystemChoice,
   centsAboveTonic,
   edoDivisions,
   edoLandmarks,
@@ -35,29 +35,29 @@ const fromEdo12 = (cents: number) => cents - 100 * Math.round(cents / 100);
  * Every note of a tuning system in ascending order from its Tonic. An EDO has no Tonic of
  * its own, so its table starts on the step nearest the Tonic; only that step has a ratio.
  */
-export function tuningTable(tuning: Tuning): readonly TuningTableRow[] {
-  const n = edoDivisions(tuning.system);
+export function tuningTable(systemChoice: TuningSystemChoice): readonly TuningTableRow[] {
+  const n = edoDivisions(systemChoice.system);
   if (n === null) {
     return Array.from({ length: 12 }, (_, i) => {
-      const above = tuning.tonic + i;
+      const above = systemChoice.tonic + i;
       const pitchClass = above % 12;
-      const cents = centsAboveTonic(tuning, pitchClass);
+      const cents = centsAboveTonic(systemChoice, pitchClass);
       return {
         note: { pitchClass, octave: BASE_OCTAVE + Math.floor(above / 12) },
-        spelling: keySpelling(tuning, pitchClass),
+        spelling: keySpelling(systemChoice, pitchClass),
         cents,
-        ratio: keyConstruction(tuning, pitchClass)?.ratio ?? null,
+        ratio: keyConstruction(systemChoice, pitchClass)?.ratio ?? null,
         centsFromEdo12: fromEdo12(cents),
       };
     });
   }
-  const start = edoLandmarks(n)[tuning.tonic % 12]!;
+  const start = edoLandmarks(n)[systemChoice.tonic % 12]!;
   return Array.from({ length: n }, (_, i) => {
     const step = start + i;
     const cents = (1200 * i) / n;
     return {
       note: { pitchClass: step % n, octave: BASE_OCTAVE + Math.floor(step / n) },
-      spelling: keySpelling(tuning, step % n),
+      spelling: keySpelling(systemChoice, step % n),
       cents,
       ratio: i === 0 ? UNISON : null,
       centsFromEdo12: fromEdo12(cents),

@@ -720,7 +720,7 @@ export const copy = {
     showEdo12: 'Show 12-EDO versions',
     showEdo12Hint: 'Adds each chord as 12-EDO plays it, joined to its pure version.',
     pinsHeading: 'Chords on the landscape',
-    pinsHint: 'Root position at pure tuning; the 7th chords leave out their fifth to fit three notes.',
+    pinsHint: 'Root position, as pure chords; the 7th chords leave out their fifth to fit three notes.',
     pinsRoughness: 'Relative roughness',
   },
 

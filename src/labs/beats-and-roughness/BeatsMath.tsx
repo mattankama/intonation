@@ -38,7 +38,7 @@ const difference = (f2: ReactNode, f1: ReactNode) => (
 export function BeatsMath({ settings }: LabProps) {
   const [gap] = useGap();
   const { f1, f2, rate, cents } = twoTones(settings, gap);
-  const hasOvertones = timbreHarmonics(settings.timbre, settings.brightness).some((a, i) => i > 0 && a > 0);
+  const hasHarmonicsAboveFirst = timbreHarmonics(settings.timbre, settings.brightness).some((a, i) => i > 0 && a > 0);
   const liveF1 = <Live>{hz(f1)}</Live>;
   const liveF2 = <Live>{hz(f2)}</Live>;
 
@@ -150,7 +150,7 @@ export function BeatsMath({ settings }: LabProps) {
         )}
       </MathSection>
 
-      {hasOvertones && (
+      {hasHarmonicsAboveFirst && (
         <MathSection heading={text.harmonics.heading}>
           <p>{text.harmonics.body}</p>
           <WorkedFormula

@@ -7,7 +7,7 @@ import {
   CHORD_ROOT_OCTAVE,
   CHORD_TYPES,
   type ChordChoice,
-  type Tuning,
+  type TuningSystemChoice,
   edoDivisions,
   edoSystem,
   resolvePitch,
@@ -33,18 +33,18 @@ export const exploredEdo = (settings: Settings): number =>
   edoDivisions(settings.tuningSystem) ?? FALLBACK_EDO;
 
 /** The explored N-EDO as a tuning (EDOs ignore the Tonic). */
-export const edoTuning = (n: number, settings: Settings): Tuning => ({
+export const edoSystemChoice = (n: number, settings: Settings): TuningSystemChoice => ({
   system: edoSystem(n),
   tonic: settings.tonic,
 });
 
 /** The scale: every step from step 0 of octave 4 up to the octave above, as frequencies. */
 export function edoScale(n: number, settings: Settings): readonly number[] {
-  const tuning = edoTuning(n, settings);
+  const systemChoice = edoSystemChoice(n, settings);
   return Array.from(
     { length: n + 1 },
     (_, k) =>
-      resolvePitch(tuning, { pitchClass: k % n, octave: CHORD_ROOT_OCTAVE + Math.floor(k / n) }, settings.referencePitch)
+      resolvePitch(systemChoice, { pitchClass: k % n, octave: CHORD_ROOT_OCTAVE + Math.floor(k / n) }, settings.referencePitch)
         .frequency,
   );
 }
@@ -57,7 +57,7 @@ export const EDO_CHORDS: readonly ChordChoice[] = CHORD_TYPES.flatMap((type) => 
 
 /** A chord as the N-EDO plays it: its steps above step 0, and the tuned chord. */
 export function edoChord(n: number, chord: ChordChoice, settings: Settings) {
-  const tuned = tuneChord(edoTuning(n, settings), chord, settings.referencePitch);
+  const tuned = tuneChord(edoSystemChoice(n, settings), chord, settings.referencePitch);
   const steps = tuned.notes.map((note) => (note.note.octave - CHORD_ROOT_OCTAVE) * n + note.note.pitchClass);
   return { steps, tuned };
 }

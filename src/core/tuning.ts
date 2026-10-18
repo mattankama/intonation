@@ -99,7 +99,7 @@ export const edoStepsFromA4 = (n: number, note: Note): number =>
   (note.octave - REFERENCE_NOTE.octave) * n + note.pitchClass - edoStepOfA(n);
 
 /** A tuning system and the Tonic it is built from (pitch class, 0 = C). */
-export interface Tuning {
+export interface TuningSystemChoice {
   readonly system: TuningSystemId;
   readonly tonic: number;
 }
@@ -210,16 +210,16 @@ function at<T>(table: readonly T[], index: number): T {
 }
 
 /** Semitones from the Tonic up to a key, 0–11. */
-const intervalAboveTonic = (tuning: Tuning, pitchClass: number) => mod(pitchClass - tuning.tonic, 12);
+const intervalAboveTonic = (systemChoice: TuningSystemChoice, pitchClass: number) => mod(pitchClass - systemChoice.tonic, 12);
 
 /**
  * How far a key is from its 12-EDO counterpart, both measured from the Tonic, in cents
  * (e.g. +13.685 for the Pythagorean C♯ in C). Built from the chain, so it never wraps.
  */
-function deviationFromEdo12(tuning: Tuning, pitchClass: number): number {
-  if (!isChain(tuning.system)) return 0;
-  const system = CHAIN_SYSTEMS[tuning.system];
-  const k = chainPosition(system, intervalAboveTonic(tuning, pitchClass));
+function deviationFromEdo12(systemChoice: TuningSystemChoice, pitchClass: number): number {
+  if (!isChain(systemChoice.system)) return 0;
+  const system = CHAIN_SYSTEMS[systemChoice.system];
+  const k = chainPosition(system, intervalAboveTonic(systemChoice, pitchClass));
   return k * (PURE_FIFTH_CENTS - 700) - ratioValue(commaFraction(system, k)) * commaCents(system);
 }
 
@@ -227,10 +227,10 @@ function deviationFromEdo12(tuning: Tuning, pitchClass: number): number {
  * Cents of a key above the Tonic, from 0 up to (not including) 1200. In an N-EDO other
  * than 12-EDO the key is a step, measured from step 0 (the Tonic makes no difference).
  */
-export function centsAboveTonic(tuning: Tuning, pitchClass: number): number {
-  const n = stepEdo(tuning.system);
+export function centsAboveTonic(systemChoice: TuningSystemChoice, pitchClass: number): number {
+  const n = stepEdo(systemChoice.system);
   if (n !== null) return (1200 * mod(pitchClass, n)) / n;
-  return 100 * intervalAboveTonic(tuning, pitchClass) + deviationFromEdo12(tuning, pitchClass);
+  return 100 * intervalAboveTonic(systemChoice, pitchClass) + deviationFromEdo12(systemChoice, pitchClass);
 }
 
 /** A note resolved to sound: its frequency and where it sits. */
@@ -246,23 +246,23 @@ export interface ResolvedPitch {
  * The frequency of a note in a tuning system. A4 always sounds at the Reference pitch;
  * every other note sits at its own cents from A4 in the system: f = f_A4 · 2^(c/1200).
  */
-export function resolvePitch(tuning: Tuning, note: Note, referencePitchHz: number): ResolvedPitch {
-  const n = stepEdo(tuning.system);
+export function resolvePitch(systemChoice: TuningSystemChoice, note: Note, referencePitchHz: number): ResolvedPitch {
+  const n = stepEdo(systemChoice.system);
   if (n !== null) {
     const centsFromA4 = (1200 * edoStepsFromA4(n, note)) / n;
     return {
       frequency: referencePitchHz * 2 ** (centsFromA4 / 1200),
-      centsAboveTonic: centsAboveTonic(tuning, note.pitchClass),
+      centsAboveTonic: centsAboveTonic(systemChoice, note.pitchClass),
       centsFromA4,
     };
   }
   const centsFromA4 =
     100 * semitonesFromA4(note) +
-    deviationFromEdo12(tuning, note.pitchClass) -
-    deviationFromEdo12(tuning, REFERENCE_NOTE.pitchClass);
+    deviationFromEdo12(systemChoice, note.pitchClass) -
+    deviationFromEdo12(systemChoice, REFERENCE_NOTE.pitchClass);
   return {
     frequency: referencePitchHz * 2 ** (centsFromA4 / 1200),
-    centsAboveTonic: centsAboveTonic(tuning, note.pitchClass),
+    centsAboveTonic: centsAboveTonic(systemChoice, note.pitchClass),
     centsFromA4,
   };
 }
@@ -304,7 +304,7 @@ export function spellFifths(position: number): string {
  * rather than C♯ (7 sharps), F♯ rather than G♭. Indexed by pitch class.
  */
 const TONIC_FIFTHS = [0, -5, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5];
-const tonicFifths = (tuning: Tuning) => at(TONIC_FIFTHS, mod(tuning.tonic, 12));
+const tonicFifths = (systemChoice: TuningSystemChoice) => at(TONIC_FIFTHS, mod(systemChoice.tonic, 12));
 
 /** Fifths above C of a Tonic's spelling (D♭ → −5, F♯ → 6). */
 export const fifthsOfTonic = (pitchClass: number): number => at(TONIC_FIFTHS, mod(pitchClass, 12));
@@ -318,10 +318,10 @@ export function tonicSpelling(pitchClass: number): string {
 const FAMILIAR_FIFTHS = [0, 7, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5];
 
 /** Fifths above C of the spelling a tuning system gives a key. */
-export function keyFifths(tuning: Tuning, pitchClass: number): number {
-  if (!isChain(tuning.system)) return at(FAMILIAR_FIFTHS, mod(pitchClass, 12));
-  const system = CHAIN_SYSTEMS[tuning.system];
-  return tonicFifths(tuning) + chainPosition(system, intervalAboveTonic(tuning, pitchClass));
+export function keyFifths(systemChoice: TuningSystemChoice, pitchClass: number): number {
+  if (!isChain(systemChoice.system)) return at(FAMILIAR_FIFTHS, mod(pitchClass, 12));
+  const system = CHAIN_SYSTEMS[systemChoice.system];
+  return tonicFifths(systemChoice) + chainPosition(system, intervalAboveTonic(systemChoice, pitchClass));
 }
 
 /** An N-EDO key, named by its step (decision #8): "step 10 of 31". */
@@ -331,10 +331,10 @@ const stepName = (n: number, step: number) => `step ${mod(step, n)} of ${n}`;
  * The historical spelling of a key in a tuning system, e.g. "G♯" or "A♭". Letter names
  * belong to 12-EDO and the 12-note systems; any other N-EDO names the step, "step 10 of 31".
  */
-export function keySpelling(tuning: Tuning, pitchClass: number): string {
-  const n = stepEdo(tuning.system);
+export function keySpelling(systemChoice: TuningSystemChoice, pitchClass: number): string {
+  const n = stepEdo(systemChoice.system);
   if (n !== null) return stepName(n, pitchClass);
-  return spellFifths(keyFifths(tuning, pitchClass));
+  return spellFifths(keyFifths(systemChoice, pitchClass));
 }
 
 /**
@@ -342,10 +342,10 @@ export function keySpelling(tuning: Tuning, pitchClass: number): string {
  * with the letter, so the key above B4 spelled B♯ is "B♯4", not "B♯5". An N-EDO note is
  * its step and octave, "step 10 of 31, octave 4" (octave 4 starts at the step nearest C4).
  */
-export function noteName(tuning: Tuning, note: Note): string {
-  const n = stepEdo(tuning.system);
+export function noteName(systemChoice: TuningSystemChoice, note: Note): string {
+  const n = stepEdo(systemChoice.system);
   if (n !== null) return `${stepName(n, note.pitchClass)}, octave ${note.octave}`;
-  const position = keyFifths(tuning, note.pitchClass);
+  const position = keyFifths(systemChoice, note.pitchClass);
   const { letter, accidental } = letterAndAccidental(position);
   const natural = at(FIFTHS_NATURALS, letter);
   const octaveShift = Math.round((natural + accidental - note.pitchClass) / 12);
@@ -363,11 +363,11 @@ export interface ChainOfFifths {
 }
 
 /** How a 12-note system is built from its Tonic; null for an EDO, which has no chain. */
-export function chainOfFifths(tuning: Tuning): ChainOfFifths | null {
-  if (!isChain(tuning.system)) return null;
-  const system = CHAIN_SYSTEMS[tuning.system];
+export function chainOfFifths(systemChoice: TuningSystemChoice): ChainOfFifths | null {
+  if (!isChain(systemChoice.system)) return null;
+  const system = CHAIN_SYSTEMS[systemChoice.system];
   const positions = Array.from({ length: 12 }, (_, i) => system.start + i);
-  const notes = positions.map((k) => spellFifths(tonicFifths(tuning) + k));
+  const notes = positions.map((k) => spellFifths(tonicFifths(systemChoice) + k));
   // Twelve fifths make seven octaves, so the closing fifth is whatever the other 11 leave.
   const chainCents = positions.slice(0, 11).reduce((sum, k) => sum + fifthCents(system, k), 0);
   return {
@@ -401,10 +401,10 @@ export interface KeyConstruction {
 }
 
 /** The construction of a key; null for an EDO, which is not built from fifths. */
-export function keyConstruction(tuning: Tuning, pitchClass: number): KeyConstruction | null {
-  if (!isChain(tuning.system)) return null;
-  const system = CHAIN_SYSTEMS[tuning.system];
-  const k = chainPosition(system, intervalAboveTonic(tuning, pitchClass));
+export function keyConstruction(systemChoice: TuningSystemChoice, pitchClass: number): KeyConstruction | null {
+  if (!isChain(systemChoice.system)) return null;
+  const system = CHAIN_SYSTEMS[systemChoice.system];
+  const k = chainPosition(system, intervalAboveTonic(systemChoice, pitchClass));
   const pythagorean = pythagoreanRatio(k);
   const fraction = commaFraction(system, k);
   const exact =
@@ -412,12 +412,12 @@ export function keyConstruction(tuning: Tuning, pitchClass: number): KeyConstruc
       ? multiplyRatios(pythagorean, ratioPower(COMMAS[system.comma], -fraction.num))
       : null;
   return {
-    spelling: keySpelling(tuning, pitchClass),
+    spelling: keySpelling(systemChoice, pitchClass),
     fifths: k,
     pythagorean,
     comma: system.comma,
     commaFraction: fraction,
     ratio: exact,
-    cents: centsAboveTonic(tuning, pitchClass),
+    cents: centsAboveTonic(systemChoice, pitchClass),
   };
 }

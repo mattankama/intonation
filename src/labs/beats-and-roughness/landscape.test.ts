@@ -45,7 +45,7 @@ describe('“Show 12-EDO versions”, in the URL (?edo12=1)', () => {
   });
 });
 
-describe('the pinned chords: the 9 chord types in root position at pure tuning', () => {
+describe('the pinned chords: the 9 chord types in root position as pure chords', () => {
   const pins = landscapePins();
   const pin = (type: string) => pins.find((p) => p.type === type)!;
 

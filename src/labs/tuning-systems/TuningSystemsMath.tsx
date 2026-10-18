@@ -37,9 +37,9 @@ export function TuningSystemsMath({ settings }: LabProps) {
   const [systems] = useComparedSystems();
   const [picks] = usePicks(systems, settings);
   const last = picks[picks.length - 1];
-  const tuning = last ? { system: last.system, tonic: settings.tonic } : null;
-  const row = last && tuning ? tuningTable(tuning).find((r) => r.note.pitchClass === last.note.pitchClass) : undefined;
-  const name = last && tuning ? noteName(tuning, last.note) : '';
+  const systemChoice = last ? { system: last.system, tonic: settings.tonic } : null;
+  const row = last && systemChoice ? tuningTable(systemChoice).find((r) => r.note.pitchClass === last.note.pitchClass) : undefined;
+  const name = last && systemChoice ? noteName(systemChoice, last.note) : '';
   const interval = picks.length === 2 ? intervalOf(picks[0]!, picks[1]!) : null;
 
   return (

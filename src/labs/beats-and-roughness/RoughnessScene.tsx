@@ -54,7 +54,7 @@ export interface RoughnessSceneProps {
 
 /**
  * The 3D roughness landscape (issue #29): every three-note chord on the bottom note, lower ×
- * upper interval, height = relative roughness; the chord types pinned at pure tuning. Click
+ * upper interval, height = relative roughness; the chord types pinned as pure chords. Click
  * anywhere to hear that chord. Loaded lazily (with three.js) by RoughnessVisual.
  */
 export default function RoughnessScene(props: RoughnessSceneProps) {

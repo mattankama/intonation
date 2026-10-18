@@ -43,7 +43,7 @@ function shortName(column: SystemColumn, note: TunedNote): string {
 /** A column's heading: the tuning system, with its Tonic for a 12-note system. */
 export function columnHeading(column: SystemColumn): string {
   const name = copy.settings.tuningSystem.name(column.system);
-  return text.systemHeading(name, isEdo(column.system) ? null : tonicSpelling(column.tuning.tonic));
+  return text.systemHeading(name, isEdo(column.system) ? null : tonicSpelling(column.systemChoice.tonic));
 }
 
 export function remarkText(remark: ChordRemark): string {

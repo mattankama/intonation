@@ -20,7 +20,7 @@ export {
   edoStepsFromA4,
   edoLandmarks,
   isEdo,
-  type Tuning,
+  type TuningSystemChoice,
   type ChainOfFifths,
   type ResolvedPitch,
   type KeyConstruction,
