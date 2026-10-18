@@ -1,0 +1,81 @@
+import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react';
+import { type Note, edo12NoteName } from '../core';
+import { copy } from '../copy/en';
+
+/** Black keys by pitch class, with the white key (index in octave) they sit after. */
+const BLACK_KEYS = [
+  { pitchClass: 1, after: 0 },
+  { pitchClass: 3, after: 1 },
+  { pitchClass: 6, after: 3 },
+  { pitchClass: 8, after: 4 },
+  { pitchClass: 10, after: 5 },
+];
+/** The keyboard spans these octaves; phones show only the first. */
+const OCTAVES = [4, 5];
+
+export interface KeyboardProps {
+  /** Start a held note (pointer down). */
+  onNoteOn(note: Note): void;
+  /** Release a held note (pointer up / leave). */
+  onNoteOff(note: Note): void;
+  /** A short note from the computer keyboard (Enter or Space on a focused key). */
+  onPluck(note: Note): void;
+}
+
+/** The on-screen keyboard, two octaves from C4. */
+export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
+  const key = (note: Note, colour: 'white' | 'black', style?: CSSProperties) => {
+    const name = edo12NoteName(note);
+    const down = (e: PointerEvent<HTMLButtonElement>) => {
+      if (e.button !== 0) return;
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+      e.currentTarget.dataset.down = 'true';
+      onNoteOn(note);
+    };
+    const up = (e: PointerEvent<HTMLButtonElement>) => {
+      if (e.currentTarget.dataset.down !== 'true') return;
+      delete e.currentTarget.dataset.down;
+      onNoteOff(note);
+    };
+    const keyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+      if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
+        e.preventDefault();
+        onPluck(note);
+      }
+    };
+    return (
+      <button
+        key={name}
+        type="button"
+        className={`key key-${colour} ml-focusable`}
+        style={style}
+        aria-label={name}
+        onPointerDown={down}
+        onPointerUp={up}
+        onPointerCancel={up}
+        onLostPointerCapture={up}
+        onKeyDown={keyDown}
+      >
+        {colour === 'white' && <span className="key-label">{name}</span>}
+      </button>
+    );
+  };
+
+  return (
+    <div className="keyboard" role="group" aria-label={copy.shell.keyboardLabel}>
+      {OCTAVES.map((octave) => (
+        <div key={octave} className="keyboard-octave" data-octave={octave}>
+          {/* Chromatic DOM order, so Tab walks the keys in pitch order. */}
+          {Array.from({ length: 12 }, (_, pitchClass) => {
+            const black = BLACK_KEYS.find((b) => b.pitchClass === pitchClass);
+            return black
+              ? key({ pitchClass, octave }, 'black', {
+                  left: `calc(${((black.after + 1) / 7) * 100}% - var(--black-key-width) / 2)`,
+                })
+              : key({ pitchClass, octave }, 'white');
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}

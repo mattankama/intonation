@@ -1,0 +1,495 @@
+/* Intonation app styles. Values come from design-system tokens only (design-system/README.md). */
+
+:root {
+  --rail-width: 248px;
+  --inspector-width: 340px;
+  --black-key-width: calc(100% / 7 * 0.6);
+  --phone-breakpoint: 700px; /* documentation only: media queries can't read variables */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.ml-focusable:focus-visible,
+.tab-panel:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.button-tertiary {
+  font: var(--type-label);
+  background: var(--action-tertiary-bg);
+  color: var(--text-body);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+
+.placeholder-text {
+  font: var(--type-body);
+  color: var(--text-disabled);
+}
+
+/* ---------- Wordmark: serif, brand red, no symbol ---------- */
+.wordmark {
+  font: 400 26px/1.2 var(--font-serif);
+  color: var(--text-brand);
+  white-space: nowrap;
+}
+.wordmark:hover {
+  text-decoration: none;
+}
+.wordmark-compact {
+  font-size: 20px;
+}
+
+/* ---------- Home: index template ---------- */
+.home {
+  min-height: 100%;
+  background: var(--surface-warm);
+}
+.home-masthead {
+  height: var(--masthead-height);
+  background: var(--surface-page);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-gutter);
+}
+.home-main {
+  max-width: var(--container-content);
+  margin: 0 auto;
+  padding: var(--space-section) var(--space-gutter);
+}
+.home-hero {
+  max-width: 60ch;
+  margin-bottom: var(--space-section);
+}
+.home-headline {
+  font: var(--type-display-sans-lg);
+  color: var(--text-heading);
+  margin-bottom: var(--heading-margin-bottom);
+}
+.home-intro {
+  font: var(--type-body-loose);
+}
+.lab-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+.lab-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+  background: var(--surface-card);
+  color: var(--text-body);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xxxl);
+}
+.lab-card:hover {
+  background: var(--surface-soft);
+  text-decoration: none;
+}
+.lab-card-preview {
+  aspect-ratio: 16 / 10;
+  background: var(--surface-tint);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-sm);
+}
+.lab-card-title {
+  font: var(--type-heading-card);
+}
+.lab-card-intro {
+  font: var(--type-body-loose);
+}
+
+@media (max-width: 974px) {
+  .lab-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .home-masthead,
+  .home-main {
+    padding-left: var(--space-xxxl);
+    padding-right: var(--space-xxxl);
+  }
+}
+@media (max-width: 600px) {
+  .lab-cards {
+    grid-template-columns: 1fr;
+  }
+  .home-masthead,
+  .home-main {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+  .home-headline {
+    font: var(--type-display-sans-md);
+  }
+  .lab-card {
+    padding: var(--space-xxl);
+  }
+}
+
+/* ---------- Lab page: Instrument workspace ---------- */
+.lab-layout {
+  display: grid;
+  grid-template-columns: var(--rail-width) minmax(0, 1fr) var(--inspector-width);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'rail centre inspector'
+    'rail keys keys';
+  height: 100vh;
+  height: 100dvh;
+  background: var(--surface-page);
+}
+
+.rail {
+  grid-area: rail;
+  background: var(--surface-soft);
+  border-right: var(--border-width) solid var(--border-hairline);
+  padding: var(--space-xl) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow: auto;
+}
+.rail .wordmark {
+  margin-bottom: var(--space-sm);
+}
+.rail-heading {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  margin-top: var(--space-sm);
+}
+
+.lab-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lab-nav-link {
+  display: block;
+  font: var(--type-label);
+  color: var(--text-body);
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+}
+.lab-nav-link:hover {
+  background: var(--ink-wash-8);
+  text-decoration: none;
+}
+.lab-nav-link[aria-current='page'] {
+  background: var(--ink-wash-8);
+  font-weight: 600;
+}
+
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field-label {
+  font: var(--type-label);
+}
+.field-control {
+  font: var(--type-body);
+  color: var(--text-body);
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-field);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  width: 100%;
+}
+.field-control[aria-invalid='true'] {
+  border-color: var(--error);
+}
+.field-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field-hint {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+
+.mobilebar {
+  display: none;
+}
+
+.lab-centre {
+  grid-area: centre;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.lab-head {
+  padding: var(--space-md) var(--space-xxl) var(--space-xs);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.lab-title {
+  font: var(--type-heading-lg);
+  color: var(--text-heading);
+}
+.lab-intro {
+  font: var(--type-body);
+  flex: 1 1 24ch;
+}
+.lab-visual {
+  flex: 1;
+  min-height: 0;
+  margin: 0 var(--space-xxl) var(--space-md);
+  background: var(--surface-warm);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.inspector {
+  grid-area: inspector;
+  border-left: var(--border-width) solid var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.tabs {
+  display: flex;
+  border-bottom: var(--border-width) solid var(--border-hairline);
+}
+.tab {
+  flex: 1;
+  font: var(--type-label);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 14px 0;
+  cursor: pointer;
+}
+.tab[aria-selected='true'] {
+  border-bottom-color: var(--primary);
+  font-weight: 700;
+}
+.tab-panel {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+.tab-panel[hidden] {
+  display: none;
+}
+
+.keys {
+  grid-area: keys;
+  border-top: var(--border-width) solid var(--border-hairline);
+  padding: var(--space-xs) var(--space-xxl);
+}
+
+/* ---------- Keyboard ---------- */
+.keyboard {
+  display: flex;
+  height: 96px;
+  user-select: none;
+  touch-action: none;
+}
+.keyboard-octave {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+.key {
+  padding: 0;
+  cursor: pointer;
+  border: none;
+}
+.key-white {
+  flex: 1;
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-field);
+  border-left: none;
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+}
+.keyboard-octave:first-child .key-white:first-of-type {
+  border-left: var(--border-width) solid var(--border-field);
+}
+.key-black {
+  position: absolute;
+  top: 0;
+  width: var(--black-key-width);
+  height: 58%;
+  background: var(--ink);
+  border-radius: 0 0 3px 3px;
+  z-index: 1;
+}
+.key-white:active,
+.key-white[data-down='true'] {
+  background: var(--accent-gold-soft);
+}
+.key-black:active,
+.key-black[data-down='true'] {
+  background: var(--primary-pressed);
+}
+.key-label {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  pointer-events: none;
+}
+
+/* ---------- The math ---------- */
+.math-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font: var(--type-body);
+}
+.math-heading {
+  font: var(--type-heading-sm);
+}
+.worked-formula {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+}
+.worked-formula math {
+  font-size: 18px;
+}
+/* Live values from the screen: bold on a light tint (decision #16). */
+.math-live {
+  font-weight: 700;
+  background: var(--band-teal);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.math-sources ul {
+  list-style: disc;
+  padding-left: 1.2em;
+  font: var(--type-caption);
+}
+
+/* ---------- Phone: below 700px ---------- */
+@media (max-width: 699.98px) {
+  .lab-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(340px, 1fr) auto auto;
+    grid-template-areas:
+      'bar'
+      'menu'
+      'centre'
+      'inspector'
+      'keys';
+    height: auto;
+    min-height: 100dvh;
+  }
+  .rail {
+    display: none;
+    grid-area: menu;
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border-hairline);
+    padding: var(--space-md);
+  }
+  .rail[data-menu-open='true'] {
+    display: flex;
+  }
+  .rail .wordmark {
+    display: none;
+  }
+  .mobilebar {
+    grid-area: bar;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-md);
+    border-bottom: var(--border-width) solid var(--border-hairline);
+  }
+  .chip {
+    font: var(--type-label);
+    padding: 5px 8px;
+    border: var(--border-width) solid var(--border-field);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+  .menu-button {
+    margin-left: auto;
+  }
+  .lab-head {
+    padding: var(--space-sm) var(--space-md) 4px;
+  }
+  .lab-visual {
+    margin: 0 var(--space-md) var(--space-sm);
+  }
+  .inspector {
+    border-left: none;
+    border-top: var(--border-width) solid var(--border-hairline);
+    max-height: 300px;
+  }
+  .keys {
+    padding: var(--space-xs);
+  }
+  .keyboard {
+    height: 80px;
+  }
+  .keyboard-octave + .keyboard-octave {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
