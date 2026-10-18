@@ -205,9 +205,9 @@ const COLUMN_GAP = 6;
 const COLUMN_CENTS = 25;
 
 export function chordColumnsPreview(): ChordColumnsPreview {
-  const { pureRoot, systems } = chordColumns(readChordState(new URLSearchParams()), DEFAULT_SETTINGS);
+  const { pure, systems } = chordColumns(readChordState(new URLSearchParams()), DEFAULT_SETTINGS);
   const offsets: { system: TuningSystemId | null; cents: number[] }[] = [
-    { system: null, cents: pureRoot.notes.map(() => 0) },
+    { system: null, cents: pure.frequencies.map(() => 0) },
     ...systems.map((c) => ({ system: c.system, cents: c.tuned.notes.map((n) => n.centsOffPure) })),
   ];
   const width = (PREVIEW_WIDTH - 2 * MARGIN - COLUMN_GAP * (offsets.length - 1)) / offsets.length;

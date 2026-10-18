@@ -798,7 +798,7 @@ button {
 .cc-column-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   column-gap: var(--space-xs);
   align-items: start;
   min-height: 56px;
@@ -816,6 +816,22 @@ button {
   grid-row: 1 / 3;
   grid-column: 2;
   padding: 6px 10px;
+}
+/* Decision #7: the pure chord on this column's own root; the pure column says whose root it uses. */
+.cc-play-pure,
+.cc-column-anchor {
+  grid-row: 3;
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 4px;
+}
+.cc-play-pure {
+  padding: 2px 8px;
+  font: var(--type-caption);
+}
+.cc-column-anchor {
+  font: var(--type-caption);
+  color: var(--text-body);
 }
 .cc-notes,
 .cc-systems {

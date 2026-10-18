@@ -331,7 +331,12 @@ export const copy = {
     playAll: 'Play all in turn',
     stop: 'Stop',
     play: (column: string) => `Play ${column}`,
+    /** Decision #7: each system's pure chord is built on the root that system produces. */
+    playPure: (column: string) => `Play the pure chord on the root of ${column}`,
+    pureShort: 'Pure',
     pureHeading: 'Pure chord',
+    /** The pure column is the first compared system's target. */
+    pureAnchor: (column: string) => `On the root of ${column}`,
     notesLabel: (column: string) => `Notes of the chord in ${column}, highest first`,
     centsOff: 'Cents off pure',
     /** An N-EDO note in a column, short: "step 10". */
