@@ -9,8 +9,11 @@ import {
   type CommaPumpId,
   type NamedTuningSystemId,
   type TimbrePresetId,
+  type TuningSystemChoice,
   type TuningSystemId,
+  isEdo,
   stepEdo,
+  tonicSpelling,
 } from '../core';
 import type { LabId } from '../labs/ids';
 
@@ -151,8 +154,14 @@ export const copy = {
         const named = system as NamedTuningSystemId;
         return (length === 'short' ? TUNING_SYSTEM_SHORT_NAMES : TUNING_SYSTEM_NAMES)[named];
       },
-      /** The phone top-bar chip; the Tonic is left out for EDOs. */
-      chip: (system: string, tonic: string | null) => (tonic ? `${system} in ${tonic}` : system),
+      /**
+       * A tuning system with its Tonic: "¼-comma meantone in C"; just "31-EDO" for an EDO
+       * (EDOs ignore the Tonic). The phone top-bar chip and Chord comparison's column headings.
+       */
+      withTonic(choice: TuningSystemChoice, length: 'full' | 'short' = 'full'): string {
+        const name = this.name(choice.system, length);
+        return isEdo(choice.system) ? name : `${name} in ${tonicSpelling(choice.tonic)}`;
+      },
     },
     edoSteps: {
       label: 'Steps per octave',
@@ -323,8 +332,6 @@ export const copy = {
     stop: 'Stop',
     play: (column: string) => `Play ${column}`,
     pureHeading: 'Pure chord',
-    /** A column's heading: "¼-comma meantone in C"; EDOs have no Tonic. */
-    systemHeading: (system: string, tonic: string | null) => (tonic ? `${system} in ${tonic}` : system),
     notesLabel: (column: string) => `Notes of the chord in ${column}, highest first`,
     centsOff: 'Cents off pure',
     /** An N-EDO note in a column, short: "step 10". */
@@ -465,6 +472,7 @@ export const copy = {
     phase: {
       heading: 'Phase',
       body: 'Every harmonic starts in sine phase, with no phase shift. Shifting a harmonic’s phase would change the picture of the waveform but not what you hear: the ear follows the strengths of the harmonics, not how their peaks line up.',
+      forEvery: 'for every',
     },
   },
 

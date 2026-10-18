@@ -189,7 +189,7 @@ export function SoundWavesMath({ settings }: LabProps) {
               <mo>=</mo>
               <mn>0</mn>
               <mspace width="0.5em" />
-              <mtext>for every</mtext>
+              <mtext>{text.phase.forEvery}</mtext>
               <mspace width="0.25em" />
               <mi>n</mi>
             </>

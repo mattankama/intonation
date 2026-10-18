@@ -1,6 +1,6 @@
 import { useCallback, useId, useMemo, useState } from 'react';
 import { audioEngine } from '../audio/engine';
-import { type Note, type TuningSystemId, isEdo, resolvePitch, tonicSpelling } from '../core';
+import { type Note, type TuningSystemId, resolvePitch } from '../core';
 import { copy } from '../copy/en';
 import type { LabDefinition } from '../labs/registry';
 import { Sources } from '../math/MathParts';
@@ -78,10 +78,7 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
       <header className="mobilebar">
         <Wordmark compact />
         <span className="chip chip-shrink">
-          {copy.settings.tuningSystem.chip(
-            copy.settings.tuningSystem.name(systemChoice.system, 'short'),
-            isEdo(systemChoice.system) ? null : tonicSpelling(systemChoice.tonic),
-          )}
+          {copy.settings.tuningSystem.withTonic(systemChoice, 'short')}
         </span>
         <span className="chip">
           {copy.settings.referencePitch.chip(String(settings.referencePitch))}

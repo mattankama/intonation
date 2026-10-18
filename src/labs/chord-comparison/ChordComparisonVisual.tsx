@@ -6,10 +6,8 @@ import {
   type TunedNote,
   chordTones,
   isCustomTimbre,
-  isEdo,
   pureChord,
   stepEdo,
-  tonicSpelling,
 } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatDecimal, formatHz, formatRatio } from '../../format/numbers';
@@ -42,8 +40,7 @@ function shortName(column: SystemColumn, note: TunedNote): string {
 
 /** A column's heading: the tuning system, with its Tonic for a 12-note system. */
 export function columnHeading(column: SystemColumn): string {
-  const name = copy.settings.tuningSystem.name(column.system);
-  return text.systemHeading(name, isEdo(column.system) ? null : tonicSpelling(column.systemChoice.tonic));
+  return copy.settings.tuningSystem.withTonic(column.systemChoice);
 }
 
 export function remarkText(remark: ChordRemark): string {

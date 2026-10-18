@@ -1,7 +1,16 @@
-import { CENTS_PER_OCTAVE, cents, chordTones, mappedSteps, pureChord, ratio as exactRatio, stepEdo } from '../../core';
+import {
+  CENTS_PER_OCTAVE,
+  cents,
+  chordTones,
+  isEdo,
+  mappedSteps,
+  pureChord,
+  ratio as exactRatio,
+  stepEdo,
+} from '../../core';
 import { copy } from '../../copy/en';
-import { HZ_DECIMALS, formatCents, formatDecimal, formatRatio } from '../../format/numbers';
-import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
+import { formatCents, formatDecimal, formatRatio } from '../../format/numbers';
+import { Live, MathSection, WorkedFormula, log2, sub, twoDecimalHz, unit } from '../../math/MathParts';
 import type { LabProps } from '../registry';
 import { columnHeading } from './ChordComparisonVisual';
 import { chordColumns, useChordComparison } from './useChordComparison';
@@ -17,19 +26,6 @@ export const CHORD_COMPARISON_SOURCES = [
 ];
 
 const FIFTH = exactRatio(3, 2);
-const hz = (value: number) => formatDecimal(value, HZ_DECIMALS);
-const sub = (base: string, index: string) => (
-  <msub>
-    <mi>{base}</mi>
-    <mtext>{index}</mtext>
-  </msub>
-);
-const unit = (u: string) => (
-  <>
-    <mspace width="0.2em" />
-    <mtext>{u}</mtext>
-  </>
-);
 
 /**
  * The math of the first column: its pure target, its note furthest from pure, its
@@ -59,7 +55,7 @@ export function ChordComparisonMath({ settings }: LabProps) {
   const strongest =
     ranked.find(({ pair }) => pair.lower === furthest.i || pair.upper === furthest.i) ?? ranked[0];
   const edo = columns.systems.map((c) => stepEdo(c.system)).find((n) => n !== null);
-  const hasChain = columns.systems.some((c) => !c.system.endsWith('-edo'));
+  const hasChain = columns.systems.some((c) => !isEdo(c.system));
   const chordName = copy.chords.name(copy.chords.roots[state.chord.root]!, state.chord.type);
 
   return (
@@ -80,7 +76,7 @@ export function ChordComparisonMath({ settings }: LabProps) {
             <>
               {sub('f', 'pure')}
               <mo>=</mo>
-              <Live>{hz(root.frequency)}</Live>
+              <Live>{twoDecimalHz(root.frequency)}</Live>
               <mo>×</mo>
               <Live>{formatRatio(ratio)}</Live>
             </>
@@ -89,7 +85,7 @@ export function ChordComparisonMath({ settings }: LabProps) {
             <>
               {sub('f', 'pure')}
               <mo>=</mo>
-              <Live>{hz(furthest.note.pureFrequency)}</Live>
+              <Live>{twoDecimalHz(furthest.note.pureFrequency)}</Live>
               {unit('Hz')}
             </>
           }
@@ -105,10 +101,7 @@ export function ChordComparisonMath({ settings }: LabProps) {
               <mo>=</mo>
               <mn>1200</mn>
               <mo>·</mo>
-              <msub>
-                <mi>log</mi>
-                <mn>2</mn>
-              </msub>
+              {log2}
               <mfrac>
                 <mi>f</mi>
                 {sub('f', 'pure')}
@@ -121,13 +114,10 @@ export function ChordComparisonMath({ settings }: LabProps) {
               <mo>=</mo>
               <mn>1200</mn>
               <mo>·</mo>
-              <msub>
-                <mi>log</mi>
-                <mn>2</mn>
-              </msub>
+              {log2}
               <mfrac>
-                <Live>{hz(furthest.note.frequency)}</Live>
-                <Live>{hz(furthest.note.pureFrequency)}</Live>
+                <Live>{twoDecimalHz(furthest.note.frequency)}</Live>
+                <Live>{twoDecimalHz(furthest.note.pureFrequency)}</Live>
               </mfrac>
             </>
           }
@@ -176,11 +166,11 @@ export function ChordComparisonMath({ settings }: LabProps) {
                   <mo>|</mo>
                   <Live>{strongest.beat.harmonics[0]}</Live>
                   <mo>·</mo>
-                  <Live>{hz(notes[strongest.pair.lower]!.frequency)}</Live>
+                  <Live>{twoDecimalHz(notes[strongest.pair.lower]!.frequency)}</Live>
                   <mo>−</mo>
                   <Live>{strongest.beat.harmonics[1]}</Live>
                   <mo>·</mo>
-                  <Live>{hz(notes[strongest.pair.upper]!.frequency)}</Live>
+                  <Live>{twoDecimalHz(notes[strongest.pair.upper]!.frequency)}</Live>
                   <mo>|</mo>
                 </>
               }
@@ -189,7 +179,7 @@ export function ChordComparisonMath({ settings }: LabProps) {
                   <mi>Δ</mi>
                   <mi>f</mi>
                   <mo>=</mo>
-                  <Live>{hz(strongest.beat.rate)}</Live>
+                  <Live>{twoDecimalHz(strongest.beat.rate)}</Live>
                   {unit('Hz')}
                 </>
               }
@@ -212,10 +202,7 @@ export function ChordComparisonMath({ settings }: LabProps) {
                 <mo>(</mo>
                 <mi>N</mi>
                 <mo>·</mo>
-                <msub>
-                  <mi>log</mi>
-                  <mn>2</mn>
-                </msub>
+                {log2}
                 <mfrac>
                   <mn>3</mn>
                   <mn>2</mn>

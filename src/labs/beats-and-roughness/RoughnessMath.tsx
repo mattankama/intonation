@@ -8,8 +8,8 @@ import {
   stackedChord,
 } from '../../core';
 import { copy } from '../../copy/en';
-import { HZ_DECIMALS, formatCents, formatDecimal } from '../../format/numbers';
-import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
+import { formatCents, formatDecimal } from '../../format/numbers';
+import { Live, MathSection, WorkedFormula, sub, twoDecimalHz, unit } from '../../math/MathParts';
 import type { LabProps } from '../registry';
 import { PINS, pinName, useLandscape, usePlayedChord } from './roughnessState';
 
@@ -19,21 +19,9 @@ const SOURCES = copy.math.sources;
 export const ROUGHNESS_SOURCES = [SOURCES.plompLevelt, SOURCES.setharesTtss];
 
 const { b1, b2 } = ROUGHNESS_CONSTANTS;
-const hz = (value: number) => formatDecimal(value, HZ_DECIMALS);
 const n4 = (value: number) => formatDecimal(value, 4);
 const cents = (value: number) => formatCents(value, 'controls');
-const sub = (name: string, index: string) => (
-  <msub>
-    <mi>{name}</mi>
-    <mn>{index}</mn>
-  </msub>
-);
-const unitHz = (
-  <>
-    <mspace width="0.1em" />
-    <mtext>Hz</mtext>
-  </>
-);
+const unitHz = unit('Hz');
 
 /** The pair curve a · (e^(−b₁·x) − e^(−b₂·x)), with a and x given as nodes. */
 function pairCurve(a: ReactNode, x: ReactNode) {
@@ -101,7 +89,7 @@ export function RoughnessMath({ settings }: LabProps) {
             <>
               <mi>f</mi>
               <mo>=</mo>
-              <Live>{hz(settings.referencePitch)}</Live>
+              <Live>{twoDecimalHz(settings.referencePitch)}</Live>
               <mo>·</mo>
               <msup>
                 <mn>2</mn>
@@ -117,7 +105,7 @@ export function RoughnessMath({ settings }: LabProps) {
             <>
               <mi>f</mi>
               <mo>=</mo>
-              <mn>{hz(bottomHz)}</mn>
+              <mn>{twoDecimalHz(bottomHz)}</mn>
               {unitHz}
             </>
           }
@@ -125,7 +113,7 @@ export function RoughnessMath({ settings }: LabProps) {
       </MathSection>
 
       <MathSection heading={text.pair.heading}>
-        <p>{text.pair.body(formatDecimal(s, 5), hz(f2 - f1))}</p>
+        <p>{text.pair.body(formatDecimal(s, 5), twoDecimalHz(f2 - f1))}</p>
         <WorkedFormula
           general={
             <>

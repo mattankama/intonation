@@ -20,8 +20,8 @@ import {
   tonicSpelling,
 } from '../core';
 import { copy } from '../copy/en';
-import { HZ_DECIMALS, formatDecimal, formatRatio } from '../format/numbers';
-import { Live, MathSection, WorkedFormula } from './MathParts';
+import { formatRatio } from '../format/numbers';
+import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents, twoDecimalHz, unit, wholeNumber } from './MathParts';
 
 const SOURCES = copy.math.sources;
 
@@ -44,33 +44,10 @@ export function noteMathSources(systemChoice: TuningSystemChoice): readonly stri
   }
 }
 
-const CENTS_DECIMALS = 3;
-const centsText = (value: number) => formatDecimal(value, CENTS_DECIMALS);
-const centsUnit = (
-  <>
-    <mspace width="0.1em" />
-    <mtext>¢</mtext>
-  </>
-);
-
-const fA4 = (
-  <msub>
-    <mi>f</mi>
-    <mtext>A4</mtext>
-  </msub>
-);
-const rP = (
-  <msub>
-    <mi>r</mi>
-    <mtext>P</mtext>
-  </msub>
-);
-const cP = (
-  <msub>
-    <mi>c</mi>
-    <mtext>P</mtext>
-  </msub>
-);
+const centsUnit = unit('¢');
+const fA4 = sub('f', 'A4');
+const rP = sub('r', 'P');
+const cP = sub('c', 'P');
 
 /** The note just played: how its key is built, then its frequency from the Reference pitch. */
 export function NoteMath({
@@ -127,15 +104,9 @@ function ConstructionSection({
     <>
       <mi>c</mi>
       <mo>=</mo>
-      <Live>{centsText(construction.cents)}</Live>
+      <Live>{threeDecimalCents(construction.cents)}</Live>
       {centsUnit}
     </>
-  );
-  const log2 = (
-    <msub>
-      <mi>log</mi>
-      <mn>2</mn>
-    </msub>
   );
 
   // Only pure fifths on the way: the key is its Pythagorean ratio.
@@ -212,7 +183,7 @@ function ConstructionSection({
                   <mn>{formatRatio(commaRatio(comma))}</mn>
                   <mo>)</mo>
                 </mrow>
-                <Live>{formatDecimal(-n, 0)}</Live>
+                <Live>{wholeNumber(-n)}</Live>
               </msup>
             </>
           }
@@ -255,11 +226,11 @@ function ConstructionSection({
           <>
             <mi>c</mi>
             <mo>=</mo>
-            <Live>{centsText(cents(pythagorean))}</Live>
+            <Live>{threeDecimalCents(cents(pythagorean))}</Live>
             {sign}
             <Live>{formatRatio(f)}</Live>
             <mo>·</mo>
-            <Live>{centsText(cents(commaRatio(comma)))}</Live>
+            <Live>{threeDecimalCents(cents(commaRatio(comma)))}</Live>
           </>
         }
         result={centsResult}
@@ -306,16 +277,16 @@ function FrequencySection({
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(referencePitch, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(referencePitch)}</Live>
             <mo>·</mo>
-            {exponent(<Live>{centsText(centsFromA4)}</Live>)}
+            {exponent(<Live>{threeDecimalCents(centsFromA4)}</Live>)}
           </>
         }
         result={
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(frequency, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(frequency)}</Live>
             <mspace width="0.25em" />
             <mtext>Hz</mtext>
           </>
@@ -354,12 +325,12 @@ function Edo12Section({ note, referencePitch }: { note: Note; referencePitch: nu
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(referencePitch, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(referencePitch)}</Live>
             <mo>·</mo>
             <msup>
               <mn>2</mn>
               <mrow>
-                <Live>{formatDecimal(n, 0)}</Live>
+                <Live>{wholeNumber(n)}</Live>
                 <mo>/</mo>
                 <mn>12</mn>
               </mrow>
@@ -370,7 +341,7 @@ function Edo12Section({ note, referencePitch }: { note: Note; referencePitch: nu
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(frequency, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(frequency)}</Live>
             <mspace width="0.25em" />
             <mtext>Hz</mtext>
           </>
@@ -401,12 +372,12 @@ function EdoStepSection({ n, note, systemChoice }: { n: number; note: Note; syst
       <p>{copy.math.edoStep.body(keySpelling(systemChoice, step), n)}</p>
       <WorkedFormula
         general={fraction(<mi>s</mi>, <mi>N</mi>)}
-        substituted={fraction(<Live>{formatDecimal(step, 0)}</Live>, <Live>{formatDecimal(n, 0)}</Live>)}
+        substituted={fraction(<Live>{wholeNumber(step)}</Live>, <Live>{wholeNumber(n)}</Live>)}
         result={
           <>
             <mi>c</mi>
             <mo>=</mo>
-            <Live>{centsText(centsAboveTonic(systemChoice, step))}</Live>
+            <Live>{threeDecimalCents(centsAboveTonic(systemChoice, step))}</Live>
             {centsUnit}
           </>
         }
@@ -457,16 +428,16 @@ function EdoFrequencySection({
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(referencePitch, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(referencePitch)}</Live>
             <mo>·</mo>
-            {power(<Live>{formatDecimal(k, 0)}</Live>, <Live>{formatDecimal(n, 0)}</Live>)}
+            {power(<Live>{wholeNumber(k)}</Live>, <Live>{wholeNumber(n)}</Live>)}
           </>
         }
         result={
           <>
             <mi>f</mi>
             <mo>=</mo>
-            <Live>{formatDecimal(frequency, HZ_DECIMALS)}</Live>
+            <Live>{twoDecimalHz(frequency)}</Live>
             <mspace width="0.25em" />
             <mtext>Hz</mtext>
           </>

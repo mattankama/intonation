@@ -1,7 +1,7 @@
 import { cents, noteName, tuningTable } from '../../core';
 import { copy } from '../../copy/en';
-import { formatDecimal, formatRatio } from '../../format/numbers';
-import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
+import { formatRatio } from '../../format/numbers';
+import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents, unit } from '../../math/MathParts';
 import type { LabProps } from '../registry';
 import { intervalOf } from './spiral';
 import { useComparedSystems, usePicks } from './state';
@@ -11,26 +11,6 @@ const SOURCES = copy.math.sources;
 
 export const TUNING_SYSTEMS_SOURCES = [SOURCES.barbour, SOURCES.scala, SOURCES.fiveLimit];
 
-const MATH_DECIMALS = 3;
-const c3 = (value: number) => formatDecimal(value, MATH_DECIMALS);
-const unit = (symbol: string) => (
-  <>
-    <mspace width="0.1em" />
-    <mtext>{symbol}</mtext>
-  </>
-);
-const log2 = (
-  <msub>
-    <mi>log</mi>
-    <mn>2</mn>
-  </msub>
-);
-const sub = (name: string, index: string) => (
-  <msub>
-    <mi>{name}</mi>
-    <mn>{index}</mn>
-  </msub>
-);
 
 /** The picked note's cents and ratio, the interval against pure, and the spiral's angle. */
 export function TuningSystemsMath({ settings }: LabProps) {
@@ -63,7 +43,7 @@ export function TuningSystemsMath({ settings }: LabProps) {
               <>
                 <mi>d</mi>
                 <mo>=</mo>
-                <Live>{c3(row.cents)}</Live>
+                <Live>{threeDecimalCents(row.cents)}</Live>
                 <mo>−</mo>
                 <mn>100</mn>
                 <mo>·</mo>
@@ -74,7 +54,7 @@ export function TuningSystemsMath({ settings }: LabProps) {
               <>
                 <mi>d</mi>
                 <mo>=</mo>
-                <mn>{c3(row.centsFromEdo12)}</mn>
+                <mn>{threeDecimalCents(row.centsFromEdo12)}</mn>
                 {unit('¢')}
               </>
             }
@@ -111,7 +91,7 @@ export function TuningSystemsMath({ settings }: LabProps) {
               <>
                 <mi>c</mi>
                 <mo>=</mo>
-                <mn>{c3(cents(row.ratio))}</mn>
+                <mn>{threeDecimalCents(cents(row.ratio))}</mn>
                 {unit('¢')}
               </>
             }
@@ -143,9 +123,9 @@ export function TuningSystemsMath({ settings }: LabProps) {
                 <mi>Δ</mi>
                 <mo>=</mo>
                 <mo>(</mo>
-                <Live>{c3(interval.high.cents)}</Live>
+                <Live>{threeDecimalCents(interval.high.cents)}</Live>
                 <mo>−</mo>
-                <Live>{c3(interval.low.cents)}</Live>
+                <Live>{threeDecimalCents(interval.low.cents)}</Live>
                 <mo>)</mo>
                 <mo>−</mo>
                 <mn>1200</mn>
@@ -160,7 +140,7 @@ export function TuningSystemsMath({ settings }: LabProps) {
               <>
                 <mi>Δ</mi>
                 <mo>=</mo>
-                <mn>{c3(interval.offPure)}</mn>
+                <mn>{threeDecimalCents(interval.offPure)}</mn>
                 {unit('¢')}
               </>
             }
@@ -190,7 +170,7 @@ export function TuningSystemsMath({ settings }: LabProps) {
                 <mn>360°</mn>
                 <mo>·</mo>
                 <mfrac>
-                  <Live>{c3(row.cents)}</Live>
+                  <Live>{threeDecimalCents(row.cents)}</Live>
                   <mn>1200</mn>
                 </mfrac>
               </>
@@ -199,7 +179,7 @@ export function TuningSystemsMath({ settings }: LabProps) {
               <>
                 <mi>θ</mi>
                 <mo>=</mo>
-                <mn>{c3((360 * row.cents) / 1200)}°</mn>
+                <mn>{threeDecimalCents((360 * row.cents) / 1200)}°</mn>
               </>
             }
           />
