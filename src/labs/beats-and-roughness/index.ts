@@ -6,7 +6,7 @@ import {
   BeatsAndRoughnessVisual,
 } from './BeatsAndRoughness';
 
-/** Beats & roughness: two tones beating on a 3D interference ribbon (issue #28). */
+/** Beats & roughness: two tones beating on a 3D interference ribbon (issue #28) and the three-note roughness landscape (issue #29). */
 export const beatsAndRoughnessLab: Pick<LabDefinition, 'Visual' | 'Controls' | 'Math' | 'sources'> = {
   Visual: BeatsAndRoughnessVisual,
   Controls: BeatsAndRoughnessControls,

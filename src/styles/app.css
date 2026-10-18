@@ -1439,6 +1439,114 @@ button {
 .br-play:active {
   background: var(--action-primary-bg-pressed);
 }
+/* Roughness section (#29): stacked under the beats section; the column scrolls when both don't fit. */
+.br-visual {
+  overflow-y: auto;
+}
+.br-beats,
+.br-roughness {
+  flex: 1 0 auto;
+}
+.br-roughness {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-md);
+  border-top: var(--border-width) solid var(--border-hairline);
+}
+.br-roughness .br-scene {
+  min-height: 440px;
+}
+.br-roughness-intro {
+  font: var(--type-body);
+  color: var(--text-body);
+}
+.br-chord-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.br-chord-name {
+  font: var(--type-label-strong);
+}
+.br-chord-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-lg);
+  font: var(--type-label);
+}
+.br-chord-values div {
+  display: flex;
+  gap: 6px;
+}
+.br-chord-values dt {
+  color: var(--text-body);
+}
+.br-chord-values dd {
+  font-variant-numeric: tabular-nums;
+}
+.field-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  cursor: pointer;
+}
+.field-check input {
+  margin: 0;
+  accent-color: var(--action-primary-bg);
+}
+.br-pins {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.br-pins-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+.br-subheading {
+  font: var(--type-label-strong);
+}
+.br-pins-unit {
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
+.br-pin-list {
+  display: flex;
+  flex-direction: column;
+}
+.br-pin {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+  border-bottom: var(--border-width) solid var(--border-hairline);
+}
+.br-pin[data-version='edo12'] {
+  padding-left: var(--space-md);
+}
+.br-pin-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  color: var(--text-body);
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: pointer;
+  text-align: left;
+}
+.br-pin-play span {
+  font-size: 10px;
+}
+.br-pin-roughness {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
 
 /* ---------- Just-intonation lattice Lab ---------- */
 .jl-visual {
@@ -1655,8 +1763,10 @@ button {
     flex: none;
     height: 340px;
   }
-  .br-scene {
+  .br-scene,
+  .br-roughness .br-scene {
     flex: none;
+    min-height: 0;
     height: 340px;
   }
   .br-play {
