@@ -93,9 +93,9 @@ export const copy = {
   siteName: 'Intonation',
 
   home: {
-    headline: 'The math and acoustics of tuning, chords and sound waves',
+    headline: 'The math and acoustics of tuning, chords, and sound waves',
     intro:
-      'Six Labs to hear and see why some chords ring and others wobble, where commas come from, and how tuning systems differ. The math is always there when you want it.',
+      'Six labs to hear and see why some chords ring and others wobble, where commas come from, and how tuning systems differ. The math is always there when you want it.',
     labsHeading: 'Labs',
   },
 
