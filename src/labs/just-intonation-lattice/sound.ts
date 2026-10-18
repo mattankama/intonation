@@ -21,12 +21,10 @@ import type { Settings } from '../../state/settings';
 export const tonicFrequency = (settings: Settings) =>
   edo12Frequency({ pitchClass: settings.tonic, octave: 4 }, settings.referencePitch);
 
-const voiceId = (n: LatticeNode) => `lattice:${n.three}.${n.five}.${n.seven}`;
-
-/** Plays the chord: every note at once, each at the Tonic's pitch times its ratio. */
+/** Plays the chord: every note at once, each at the Tonic's pitch times its ratio; it replaces the chord before. */
 export function playChord(chord: readonly LatticeNode[], settings: Settings) {
   const tonic = tonicFrequency(settings);
-  for (const n of chord) audioEngine.pluck(voiceId(n), tonic * ratioValue(ratioOfNode(n)), 1.6);
+  playFrequencies(chord.map((n) => tonic * ratioValue(ratioOfNode(n))));
 }
 
 /** A pitch above the starting Tonic, in Hz: 1/1 is the Tonic's 12-EDO pitch in octave 4. */

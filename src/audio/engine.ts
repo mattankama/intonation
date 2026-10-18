@@ -3,10 +3,12 @@
  *
  * - One OscillatorNode per note, driven by an unnormalised PeriodicWave built from the
  *   Timbre's harmonic amplitudes, so harmonics stay locked at exact k:1 ratios.
- * - Levels come from ./levels: every Timbre is loudness-matched by RMS, with headroom so a
- *   3-note chord at full volume peaks around 0.6. A DynamicsCompressorNode set to
- *   −1 dBFS / ratio 20 is kept only as a safety net for big chords; it never engages for
- *   ordinary playing, so it can't flatten the beats people should hear.
+ * - Levels come from ./levels: every Timbre is loudness-matched by RMS, with headroom from
+ *   a worst-case bound: at most MAX_VOICES voices sound or ring out (./voicePool; past it
+ *   the oldest is handed over, fading as fast as the new note rises), each peaking at most
+ *   VOICE_PEAK_MAX, so the sum stays under −1 dBFS. The DynamicsCompressorNode there
+ *   (−1 dBFS, knee 0, ratio 20) is only a safety net that never engages, so it can't
+ *   flatten the beats people should hear.
  * - Changing the Timbre while notes sound never calls setPeriodicWave on a sounding
  *   oscillator (that clicks). Each note starts a second oscillator with the new wave a
  *   whole number of periods after the note began, so the two are in phase, and
@@ -17,11 +19,19 @@
  * The engine never computes pitch: callers pass frequencies from the acoustics core.
  */
 import { type Harmonics, presetHarmonics } from '../core';
-import { phaseAlignedStart, retimedStart, voiceAmplitudes, volumeGain } from './levels';
+import {
+  ATTACK_SECONDS as ATTACK,
+  HANDOVER_SECONDS as HANDOVER,
+  MAX_VOICES,
+  RELEASE_SECONDS as RELEASE,
+  SAFETY_NET_THRESHOLD_DB,
+  phaseAlignedStart,
+  retimedStart,
+  voiceAmplitudes,
+  volumeGain,
+} from './levels';
+import { VoicePool } from './voicePool';
 
-/** Envelope time constants in seconds; ≈ 5 time constants to settle (~40 ms / ~120 ms). */
-const ATTACK = 0.008;
-const RELEASE = 0.024;
 /** Timbre crossfade time constant (~75 ms to settle). */
 const CROSSFADE = 0.015;
 /** Master volume changes glide rather than step. */
@@ -60,7 +70,10 @@ class AudioEngine {
   private wave: PeriodicWave | null = null;
   private harmonics: Harmonics = presetHarmonics('sine');
   private volume = 100;
+  /** Notes sounding, by id. */
   private readonly voices = new Map<string, Voice>();
+  /** Notes sounding or ringing out: never more than MAX_VOICES. */
+  private readonly pool = new VoicePool<Voice>(MAX_VOICES);
   private readonly pluckTimers = new Map<string, number>();
 
   /** Creates or resumes the AudioContext. Call only from a user gesture. */
@@ -68,7 +81,7 @@ class AudioEngine {
     if (!this.context) {
       const context = new AudioContext();
       const safetyNet = new DynamicsCompressorNode(context, {
-        threshold: -1,
+        threshold: SAFETY_NET_THRESHOLD_DB,
         knee: 0,
         ratio: 20,
       });
@@ -138,6 +151,26 @@ class AudioEngine {
     const voice: Voice = { frequency, start: now, envelope, layers: [] };
     voice.layers.push(this.startLayer(voice, now, 1));
     this.voices.set(id, voice);
+    const handed = this.pool.admit(voice);
+    if (handed) this.handOver(handed, now);
+  }
+
+  /** Fades a voice out as fast as a new note rises (the pool is full), wherever it was. */
+  private handOver(voice: Voice, now: number): void {
+    for (const [id, v] of this.voices) if (v === voice) this.voices.delete(id);
+    voice.envelope.gain.setTargetAtTime(0, now, HANDOVER);
+    this.stopVoice(voice, now + HANDOVER * SETTLE);
+  }
+
+  /** Stops a voice's oscillators at `at`; the pool frees its place once the sound has ended. */
+  private stopVoice(voice: Voice, at: number): void {
+    for (const layer of voice.layers) {
+      layer.osc.stop(at);
+      layer.osc.addEventListener('ended', () => {
+        voice.envelope.disconnect();
+        this.pool.end(voice);
+      });
+    }
   }
 
   /**
@@ -160,13 +193,10 @@ class AudioEngine {
     this.voices.delete(id);
     const now = this.context.currentTime;
     voice.envelope.gain.setTargetAtTime(0, now, RELEASE);
+    this.pool.release(voice);
     // Layers already fading out of a crossfade stop sooner than this, so the envelope
     // can go once the current layer has ended.
-    const end = now + RELEASE * SETTLE;
-    for (const layer of voice.layers) {
-      layer.osc.stop(end);
-      layer.osc.addEventListener('ended', () => voice.envelope.disconnect());
-    }
+    this.stopVoice(voice, now + RELEASE * SETTLE);
   }
 
   /** Plays a note for a fixed time (keyboard activation of an on-screen key). */
