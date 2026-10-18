@@ -202,7 +202,8 @@ const FRAME_MARGIN = 0.8;
 /**
  * The view of a comma pump (issue #31). Phones follow the current chord, as for a chord.
  * Desktop keeps the grid view while `frame` (the nodes of the loop being played) fits in
- * it, and otherwise frames that loop from as far back as it needs.
+ * it, and otherwise frames that loop from as far back as it needs (the grid may then run
+ * off the edges: the loop matters more than the grid around it).
  */
 export function pumpView(
   layout: LatticeLayout,

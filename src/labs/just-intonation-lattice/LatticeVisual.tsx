@@ -1,10 +1,12 @@
-import type { LatticeNode } from '../../core';
+import { type LatticeNode, commaPumpDrift, commaPumpLength, factorsCents } from '../../core';
 import { copy } from '../../copy/en';
-import { formatRatio } from '../../format/numbers';
+import { formatRatio, formatSignedCents } from '../../format/numbers';
 import { lazyScene, usePhoneLayout } from '../../scene3d';
 import type { LabProps } from '../registry';
 import type { LatticeSceneProps } from './LatticeScene';
 import { toggleNode } from './chord';
+import { pumpView } from './geometry';
+import { type PumpPicture, pitchLabel, playNode, stepSymbol, usePump, usePumpPicture, usePumpSound } from './pumpState';
 import { chordNotes, playChord, proportionText, useLattice } from './state';
 
 const text = copy.latticeLab;
@@ -13,35 +15,51 @@ const LatticeScene = lazyScene<LatticeSceneProps>(() => import('./LatticeScene')
   className: 'jl-scene',
 });
 
-/** The lattice with its key and a readout of the chord. */
+/** The lattice with its key and a readout of the chord, or of the comma pump (issue #31). */
 export function LatticeVisual({ settings }: LabProps) {
   const [state, setState] = useLattice();
+  const [pumpState] = usePump();
+  const pump = usePumpPicture(pumpState);
   const phone = usePhoneLayout();
+  usePumpSound(settings, pump !== null);
   const onToggle = (node: LatticeNode) => {
     const chord = toggleNode(state.chord, node);
     setState({ ...state, chord });
     playChord(chord, settings);
   };
+  const limit = pump?.limit ?? state.limit;
 
   return (
     <div className="jl-visual">
       <ul className="jl-legend" aria-label={text.legendLabel}>
         <li className="jl-legend-item">
           <ShapeSwatch />
-          {text.legend.shape}
+          {pump ? text.pump.legend.chord : text.legend.shape}
         </li>
+        {pump && (
+          <li className="jl-legend-item">
+            <PathSwatch />
+            {text.pump.legend.path}
+          </li>
+        )}
         <li className="jl-legend-item">{text.legend.three}</li>
         <li className="jl-legend-item">{text.legend.five}</li>
-        {state.limit === 7 && <li className="jl-legend-item">{text.legend.seven}</li>}
+        {limit === 7 && <li className="jl-legend-item">{text.legend.seven}</li>}
       </ul>
-      <LatticeScene
-        limit={state.limit}
-        chord={state.chord}
-        tonic={settings.tonic}
-        phone={phone}
-        onToggle={onToggle}
-      />
-      <ChordReadout chord={state.chord} tonic={settings.tonic} />
+      {pump ? (
+        <LatticeScene
+          limit={limit}
+          chord={pump.chord}
+          path={pump.path}
+          view={pumpView({ phone, limit }, pump.frame, pump.chord)}
+          tonic={settings.tonic}
+          phone={phone}
+          onToggle={(node) => playNode(node, settings)}
+        />
+      ) : (
+        <LatticeScene limit={limit} chord={state.chord} tonic={settings.tonic} phone={phone} onToggle={onToggle} />
+      )}
+      {pump ? <PumpReadout pump={pump} tonic={settings.tonic} /> : <ChordReadout chord={state.chord} tonic={settings.tonic} />}
     </div>
   );
 }
@@ -64,11 +82,44 @@ function ChordReadout({ chord, tonic }: { chord: readonly LatticeNode[]; tonic: 
   );
 }
 
+/** Where the pump is ("Chord 3 of 4 · Dm: …, keeping A 5/3") and how far home has drifted. */
+function PumpReadout({ pump, tonic }: { pump: PumpPicture; tonic: number }) {
+  const { current, id } = pump;
+  const t = text.pump.readout;
+  return (
+    <div className="jl-readout jl-pump-readout" role="status">
+      <p className="jl-readout-line">
+        <ShapeSwatch />
+        {t.position(current.position, commaPumpLength(id), current.loop > 0)} ·{' '}
+        {t.chord(
+          stepSymbol(tonic, current),
+          current.notes.map((n) => pitchLabel(tonic, n.pitch)).join(' · '),
+          current.held && pitchLabel(tonic, current.held.pitch),
+        )}
+      </p>
+      <p className="jl-drift">
+        {current.loop === 0
+          ? t.notHome
+          : t.drift(current.loop, formatSignedCents(factorsCents(commaPumpDrift(id, current.loop)), 'controls'))}
+      </p>
+    </div>
+  );
+}
+
 /** A small soft-gold triangle: the key to the chord shapes on the lattice. */
 function ShapeSwatch() {
   return (
     <svg className="jl-shape-swatch" width="14" height="12" viewBox="0 0 14 12" aria-hidden="true">
       <polygon points="1,11 13,11 7,1" />
+    </svg>
+  );
+}
+
+/** A short teal line: the key to the comma pump's path. */
+function PathSwatch() {
+  return (
+    <svg className="jl-path-swatch" width="18" height="12" viewBox="0 0 18 12" aria-hidden="true">
+      <polyline points="1,10 9,3 17,6" />
     </svg>
   );
 }

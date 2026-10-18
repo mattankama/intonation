@@ -67,6 +67,7 @@ export {
   type TunedNote,
   type TunedChord,
   CHORD_TYPES,
+  CHORD_INTERVALS,
   CHORD_ROOT_OCTAVE,
   tuneChord,
   mappedSteps,

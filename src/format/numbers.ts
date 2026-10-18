@@ -35,6 +35,7 @@ export function formatHz(value: number): string {
   return `${formatDecimal(value, HZ_DECIMALS)} Hz`;
 }
 
-export function formatRatio(r: Ratio): string {
+/** "5/4"; also takes BigInt fractions (core factorsFraction, for long comma pumps). */
+export function formatRatio(r: Ratio | { readonly num: bigint; readonly den: bigint }): string {
   return `${r.num}/${r.den}`;
 }

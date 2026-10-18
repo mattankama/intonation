@@ -34,7 +34,7 @@ describe('comma pumps: one loop comes home a comma off (decision #11)', () => {
 });
 
 const node = (three: number, five = 0, seven = 0) => ({ three, five, seven });
-const pitch = (num: number, den: number) => primeFactors(ratio(num, den));
+const pitch = (num: number, den: number) => primeFactors(ratio(num, den))!;
 const rootNodes = (id: CommaPumpId, steps: number) => runCommaPump(id, steps).map((s) => nodeOfFactors(s.root));
 
 describe('stepping through a comma pump', () => {
