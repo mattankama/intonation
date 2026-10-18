@@ -17,7 +17,7 @@
  * The engine never computes pitch: callers pass frequencies from the acoustics core.
  */
 import { type Harmonics, presetHarmonics } from '../core';
-import { phaseAlignedStart, voiceAmplitudes, volumeGain } from './levels';
+import { phaseAlignedStart, retimedStart, voiceAmplitudes, volumeGain } from './levels';
 
 /** Envelope time constants in seconds; ≈ 5 time constants to settle (~40 ms / ~120 ms). */
 const ATTACK = 0.008;
@@ -138,6 +138,20 @@ class AudioEngine {
     const voice: Voice = { frequency, start: now, envelope, layers: [] };
     voice.layers.push(this.startLayer(voice, now, 1));
     this.voices.set(id, voice);
+  }
+
+  /**
+   * Moves a sounding note to a new frequency without restarting it (the Beats Lab's gap
+   * slider). The oscillator's phase runs on smoothly, so a small step makes no click;
+   * does nothing if the note isn't sounding.
+   */
+  setFrequency(id: string, frequency: number): void {
+    const voice = this.voices.get(id);
+    if (!voice || !this.context || voice.frequency === frequency) return;
+    const now = this.context.currentTime;
+    for (const layer of voice.layers) layer.osc.frequency.setValueAtTime(frequency, now);
+    voice.start = retimedStart(voice.start, voice.frequency, frequency, now);
+    voice.frequency = frequency;
   }
 
   noteOff(id: string): void {
