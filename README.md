@@ -1,8 +1,8 @@
 # Intonation
 
-A website for exploring the math and acoustics of tuning, chords and sound waves. It is organised as six Labs. Each Lab has a visual in the centre, its controls on the right, and a "The math" tab that shows the calculations behind what is on screen.
+A website for exploring the math and acoustics of tuning, chords and sound waves. It is organised as six labs. Each lab has a visual in the center, its controls on the right, and a "The math" tab that shows the calculations behind what is on screen.
 
-![Tuning systems Lab: 12-EDO, ¼-comma meantone, Pythagorean and 5-limit just intonation on a spiral where one turn is one octave](docs/screenshots/tuning-systems.png)
+![Tuning systems lab: 12-EDO, ¼-comma meantone, Pythagorean and 5-limit just intonation on a spiral where one turn is one octave](docs/screenshots/tuning-systems.png)
 
 ## Labs
 
@@ -31,15 +31,15 @@ A C major chord with the string-like timbre, compared in 12-EDO, ¼-comma meanto
 
 Two tones 3 Hz apart and their sum, above a 3D roughness landscape of three-note chords.
 
-![Beats & roughness Lab showing two sine waves, their sum and the beat rate](docs/screenshots/beats-and-roughness.png)
+![Beats & roughness lab showing two sine waves, their sum and the beat rate](docs/screenshots/beats-and-roughness.png)
 
 ## Shared settings
 
-The left rail holds settings that apply to every Lab:
+The left rail holds settings that apply to every lab:
 
 - **Tuning system**: 12-EDO, any N-EDO, Pythagorean, 5-limit just intonation, ¼-comma meantone, Werckmeister III, Vallotti or Kirnberger III, with a Tonic for the non-EDO systems.
 - **Reference pitch**: the frequency of A4, 440 Hz by default.
-- **Timbre**: sine, organ-like, string-like, brass-like or voice-like, or a custom timbre made in the Sound waves Lab.
+- **Timbre**: sine, organ-like, string-like, brass-like or voice-like, or a custom timbre made in the Sound waves lab.
 - **Volume**.
 
 An on-screen keyboard at the bottom plays the current tuning system. On a desktop, the home row (A S D F …) plays the white keys from C4 and the row above plays the black keys.
