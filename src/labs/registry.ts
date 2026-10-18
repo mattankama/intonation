@@ -9,6 +9,7 @@ import type { ComponentType } from 'react';
 import { copy } from '../copy/en';
 import type { Settings } from '../state/settings';
 import { LAB_IDS, type LabId } from './ids';
+import { chordComparisonLab } from './chord-comparison';
 import { latticeLab } from './just-intonation-lattice';
 import { soundWavesLab } from './sound-waves';
 import { tuningSystemsLab } from './tuning-systems';
@@ -38,6 +39,7 @@ type LabParts = Pick<LabDefinition, 'Visual' | 'Controls' | 'Math' | 'sources'>;
 const components: Partial<Record<LabId, LabParts>> = {
   'sound-waves': soundWavesLab,
   'tuning-systems': tuningSystemsLab,
+  'chord-comparison': chordComparisonLab,
   'just-intonation-lattice': latticeLab,
 };
 

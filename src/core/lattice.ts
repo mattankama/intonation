@@ -3,7 +3,7 @@
  * point 3^a · 5^b · 7^c; its exponents (a, b, c) are its place on the lattice, with ×3
  * (fifths), ×5 (major thirds) and ×7 (harmonic sevenths) as the three directions.
  */
-import { type Ratio, ratio } from './ratio';
+import { type Ratio, ratio, wholeNumbers } from './ratio';
 import { fifthsOfTonic, spellFifths } from './tuning';
 
 /** A point on the lattice: the exponents of 3, 5 and 7 (octaves ignored). */
@@ -94,18 +94,10 @@ export function latticeNoteName(tonic: number, node: LatticeNode): string {
   return spellFifths(fifthsOfTonic(tonic) + fifths);
 }
 
-function gcd(a: number, b: number): number {
-  return b === 0 ? a : gcd(b, a % b);
-}
-
 /**
  * A chord's notes as the smallest whole numbers in the same proportion, lowest first:
  * 1/1, 5/4, 3/2 → 4:5:6.
  */
 export function chordProportion(notes: readonly Ratio[]): number[] {
-  const sorted = [...notes].sort((x, y) => x.num * y.den - y.num * x.den);
-  const lcm = sorted.reduce((acc, r) => (acc * r.den) / gcd(acc, r.den), 1);
-  const whole = sorted.map((r) => (r.num * lcm) / r.den);
-  const common = whole.reduce(gcd, 0);
-  return whole.map((n) => n / common);
+  return wholeNumbers([...notes].sort((x, y) => x.num * y.den - y.num * x.den));
 }

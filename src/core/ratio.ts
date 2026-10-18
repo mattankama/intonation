@@ -40,3 +40,11 @@ export function ratioPower(r: Ratio, exponent: number): Ratio {
   const base = exponent < 0 ? ratio(r.den, r.num) : r;
   return ratio(base.num ** Math.abs(exponent), base.den ** Math.abs(exponent));
 }
+
+/** Ratios as the smallest whole numbers in the same proportion, in the same order: 1/1, 5/4, 3/2 → 4, 5, 6. */
+export function wholeNumbers(ratios: readonly Ratio[]): number[] {
+  const lcm = ratios.reduce((l, r) => (l * r.den) / gcd(l, r.den), 1);
+  const whole = ratios.map((r) => (r.num * lcm) / r.den);
+  const common = whole.reduce(gcd, 0);
+  return whole.map((w) => w / common);
+}
