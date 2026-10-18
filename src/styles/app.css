@@ -922,6 +922,203 @@ button {
   font: var(--type-caption);
 }
 
+/* ---------- Shared 3D scene (src/scene3d, decisions #13 and #17) ---------- */
+.scene3d {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  background: var(--canvas-warm);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.scene3d-canvas {
+  position: absolute !important;
+  inset: 0;
+  /* Drags and pinches inside the box move the scene, not the page. */
+  touch-action: none;
+}
+.scene3d-labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.scene3d-label {
+  font: var(--type-label);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--canvas) 78%, transparent);
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.scene3d-label-small {
+  font: var(--type-caption);
+  line-height: 16px;
+}
+.scene3d-label-accent {
+  color: var(--link);
+  font-weight: 700;
+}
+.scene3d-reset {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  z-index: 1;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  background: var(--canvas);
+}
+.scene3d-hint {
+  position: absolute;
+  left: var(--space-xs);
+  bottom: 6px;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  pointer-events: none;
+}
+.scene3d-notice {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xxl);
+  text-align: center;
+  font: var(--type-body);
+  color: var(--text-body);
+}
+
+/* ---------- Tuning systems Lab ---------- */
+.ts-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+}
+.ts-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-md);
+  font: var(--type-label);
+}
+.ts-legend-item,
+.ts-caption-name,
+.ts-slot-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Data colours are allowed on 3D data marks and their legends only (design-system README). */
+.ts-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  flex: none;
+}
+.ts-scene {
+  flex: 1 1 60%;
+  min-height: 260px;
+}
+.ts-readout {
+  font: var(--type-label);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ts-ring-key {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-full);
+  flex: none;
+}
+.ts-tables {
+  flex: 1 1 40%;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  align-items: start;
+  gap: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+}
+.ts-table {
+  border-collapse: collapse;
+  width: 100%;
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+.ts-table-caption {
+  text-align: left;
+  font: var(--type-label-strong);
+  padding-bottom: 4px;
+}
+.ts-table th,
+.ts-table td {
+  text-align: right;
+  padding: 2px 6px;
+  border-bottom: var(--border-width) solid var(--border-divider);
+  white-space: nowrap;
+}
+.ts-table th[scope='row'],
+.ts-table thead th:first-child {
+  text-align: left;
+}
+.ts-table thead th {
+  font: var(--type-caption);
+  color: var(--text-body);
+}
+.ts-note {
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  margin-left: -6px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font: var(--type-label-strong);
+}
+.ts-note:hover {
+  background: var(--action-tertiary-bg);
+}
+.ts-note[aria-pressed='true'] {
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+}
+.ts-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.ts-heading {
+  font: var(--type-label-strong);
+}
+.ts-slots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.ts-slot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.ts-remove {
+  padding: 2px 8px;
+}
+.ts-add {
+  align-self: flex-start;
+}
+
 /* ---------- Phone: below 700px ---------- */
 @media (max-width: 699.98px) {
   .lab-layout {
@@ -998,6 +1195,17 @@ button {
     display: none;
   }
   .chord-buttons {
+    display: none;
+  }
+  /* The scene sits in a fixed-height box; outside it the page scrolls (decision #17). */
+  .ts-scene {
+    flex: none;
+    height: 340px;
+  }
+  .ts-tables {
+    overflow: visible;
+  }
+  .scene3d-reset-text {
     display: none;
   }
 }

@@ -84,3 +84,5 @@ export {
   BEAT_FLOOR,
   chordBeats,
 } from './beats';
+export { type TuningTableRow, tuningTable } from './table';
+export { nearestPureInterval } from './interval';
