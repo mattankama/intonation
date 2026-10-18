@@ -97,3 +97,21 @@ export {
   chordProportion,
 } from './lattice';
 export { beatRate, centsBetween } from './twoTones';
+export {
+  type CommaPumpId,
+  type PumpChord,
+  type PumpNote,
+  type PumpStep,
+  type TunedPumpChord,
+  COMMA_PUMP_IDS,
+  commaPumpChords,
+  commaPumpLength,
+  commaPumpComma,
+  commaPumpDrift,
+  runCommaPump,
+  tunePumpChord,
+  factorsCents,
+  factorsFraction,
+  octaveReduceFactors,
+  nodeOfFactors,
+} from './commaPump';
