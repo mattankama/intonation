@@ -1,0 +1,141 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Lives only on branch prototype/timbre-presets.
+  Question (wayfinder ticket "Timbre preset recipes", issue #14): what harmonic amplitudes (1–16) define each
+  Timbre preset, and how does brightness reweight them? Decided by listening.
+  Shape: a listening board (the "variants" are candidate recipes per preset, not page layouts). Each candidate
+  plays a single note, a major third in 12-EDO vs pure 5/4, and a major chord in 12-EDO vs pure 4:5:6, so beats
+  are audible. Synthesis follows "Synthesis approach" (#6): one oscillator per note with an unnormalised
+  PeriodicWave, loudness-matched by RMS, with headroom instead of a compressor.
+  Run from the repo root:  python3 -m http.server 5173   →  http://localhost:5173/prototypes/timbre-presets/
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · Timbre presets</title>
+<link rel="stylesheet" href="../../design-system/tokens/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/colors.css">
+<link rel="stylesheet" href="../../design-system/tokens/typography.css">
+<link rel="stylesheet" href="../../design-system/tokens/spacing.css">
+<link rel="stylesheet" href="../../design-system/tokens/shape.css">
+<link rel="stylesheet" href="../../design-system/tokens/base.css">
+<style>
+  body{background:var(--canvas-soft)}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 24px 140px}
+  .wordmark{font:400 26px/1 var(--font-serif);color:var(--text-brand)}
+  h1{font:var(--type-display-serif-md);margin:18px 0 4px}
+  .rule{width:40px;height:4px;background:var(--ornament);margin:10px 0 14px}
+  .lead{font:var(--type-body-loose);max-width:70ch;margin:0 0 20px}
+  .controls{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-end;background:var(--canvas);border:1px solid var(--border-hairline);border-radius:var(--radius-md);padding:16px 20px;position:sticky;top:0;z-index:2}
+  .field{display:flex;flex-direction:column;gap:4px;font:var(--type-caption);color:#7a736d}
+  .field b{font:var(--type-label-strong);color:var(--ink)}
+  select{font:var(--type-body);border:1px solid var(--border-field);border-radius:var(--radius-sm);padding:6px 10px;background:var(--canvas)}
+  input[type=range]{accent-color:var(--primary);width:200px}
+  section{margin-top:36px}
+  section h2{font:var(--type-heading-lg);margin:0 0 4px}
+  section p.hint{font:var(--type-body);color:#5b5550;margin:0 0 12px}
+  .cands{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+  .card{background:var(--canvas);border:1px solid var(--border-hairline);border-radius:var(--radius-md);padding:16px 18px;cursor:pointer}
+  .card.pick{border:2px solid var(--primary);padding:15px 17px}
+  .card h3{font:var(--type-heading-sm);margin:0 0 2px;display:flex;justify-content:space-between;gap:8px}
+  .card h3 .tag{font:var(--type-caption);color:#7a736d;font-weight:400}
+  .card .desc{font:var(--type-caption);color:#5b5550;margin:0 0 8px;min-height:20px}
+  .bars{display:flex;align-items:flex-end;gap:3px;height:70px;margin:6px 0 4px;border-bottom:1px solid var(--border-hairline)}
+  .bars div{flex:1;background:var(--primary);min-height:1px}
+  .barnums{display:flex;gap:3px;font:10px/1 var(--font-mono);color:#9a928b}
+  .barnums span{flex:1;text-align:center}
+  .play{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .btn{font:var(--type-label);border-radius:var(--radius-xs);padding:8px 12px;border:1px solid transparent;cursor:pointer;background:var(--action-tertiary-bg);color:var(--ink)}
+  .btn.primary{background:var(--action-primary-bg);color:var(--action-primary-fg)}
+  .btn:active{background:var(--accent-gold-soft)}
+  #state{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99;background:#111;color:#fff;border-radius:9999px;padding:10px 18px;font:600 13px/1.3 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.35);max-width:94vw;text-align:center}
+  #state button{margin-left:10px;background:#ffd54a;color:#111;border:none;border-radius:9999px;padding:6px 10px;font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="wordmark">Intonation</span>
+  <h1>Timbre presets: listening board</h1><div class="rule"></div>
+  <p class="lead">For each preset, listen to the candidate recipes and click the card you prefer. Each candidate plays one note, then a major third and a major chord in <b>12-EDO</b> and <b>pure</b>, so you can hear how strongly that timbre shows beats. Loudness is matched across candidates. Use headphones or decent speakers; laptop speakers lose the low harmonics.</p>
+  <div class="controls">
+    <div class="field"><b>Register</b><select id="reg"><option value="48">C3 (low)</option><option value="60" selected>C4 (middle)</option><option value="72">C5 (high)</option></select></div>
+    <div class="field"><b>Brightness <span id="bval">0</span></b><input id="bright" type="range" min="-1" max="1" step="0.1" value="0"><span>aₙ × n^b, b from −1 (dark) to +1 (bright); 0 = recipe as drawn</span></div>
+    <div class="field"><b>Volume</b><input id="vol" type="range" min="0" max="1" step="0.05" value="0.6"></div>
+    <div class="field"><b>Note length</b><select id="dur"><option value="1.2">1.2 s</option><option value="2.5" selected>2.5 s</option><option value="4">4 s</option></select></div>
+  </div>
+  <div id="presets"></div>
+</div>
+<div id="state"></div>
+
+<script>
+const N=16;
+const H=f=>Array.from({length:N},(_,i)=>+f(i+1).toFixed(4));          // harmonic n = i+1
+const PRESETS=[
+  {key:'sine',name:'Sine',hint:'Only the fundamental. No candidates: it is the reference with no harmonics to beat.',cands:[
+    {id:'S',name:'Pure sine',desc:'Harmonic 1 only.',a:H(n=>n===1?1:0)}]},
+  {key:'organ',name:'Organ-like',hint:'Steady, sustained, clearly pitched.',cands:[
+    {id:'O1',name:'Principal (flue pipe)',desc:'All harmonics, gently falling (1/n^1.3).',a:H(n=>1/Math.pow(n,1.3))},
+    {id:'O2',name:'Drawbar mix',desc:"Harmonics 1, 2, 3, 4, 6, 8 only, like 8' + 4' + 2⅔' + 2' stops.",a:H(n=>({1:1,2:.8,3:.6,4:.5,6:.4,8:.3})[n]||0)},
+    {id:'O3',name:'Stopped flute',desc:'Mostly odd harmonics (closed pipe): hollow.',a:H(n=>n%2?1/Math.pow(n,1.6):0.04/n)}]},
+  {key:'string',name:'String-like',hint:'Rich and bright; the strongest beats.',cands:[
+    {id:'T1',name:'Bowed (sawtooth-like)',desc:'Every harmonic at 1/n.',a:H(n=>1/n)},
+    {id:'T2',name:'Plucked at 1/5',desc:'sin(nπ/5)/n²: harmonics 5, 10, 15 missing; mellower.',a:H(n=>Math.abs(Math.sin(n*Math.PI/5))/(n*n)*1.7)},
+    {id:'T3',name:'Bowed with body',desc:'1/n with a resonance boost around harmonics 3–6.',a:H(n=>(1/n)*(1+1.2*Math.exp(-((n-4.5)**2)/4)))}]},
+  {key:'brass',name:'Brass-like',hint:'Strongest harmonics above the fundamental; bright and forward.',cands:[
+    {id:'B1',name:'Trumpet-ish',desc:'Peak at harmonic 3, long bright tail.',a:[.6,.85,1,.9,.75,.6,.45,.35,.25,.18,.12,.08,.05,.03,.02,.01]},
+    {id:'B2',name:'Horn (darker)',desc:'Peak at harmonic 2, faster fall-off.',a:[.8,1,.7,.5,.35,.22,.14,.09,.05,.03,.02,.01,0,0,0,0]},
+    {id:'B3',name:'Bright brass',desc:'Nearly flat to harmonic 10, then falls.',a:H(n=>n<=10?0.75+0.025*n:Math.max(0,1-0.17*(n-10)))}]},
+  {key:'voice',name:'Voice-like',hint:'Vowel-like peaks (formants). Note: fixed per harmonic, so the vowel shifts with register.',cands:[
+    {id:'V1',name:'"Ah"',desc:'Peaks near harmonics 3, 5 and 10 (≈ 700, 1200, 2600 Hz at C4).',a:H(n=>.35/n+Math.exp(-((n-2.7)**2)/1.2)+.7*Math.exp(-((n-4.7)**2)/1.5)+.25*Math.exp(-((n-10)**2)/3))},
+    {id:'V2',name:'"Oo"',desc:'Fundamental and harmonic 2, almost nothing above.',a:H(n=>({1:1,2:.55,3:.15,4:.06})[n]||0.01)},
+    {id:'V3',name:'"Ee"',desc:'Strong fundamental, then a high peak near harmonic 9.',a:H(n=>(n===1?1:.12/n)+.5*Math.exp(-((n-9)**2)/2.5))}]},
+];
+const pick={}; PRESETS.forEach(p=>pick[p.key]=p.cands[0].id);
+
+let ctx, master;
+function audio(){ if(!ctx){ctx=new AudioContext(); master=ctx.createGain(); master.connect(ctx.destination);} master.gain.value=+document.getElementById('vol').value; return ctx; }
+const bright=a=>{const b=+document.getElementById('bright').value; return a.map((x,i)=>x*Math.pow(i+1,b));};
+function playFreqs(a, freqs){
+  const c=audio(), amps=bright(a), rms=Math.sqrt(amps.reduce((s,x)=>s+x*x,0))||1;
+  const real=new Float32Array(N+1), imag=new Float32Array(N+1); amps.forEach((x,i)=>imag[i+1]=x);
+  const wave=c.createPeriodicWave(real,imag,{disableNormalization:true});
+  const dur=+document.getElementById('dur').value, t=c.currentTime+0.03, g0=0.09/rms/Math.sqrt(freqs.length);
+  freqs.forEach(f=>{const o=c.createOscillator(), g=c.createGain(); o.setPeriodicWave(wave); o.frequency.value=f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(g0,t+0.04); g.gain.setValueAtTime(g0,t+dur-0.12); g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(g).connect(master); o.start(t); o.stop(t+dur+0.05);});
+}
+const root=()=>440*Math.pow(2,(+document.getElementById('reg').value-69)/12);
+const DEMOS=[
+  ['Note',r=>[r]],
+  ['3rd · 12-EDO',r=>[r,r*Math.pow(2,4/12)]],['3rd · pure',r=>[r,r*5/4]],
+  ['Chord · 12-EDO',r=>[r,r*Math.pow(2,4/12),r*Math.pow(2,7/12)]],['Chord · pure',r=>[r,r*5/4,r*3/2]],
+];
+
+function render(){
+  const host=document.getElementById('presets'); host.innerHTML='';
+  PRESETS.forEach(p=>{
+    const sec=document.createElement('section');
+    sec.innerHTML=`<h2>${p.name}</h2><p class="hint">${p.hint}</p><div class="cands"></div>`;
+    p.cands.forEach(cd=>{
+      const amps=bright(cd.a), mx=Math.max(...amps)||1;
+      const card=document.createElement('div'); card.className='card'+(pick[p.key]===cd.id?' pick':'');
+      card.innerHTML=`<h3>${cd.name}<span class="tag">${cd.id}${pick[p.key]===cd.id?' · picked':''}</span></h3><p class="desc">${cd.desc}</p>
+        <div class="bars">${amps.map(x=>`<div style="height:${(x/mx*100).toFixed(1)}%"></div>`).join('')}</div>
+        <div class="barnums">${amps.map((_,i)=>`<span>${i+1}</span>`).join('')}</div>
+        <div class="play">${DEMOS.map((d,i)=>`<button class="btn${i===0?' primary':''}" data-d="${i}">▶ ${d[0]}</button>`).join('')}</div>`;
+      card.onclick=e=>{const b=e.target.closest('button'); if(b){playFreqs(cd.a,DEMOS[+b.dataset.d][1](root()));return;} pick[p.key]=cd.id; render();};
+      sec.querySelector('.cands').appendChild(card);
+    });
+    host.appendChild(sec);
+  });
+  const s=document.getElementById('state'), b=document.getElementById('bright').value;
+  s.innerHTML=`Picked: ${PRESETS.map(p=>`${p.name} ${pick[p.key]}`).join(' · ')} · brightness ${b} <button id="copy">Copy</button>`;
+  document.getElementById('copy').onclick=()=>navigator.clipboard.writeText(s.textContent.replace(/ Copy$/,''));
+}
+document.getElementById('bright').oninput=e=>{document.getElementById('bval').textContent=e.target.value; render();};
+document.getElementById('vol').oninput=()=>{if(master)master.gain.value=+document.getElementById('vol').value;};
+render();
+</script>
+</body>
+</html>
