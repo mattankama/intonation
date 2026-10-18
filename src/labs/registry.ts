@@ -10,6 +10,7 @@ import { copy } from '../copy/en';
 import type { Settings } from '../state/settings';
 import { LAB_IDS, type LabId } from './ids';
 import { chordComparisonLab } from './chord-comparison';
+import { edoExplorerLab } from './edo-explorer';
 import { soundWavesLab } from './sound-waves';
 import { tuningSystemsLab } from './tuning-systems';
 
@@ -39,6 +40,7 @@ const components: Partial<Record<LabId, LabParts>> = {
   'sound-waves': soundWavesLab,
   'tuning-systems': tuningSystemsLab,
   'chord-comparison': chordComparisonLab,
+  'edo-explorer': edoExplorerLab,
 };
 
 export const LABS: readonly LabDefinition[] = LAB_IDS.map((id) => ({

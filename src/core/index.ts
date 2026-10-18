@@ -86,3 +86,12 @@ export {
 } from './beats';
 export { type TuningTableRow, tuningTable } from './table';
 export { nearestPureInterval } from './interval';
+export {
+  type StepApproximation,
+  type ChartPoint,
+  EDO_TARGETS,
+  CHART_TARGETS,
+  approximate,
+  edoApproximations,
+  edoErrorChart,
+} from './edoApproximation';

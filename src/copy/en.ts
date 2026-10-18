@@ -255,6 +255,8 @@ export const copy = {
       kirnberger:
         'J. P. Kirnberger, letter to J. N. Forkel (c. 1779), printed by H. Bellermann in Allgemeine Musikalische Zeitung 6 (1871).',
       fiveLimit: 'David Wright, Mathematics and Music (2009), pp. 140–141: the asymmetric 5-limit scale.',
+      mandelbaum:
+        'M. Joel Mandelbaum, Multiple Division of the Octave and the Tonal Resources of 19-Tone Temperament (PhD dissertation, Indiana University, 1961).',
       plompLevelt:
         'R. Plomp & W. J. M. Levelt, “Tonal consonance and critical bandwidth”, J. Acoust. Soc. Am. 38, 548–560 (1965).',
       sethares:
@@ -364,6 +366,65 @@ export const copy = {
     tonic: {
       heading: 'Tonic, not Root',
       body: 'A 12-note tuning system tunes its keys from its Tonic and never retunes them for the chord. A chord far from the Tonic can meet the wolf, as A♭ or F♯ major do in meantone on C.',
+    },
+  },
+
+  edoExplorer: {
+    /** The pure intervals the circle marks, by ratio. */
+    targetNames: {
+      '3/2': 'fifth',
+      '5/4': 'major third',
+      '6/5': 'minor third',
+      '7/4': 'harmonic seventh',
+      '11/8': 'eleventh harmonic',
+    } as Record<string, string>,
+    circleLabel: (n: number) =>
+      `Circle of ${n} steps, with the pure intervals 3/2, 5/4, 6/5, 7/4 and 11/8 marked at their nearest steps`,
+    circleKey: 'Ring: the pure interval. Dot: the nearest step.',
+    stepSize: (cents: string) => `1 step = ${cents}`,
+    /** A mark on the circle: "3/2 −5.2¢". */
+    markLabel: (ratio: string, error: string) => `${ratio} ${error}`,
+    tableCaption: (edo: string) => `Nearest steps in ${edo}`,
+    columns: { interval: 'Pure interval', pure: 'Pure', step: 'Step', size: 'Step size', error: 'Error' },
+    chartLabel:
+      'Error chart: the largest error among 3/2, 5/4 and 6/5 for every N from 5 to 72; 12, 19, 31 and 53 dip lowest',
+    chartHeading: 'Error across every N',
+    chartCaption: 'Largest error among 3/2, 5/4 and 6/5. Click a bar to explore that N.',
+    chartBar: (n: number, error: string, interval: string) => `${n}-EDO: ${error} (${interval})`,
+    nLabel: 'Equal divisions, N',
+    nHint: 'From 5 to 72. N sets the tuning system, so the keyboard plays it too.',
+    standoutsLabel: 'Standouts',
+    standout: (n: number) => `${n}-EDO`,
+    notEdo: (system: string) =>
+      `The keyboard plays ${system}. Choose N to explore an EDO and play it on the keyboard.`,
+    playHeading: 'Play',
+    playScale: (n: number) => `Play the scale (${n} steps)`,
+    stop: 'Stop',
+    chordsLabel: 'Chords on step 0, from the EDO mapping',
+    /** A chord row: its steps above step 0, "0 · 10 · 18". */
+    chordSteps: (steps: readonly number[]) => steps.join(' · '),
+    playChord: (chord: string, steps: string) => `Play ${chord} (steps ${steps})`,
+  },
+
+  edoExplorerMath: {
+    nearest: {
+      heading: 'The nearest step',
+      body: (edo: string, interval: string) =>
+        `${edo} splits the octave into N equal steps. The step nearest the pure ${interval} r is N·log₂ r, rounded:`,
+    },
+    error: {
+      heading: 'Its error',
+      body: 'The error is the step’s size minus the pure interval’s, in cents: positive when the step is wide, negative when it is narrow.',
+    },
+    chart: {
+      heading: 'The error chart',
+      body: (edo: string, interval: string) =>
+        `Each bar is an EDO’s largest error among the 5-limit intervals 3/2, 5/4 and 6/5. For ${edo} it is the ${interval}. 7/4 and 11/8 are left out: they would bury 12-EDO, whose seventh and eleventh are poor.`,
+    },
+    mapping: {
+      heading: 'Chords use the EDO mapping',
+      body: (edo: string) =>
+        `Chords are built from ${edo}’s nearest steps to 3/2, 5/4 and 7/4, so each chord’s intervals fit together. Its minor third is its fifth minus its major third:`,
     },
   },
 
