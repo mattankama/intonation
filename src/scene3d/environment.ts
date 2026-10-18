@@ -33,3 +33,22 @@ function subscribePhone(onChange: () => void) {
 export function usePhoneLayout(): boolean {
   return useSyncExternalStore(subscribePhone, () => window.matchMedia(PHONE_QUERY).matches);
 }
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+/** Whether the person has asked for reduced motion (read at the moment of calling). */
+export const prefersReducedMotion = (): boolean => window.matchMedia(REDUCED_MOTION_QUERY).matches;
+
+function subscribeReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener('change', onChange);
+  return () => query.removeEventListener('change', onChange);
+}
+
+/**
+ * Whether the person has asked for reduced motion, kept up to date. 3D scenes hold still
+ * under it: a transition snaps to its end, a running animation shows one held frame.
+ */
+export function useReducedMotion(): boolean {
+  return useSyncExternalStore(subscribeReducedMotion, prefersReducedMotion);
+}

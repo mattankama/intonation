@@ -12,6 +12,7 @@ import {
 } from 'three';
 import { type LatticeNode, latticeNoteName } from '../../core';
 import { copy } from '../../copy/en';
+import { prefersReducedMotion } from '../../scene3d';
 import { InkDot, InkLine, Scene3D, SceneLabel, type SceneView, useSceneColors } from '../../scene3d/scene';
 import { TONIC_TRIAD, type Limit, sameNode } from './latticeState';
 import {
@@ -57,8 +58,6 @@ export default function LatticeScene(props: LatticeSceneProps) {
     </Scene3D>
   );
 }
-
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Turns the group towards `limit` (7 = fully turned), easing over TURN_SECONDS; snaps with reduced motion. */
 function useTurn(limit: Limit) {

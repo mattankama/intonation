@@ -5,4 +5,4 @@
  */
 export { lazyScene } from './lazy';
 export { type SceneColors, SYSTEM_COLOR_TOKENS, readSceneColors, systemColorVar } from './colors';
-export { hasWebGL, usePhoneLayout } from './environment';
+export { hasWebGL, prefersReducedMotion, usePhoneLayout, useReducedMotion } from './environment';

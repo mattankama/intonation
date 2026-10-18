@@ -656,8 +656,9 @@ export const copy = {
     lanes: { tone1: 'Tone 1', tone2: 'Tone 2', sum: 'Sum' },
     now: 'now',
     ago: (seconds: string) => `${seconds} s ago`,
-    caption: (phone: boolean) =>
-      `The last ${phone ? 'half second' : 'second'}. The waves are drawn slowed down so each cycle shows; the beats keep their real timing.`,
+    caption: (phone: boolean, still: boolean) =>
+      `The last ${phone ? 'half second' : 'second'}. The waves are drawn slowed down so each cycle shows; the beats keep their real timing.` +
+      (still ? ' Your device asks for reduced motion, so the ribbon is held still where the tones start in step.' : ''),
     rateLabel: 'Beat rate',
     rateUnit: 'beats per second',
     tones: (f1: string, f2: string, gapCents: string) =>

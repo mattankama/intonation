@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { BEAT_MAX_HZ, timbreHarmonics } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatHz } from '../../format/numbers';
-import { lazyScene, usePhoneLayout } from '../../scene3d';
+import { lazyScene, usePhoneLayout, useReducedMotion } from '../../scene3d';
 import type { LabProps } from '../registry';
 import type { BeatsRibbonProps } from './BeatsRibbon';
 import { type TwoTones, twoTones, useGap, usePlaying, useToneSync } from './beatsState';
@@ -27,6 +27,7 @@ export function BeatsVisual({ settings }: LabProps) {
   const tones = twoTones(settings, gap);
   const playing = usePlaying();
   const phone = usePhoneLayout();
+  const still = useReducedMotion();
   useToneSync(tones);
 
   // A stable array while the Timbre is unchanged, so the ribbon only redraws on real changes.
@@ -43,8 +44,8 @@ export function BeatsVisual({ settings }: LabProps) {
           </li>
         ))}
       </ul>
-      <BeatsRibbon harmonics={harmonics} gap={gap} playing={playing} phone={phone} />
-      <p className="br-caption">{text.caption(phone)}</p>
+      <BeatsRibbon harmonics={harmonics} gap={gap} playing={playing} phone={phone} still={still} />
+      <p className="br-caption">{text.caption(phone, still)}</p>
       <BeatReadout tones={tones} />
     </section>
   );

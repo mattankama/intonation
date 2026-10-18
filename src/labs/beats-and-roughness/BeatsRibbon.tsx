@@ -48,11 +48,15 @@ export interface BeatsRibbonProps {
   gap: number;
   playing: boolean;
   phone: boolean;
+  /** Reduced motion: one held frame (both tones starting in step) instead of the moving ribbon. */
+  still: boolean;
 }
 
 /**
  * The 3D interference ribbon (issue #28): tone 1, tone 2 and their sum side by side,
- * with markers where the tones are in step. Animates only while the tones play.
+ * with markers where the tones are in step. Animates only while the tones play, and never
+ * under reduced motion: then it holds the frame where both tones start in step, which still
+ * shows the sum swelling and fading at the beat rate.
  * Loaded lazily (with three.js) by BeatsVisual.
  */
 export default function BeatsRibbon(props: BeatsRibbonProps) {
@@ -65,7 +69,7 @@ export default function BeatsRibbon(props: BeatsRibbonProps) {
 
 const x = (t: number, seconds: number) => HALF * (1 + (2 * t) / seconds);
 
-function RibbonContent({ harmonics, gap, playing, phone }: BeatsRibbonProps) {
+function RibbonContent({ harmonics, gap, playing, phone, still }: BeatsRibbonProps) {
   const colors = useSceneColors();
   const invalidate = useThree((s) => s.invalidate);
   const seconds = ribbonSeconds(phone);
@@ -85,16 +89,16 @@ function RibbonContent({ harmonics, gap, playing, phone }: BeatsRibbonProps) {
 
   // Both tones start in step: restart the phase whenever playing starts.
   useEffect(() => {
-    if (!playing) return;
+    if (!playing && !still) return;
     phase.current = 0;
     lastFrame.current = performance.now();
     draw();
-  }, [playing, draw]);
+  }, [playing, still, draw]);
 
   useEffect(draw, [draw, harmonics, gap, seconds]);
 
   useFrame(() => {
-    if (!playing) return;
+    if (!playing || still) return;
     const now = performance.now();
     phase.current = advancePhase(phase.current, live.current.gap, (now - lastFrame.current) / 1000);
     lastFrame.current = now;
