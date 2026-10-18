@@ -90,6 +90,11 @@ describe('latticeNoteName: the letter name of a node above the Tonic', () => {
     [6, node(3, 2), 'A𝄪'], // Tonic F♯: D♯, then thirds F𝄪, A𝄪
     [6, node(3, 3), 'C♯𝄪'], // …and one more third: C triple sharp
     [1, node(-3, -2), 'B𝄫♭'], // Tonic D♭: F♭, then thirds down D𝄫, B triple flat
+    [0, node(29), 'G𝄪𝄪'], // four sharps: still written out
+    // Long comma pumps pile up accidentals: beyond four they are counted.
+    [0, node(36), 'G♯×5'], // three Pythagorean commas above G
+    [0, node(-37), 'B♭×6'],
+    [0, node(1200), 'A♯×171'], // a hundred Pythagorean commas above A
   ])('Tonic %s, %o → %s', (tonic, n, name) => {
     expect(latticeNoteName(tonic, n)).toBe(name);
   });

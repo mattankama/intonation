@@ -12,7 +12,6 @@ import {
   commaPumpComma,
   commaPumpLength,
   factorsCents,
-  factorsFraction,
   latticeNoteName,
   nodeOfFactors,
   octaveReduceFactors,
@@ -21,15 +20,14 @@ import {
   runCommaPump,
 } from '../../core';
 import { copy } from '../../copy/en';
-import { formatRatio } from '../../format/numbers';
+import { formatPitchRatio, formatRatio } from '../../format/numbers';
 
 const pumpText = copy.latticeLab.pump;
 
 // --- Nodes and the chord ------------------------------------------------------------------
 
-/** "5/4": a node's ratio, octave-reduced, exact however far a comma pump has gone. */
-export const nodeRatioText = (n: LatticeNode) =>
-  formatRatio(factorsFraction(octaveReduceFactors({ two: 0, ...n })));
+/** "5/4": a node's ratio, octave-reduced, exact however far a comma pump has gone ("3¹²⁰⁰/2¹⁹⁰¹"). */
+export const nodeRatioText = (n: LatticeNode) => formatPitchRatio(octaveReduceFactors({ two: 0, ...n }));
 
 /** "E 5/4": a pitch's name and ratio, as the lattice labels its node. */
 export const pitchLabel = (tonic: number, pitch: PrimeFactors) => {
@@ -85,6 +83,6 @@ export function pumpDescription(tonic: number, id: CommaPumpId, formatSize: (cen
     loopSymbols(tonic, id),
     formatSize(Math.abs(drift)),
     drift > 0,
-    formatRatio(factorsFraction(comma)),
+    formatPitchRatio(comma),
   );
 }

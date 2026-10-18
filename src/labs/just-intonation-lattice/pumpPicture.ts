@@ -5,14 +5,20 @@
 import { useMemo } from 'react';
 import { type CommaPumpId, type LatticeNode, type PumpStep, commaPumpLength, nodeOfFactors, runCommaPump } from '../../core';
 import type { LatticeLayout } from './geometry';
-import { type PumpState, maxPumpStep, pumpLimit } from './pumpState';
+import { MAX_PUMP_STEP, type PumpState, pumpLimit } from './pumpState';
+
+/**
+ * Loops of the teal path drawn behind the current root. Loops repeat until Reset, so the
+ * path keeps only its last few loops: enough to see the drift, never thousands of tubes.
+ */
+export const PATH_LOOPS = 4;
 
 export interface PumpPicture {
   readonly id: CommaPumpId;
   /** Every step so far, the current one last. */
   readonly run: readonly PumpStep[];
   readonly current: PumpStep;
-  /** The roots so far, in order: the teal path. */
+  /** The roots so far (the last PATH_LOOPS loops of them), in order: the teal path. */
   readonly path: readonly LatticeNode[];
   /** The current chord's notes. */
   readonly chord: readonly LatticeNode[];
@@ -36,11 +42,11 @@ export function pumpPicture({ id, step }: PumpState): PumpPicture {
     id,
     run: current,
     current: last,
-    path: current.map((s) => nodeOfFactors(s.root)),
+    path: current.slice(-(PATH_LOOPS * length + 1)).map((s) => nodeOfFactors(s.root)),
     chord: chordNodes(last),
     frame: loop.flatMap((s) => [nodeOfFactors(s.root), ...chordNodes(s)]),
     limit: pumpLimit(id),
-    canStep: step < maxPumpStep(id),
+    canStep: step < MAX_PUMP_STEP,
   };
 }
 

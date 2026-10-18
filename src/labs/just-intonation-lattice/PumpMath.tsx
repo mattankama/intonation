@@ -4,13 +4,12 @@ import {
   commaPumpComma,
   commaPumpDrift,
   factorsCents,
-  factorsFraction,
   latticeNoteName,
   nodeOfFactors,
   octaveReduceFactors,
 } from '../../core';
 import { copy } from '../../copy/en';
-import { formatRatio } from '../../format/numbers';
+import { formatPitchRatio, formatRatio } from '../../format/numbers';
 import { Live, MathSection, WorkedFormula, log2, threeDecimalCents, unit, wholeNumber } from '../../math/MathParts';
 import type { LabProps } from '../registry';
 import { FactorsFormula } from './FactorsFormula';
@@ -22,7 +21,7 @@ const text = copy.latticeMath;
 const pumpText = text.pump;
 
 /** A pitch's ratio as the lattice shows it: octave-reduced, exact. */
-const reduced = (pitch: PrimeFactors) => formatRatio(factorsFraction(octaveReduceFactors(pitch)));
+const reduced = (pitch: PrimeFactors) => formatPitchRatio(octaveReduceFactors(pitch));
 
 /**
  * The comma explorer's math (issue #31): how the current chord is placed (the note it
@@ -92,7 +91,7 @@ export function PumpMath({ settings, pump }: LabProps & { pump: PumpState }) {
           {pumpText.comma.body(
             loopSymbols(tonic, id),
             latticeNoteName(tonic, nodeOfFactors(comma)),
-            formatRatio(factorsFraction(comma)),
+            formatPitchRatio(comma),
           )}
         </p>
         <WorkedFormula
@@ -114,7 +113,7 @@ export function PumpMath({ settings, pump }: LabProps & { pump: PumpState }) {
               <mo>·</mo>
               {log2}
               <mo>(</mo>
-              <Live>{formatRatio(factorsFraction(comma))}</Live>
+              <Live>{formatPitchRatio(comma)}</Live>
               <mo>)</mo>
             </>
           }

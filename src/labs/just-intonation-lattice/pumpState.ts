@@ -2,6 +2,8 @@
  * The comma explorer's state in the URL (issue #31), beside the chord (./latticeState.ts):
  * - `?pump=syntonic`: the comma explorer is on, with this preset (absent: build a chord);
  * - `?step=6`: the steps taken so far, loops included (default 0, the starting chord).
+ *   Loops repeat and drift accumulates until Reset (issue #31): pitches are exact prime
+ *   exponents, so there is no musical limit, only MAX_PUMP_STEP against hand-edited URLs.
  */
 import { COMMA_PUMP_IDS, type CommaPumpId, commaPumpLength, runCommaPump } from '../../core';
 import type { Limit } from './latticeState';
@@ -9,16 +11,16 @@ import type { Limit } from './latticeState';
 export const PUMP_KEY = 'pump';
 export const STEP_KEY = 'step';
 
-/** Loops repeat until Reset, up to this many. */
-export const MAX_LOOPS = 12;
+/**
+ * The furthest step a URL may ask for: ten thousand clicks of Next (hundreds of loops), so
+ * nobody meets it by playing, but a hand-edited `?step=` cannot ask for millions of chords.
+ */
+export const MAX_PUMP_STEP = 10_000;
 
 export interface PumpState {
   readonly id: CommaPumpId;
   readonly step: number;
 }
-
-/** The last step: MAX_LOOPS loops, back home. */
-export const maxPumpStep = (id: CommaPumpId) => commaPumpLength(id) * MAX_LOOPS;
 
 const isPumpId = (raw: string | null): raw is CommaPumpId => COMMA_PUMP_IDS.includes(raw as CommaPumpId);
 
@@ -28,7 +30,7 @@ export function readPump(params: URLSearchParams): PumpState | null {
   if (!isPumpId(id)) return null;
   const raw = params.get(STEP_KEY);
   const step = raw !== null && /^\d+$/.test(raw) ? Number(raw) : 0;
-  return { id, step: step <= maxPumpStep(id) ? step : 0 };
+  return { id, step: step <= MAX_PUMP_STEP ? step : 0 };
 }
 
 /** A copy of params with the comma explorer written in (null turns it off); other parameters kept. */

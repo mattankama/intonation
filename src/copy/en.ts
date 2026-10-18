@@ -582,7 +582,6 @@ export const copy = {
       reset: 'Reset',
       drone: 'Drone on 1/1',
       droneHint: 'Holds the starting note at its original pitch, so you can hear the drift against it.',
-      maxed: (loops: number) => `That’s ${loops} loops: Reset to start again.`,
       legend: { path: 'Path of the roots', chord: 'Current chord' },
       readout: {
         position: (index: number, total: number, home: boolean) =>

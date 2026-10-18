@@ -275,12 +275,16 @@ function fifthCents(system: ChainSystem, k: number): number {
 
 /** Letter names in fifths order: position −1 is F, 0 is C, 1 is G. */
 const FIFTHS_LETTERS = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
+/** The most accidentals written out one by one; long comma pumps pass it and are counted. */
+const MAX_WRITTEN_ACCIDENTALS = 4;
+
 /**
  * The accidentals for a number of sharps (+) or flats (−): ♯, 𝄪, then ♯𝄪 (triple sharp);
- * ♭, 𝄫, then 𝄫♭ (triple flat), and so on.
+ * ♭, 𝄫, then 𝄫♭ (triple flat), up to four; beyond that counted, "♯×5", "♭×171".
  */
 function accidentals(sharps: number): string {
   const n = Math.abs(sharps);
+  if (n > MAX_WRITTEN_ACCIDENTALS) return `${sharps > 0 ? '♯' : '♭'}×${n}`;
   if (sharps > 0) return (n % 2 ? '♯' : '') + '𝄪'.repeat(Math.floor(n / 2));
   return '𝄫'.repeat(Math.floor(n / 2)) + (n % 2 ? '♭' : '');
 }

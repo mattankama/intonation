@@ -8,7 +8,7 @@ import { audioEngine } from '../../audio/engine';
 import { commaPumpLength, runCommaPump } from '../../core';
 import { hrefFor, navigate } from '../../state/location';
 import type { Settings } from '../../state/settings';
-import { type PumpState, maxPumpStep, readPump, writePump } from './pumpState';
+import { MAX_PUMP_STEP, type PumpState, readPump, writePump } from './pumpState';
 import { playStep, tonicFrequency } from './sound';
 
 /** Seconds between chords while playing through to home. */
@@ -35,7 +35,7 @@ const writeNow = (next: PumpState) =>
 /** Steps on one chord and plays it; false when there is nowhere further to go. */
 function stepOn(settings: Settings): boolean {
   const state = pumpNow();
-  if (!state || state.step >= maxPumpStep(state.id)) return false;
+  if (!state || state.step >= MAX_PUMP_STEP) return false;
   const next = { ...state, step: state.step + 1 };
   writeNow(next);
   playStep(runCommaPump(next.id, next.step).at(-1)!, settings);
@@ -61,11 +61,11 @@ export function playToHome(settings: Settings): void {
   const state = pumpNow();
   if (!state) return;
   playStep(runCommaPump(state.id, state.step).at(-1)!, settings);
-  if (state.step >= maxPumpStep(state.id)) return;
+  if (state.step >= MAX_PUMP_STEP) return;
   const tick = () => {
     const ok = stepOn(settings);
     const now = pumpNow();
-    if (!ok || !now || now.step % commaPumpLength(now.id) === 0 || now.step >= maxPumpStep(now.id)) {
+    if (!ok || !now || now.step % commaPumpLength(now.id) === 0) {
       timer = undefined;
       changed();
     } else timer = window.setTimeout(tick, STEP_SECONDS * 1000);
