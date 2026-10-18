@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { TIMBRE_PRESET_IDS, presetHarmonics, timbreRms, wavePeak } from '../core';
-import { phaseAlignedStart, voiceAmplitudes, volumeGain } from './levels';
+import { phaseAlignedStart, retimedStart, voiceAmplitudes, volumeGain } from './levels';
 
 const BRIGHTNESS_STEPS = Array.from({ length: 21 }, (_, i) => -1 + i / 10);
 const everyTimbre = TIMBRE_PRESET_IDS.flatMap((id) =>
@@ -60,5 +60,20 @@ describe('Phase-aligned start for a Timbre crossfade', () => {
 
   it('starts within one period of the requested time', () => {
     expect(phaseAlignedStart(0.5, 100, 3)).toBeLessThan(3 + 1 / 100 + 1e-12);
+  });
+});
+
+describe('A note whose frequency changes while it sounds', () => {
+  it('keeps later crossfades in phase: started at 0 s at 440 Hz, moved to 443 Hz at 1.25 s', () => {
+    const start = retimedStart(0, 440, 443, 1.25);
+    const t = phaseAlignedStart(start, 443, 2);
+    expect(t).toBeGreaterThanOrEqual(2);
+    // The sounding oscillator's own cycles: 440 a second until 1.25 s, then 443 a second.
+    const cycles = 440 * 1.25 + 443 * (t - 1.25);
+    expect(Math.abs(cycles - Math.round(cycles))).toBeLessThan(1e-6);
+  });
+
+  it('is unchanged when the frequency is', () => {
+    expect(retimedStart(0.5, 440, 440, 3)).toBeCloseTo(0.5, 12);
   });
 });

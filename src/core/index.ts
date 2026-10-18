@@ -95,3 +95,4 @@ export {
   edoApproximations,
   edoErrorChart,
 } from './edoApproximation';
+export { beatRate, centsBetween } from './twoTones';

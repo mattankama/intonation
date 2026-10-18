@@ -513,6 +513,55 @@ export const copy = {
     },
   },
 
+  beatsLab: {
+    heading: 'Beats',
+    sceneLabel: 'Interference ribbon',
+    legendLabel: 'Ribbon key',
+    legend: { tone1: 'Tone 1', tone2: 'Tone 2', sum: 'Sum', swell: 'In step' },
+    lanes: { tone1: 'Tone 1', tone2: 'Tone 2', sum: 'Sum' },
+    now: 'now',
+    ago: (seconds: string) => `${seconds} s ago`,
+    caption: (phone: boolean) =>
+      `The last ${phone ? 'half second' : 'second'}. The waves are drawn slowed down so each cycle shows; the beats keep their real timing.`,
+    rateLabel: 'Beat rate',
+    rateUnit: 'beats per second',
+    tones: (f1: string, f2: string, gapCents: string) =>
+      `Tone 1: A4 at ${f1} · Tone 2: ${f2}, ${gapCents} higher`,
+    unison: 'No beats: the tones are in unison.',
+    countable: 'Count the swells: that many each second.',
+    tooFast: 'Beats this fast are too fast to count: they blur into roughness.',
+    play: 'Play the two tones',
+    stop: 'Stop the two tones',
+    playShort: 'Play',
+    stopShort: 'Stop',
+    gapLabel: 'Gap between the tones',
+    gapHint: 'Tone 2 sits this far above tone 1 (A4, the Reference pitch).',
+  },
+
+  beatsMath: {
+    rate: {
+      heading: 'Beat rate',
+      body: 'The two tones drift in and out of step. Each time tone 2 gains a whole cycle on tone 1 they line up and the sum swells, so it swells as many times a second as the frequencies differ:',
+    },
+    gap: {
+      heading: 'The gap in cents',
+      body: 'Tone 1 is A4 at the Reference pitch and tone 2 sits the gap above it. Measured as an interval, the gap is:',
+    },
+    swell: {
+      heading: 'Why the sum swells',
+      body: 'For sine waves, sin a + sin b = 2 cos((a − b)/2) · sin((a + b)/2): one tone at the average frequency whose loudness rises and falls. Its loud moments come once every T seconds:',
+      unison: 'At a unison the tones never drift apart, so the sum holds steady.',
+    },
+    harmonics: {
+      heading: 'Harmonics beat faster',
+      body: 'Harmonic k of each tone sits at k times its frequency, so those harmonics are k times as far apart and beat k times as fast. The 2nd harmonics:',
+    },
+    roughness: {
+      heading: 'Beats or roughness',
+      body: 'Beats are easiest to follow at around 4 a second. Above about 15–20 a second they blur into roughness, a buzz rather than a wobble, and once the tones are about a critical band apart (roughly 100 Hz around A4) they sound as two separate, smooth notes.',
+    },
+  },
+
   notFound: {
     title: 'Page not found',
     body: 'There is no page at this address.',
