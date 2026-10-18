@@ -4,7 +4,7 @@ import { copy } from '../../copy/en';
 import { formatCents, formatDecimal, formatRatio } from '../../format/numbers';
 import { Live, MathSection, WorkedFormula, log2, sub, threeDecimalCents } from '../../math/MathParts';
 import type { LabProps } from '../registry';
-import { exploredEdo } from './exploredEdo';
+import { useExploredEdo } from './exploredEdo';
 
 const text = copy.edoExplorerMath;
 const names = copy.edoExplorer.targetNames;
@@ -27,7 +27,7 @@ const errorOf = (r: string) => sub('e', r);
  * error chart plots, and how chords come from the EDO mapping instead.
  */
 export function EdoExplorerMath({ settings }: LabProps) {
-  const n = exploredEdo(settings);
+  const { n } = useExploredEdo(settings);
   const edo = copy.settings.tuningSystem.name(edoSystem(n));
   const fifth = approximate(n, FIFTH);
   const exact = n * Math.log2(3 / 2);

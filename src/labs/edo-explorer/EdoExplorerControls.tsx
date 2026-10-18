@@ -1,10 +1,10 @@
 import { useId } from 'react';
 import { playChord } from '../../audio/chords';
-import { EDO_MAX, EDO_MIN, isEdo } from '../../core';
+import { EDO_MAX, EDO_MIN, edoSystem } from '../../core';
 import { copy } from '../../copy/en';
 import { remarkText } from '../chord-comparison/ChordComparisonVisual';
 import type { LabProps } from '../registry';
-import { EDO_CHORDS, STANDOUT_EDOS, edoChord, edoScale, exploredEdo, useChooseEdo } from './exploredEdo';
+import { EDO_CHORDS, STANDOUT_EDOS, edoChord, edoScale, useExploredEdo } from './exploredEdo';
 import { useScalePlayback } from './usePlayback';
 
 const text = copy.edoExplorer;
@@ -12,9 +12,9 @@ const text = copy.edoExplorer;
 /** N (5–72) with the standout EDOs as quick picks. */
 export function EdoExplorerControls({ settings }: LabProps) {
   const id = useId();
-  const choose = useChooseEdo();
-  const n = exploredEdo(settings);
-  const shared = isEdo(settings.tuningSystem);
+  const { n, choose, makeTuningSystem } = useExploredEdo(settings);
+  const isShared = settings.tuningSystem === edoSystem(n);
+  const edoName = copy.settings.tuningSystem.name(edoSystem(n));
   const scale = useScalePlayback();
   return (
     <div className="edo-controls">
@@ -53,13 +53,33 @@ export function EdoExplorerControls({ settings }: LabProps) {
               key={standout}
               type="button"
               className="button-tertiary ml-focusable edo-standout"
-              aria-pressed={shared && standout === n}
+              aria-pressed={standout === n}
               onClick={() => choose(standout)}
             >
               {text.standout(standout)}
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="field">
+        {isShared ? (
+          <span className="field-hint">{text.isTuningSystem(edoName)}</span>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="button-tertiary ml-focusable edo-use"
+              aria-describedby={`${id}-use-hint`}
+              onClick={makeTuningSystem}
+            >
+              {text.useAsTuningSystem(edoName)}
+            </button>
+            <span id={`${id}-use-hint`} className="field-hint">
+              {text.keyboardPlays(copy.settings.tuningSystem.name(settings.tuningSystem))}
+            </span>
+          </>
+        )}
       </div>
 
       <h2 className="edo-controls-heading">{text.playHeading}</h2>

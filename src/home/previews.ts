@@ -16,7 +16,7 @@ import {
 } from '../core';
 import { DEFAULT_BOTTOM, bottomFrequency, landscapePins } from '../labs/beats-and-roughness/landscape';
 import { readChordState } from '../labs/chord-comparison/chordState';
-import { exploredEdo } from '../labs/edo-explorer/exploredEdo';
+import { defaultEdo } from '../labs/edo-explorer/exploredEdo';
 import { TONIC_TRIAD } from '../labs/just-intonation-lattice/latticeState';
 import { latticeEdges, latticeGrid, nodePosition } from '../labs/just-intonation-lattice/geometry';
 import { chordColumns } from '../labs/chord-comparison/useChordComparison';
@@ -279,7 +279,7 @@ const onCircle = (fraction: number, radius: number): Point => ({
 });
 
 export function edoCirclePreview(): EdoCirclePreview {
-  const n = exploredEdo(DEFAULT_SETTINGS);
+  const n = defaultEdo(DEFAULT_SETTINGS.tuningSystem);
   const steps = Array.from({ length: n }, (_, k) => onCircle(k / n, EDO_RADIUS));
   const marks = edoApproximations(n).map((a) => ({
     point: onCircle(a.pureCents / 1200, EDO_MARK_RADIUS),

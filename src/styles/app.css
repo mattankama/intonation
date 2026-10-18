@@ -1186,13 +1186,6 @@ button {
   padding: var(--space-md) var(--space-xl);
   overflow: auto;
 }
-.edo-hint {
-  font: var(--type-caption);
-  color: var(--text-body);
-  background: var(--surface-card);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm);
-}
 .edo-top {
   display: flex;
   flex-wrap: wrap;
@@ -1358,6 +1351,9 @@ button {
 }
 .edo-standout {
   padding: 6px 10px;
+}
+.edo-use {
+  align-self: flex-start;
 }
 .edo-standout[aria-pressed='true'] {
   background: var(--action-primary-bg);
