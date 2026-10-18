@@ -13,11 +13,18 @@ import {
   HARMONIC_COUNT,
   LEVEL_MAX,
   TIMBRE_PRESET_IDS,
+  TUNING_SYSTEM_IDS,
   type TimbreChoice,
+  type Tuning,
+  type TuningSystemId,
   isCustomTimbre,
+  tonicSpelling,
 } from '../core';
 
 export interface Settings {
+  tuningSystem: TuningSystemId;
+  /** Pitch class of the Tonic, 0 = C. */
+  tonic: number;
   /** Frequency of A4 in Hz. */
   referencePitch: number;
   /** The shared Timbre: a Timbre preset, or the one Custom Timbre. */
@@ -26,6 +33,11 @@ export interface Settings {
   brightness: number;
   /** Master volume, 0–100 %. */
   volume: number;
+}
+
+/** The tuning system and its Tonic, as the acoustics core takes them. */
+export function tuningOf(settings: Settings): Tuning {
+  return { system: settings.tuningSystem, tonic: settings.tonic };
 }
 
 export const REFERENCE_PITCH_PRESETS = [415, 432, 440, 442] as const;
@@ -48,7 +60,27 @@ const DECIMAL = /^\d+(\.\d+)?$/;
 const SIGNED_DECIMAL = /^-?\d+(\.\d+)?$/;
 const WHOLE = /^\d+$/;
 
+/** A Tonic's name in the URL: its spelling in ASCII, e.g. "D-flat", "F-sharp". */
+const tonicSlug = (pitchClass: number) =>
+  tonicSpelling(pitchClass).replace('♭', '-flat').replace('♯', '-sharp');
+const TONIC_SLUGS = Array.from({ length: 12 }, (_, pc) => tonicSlug(pc));
+
 export const SETTING_FIELDS: SettingFields = {
+  tuningSystem: {
+    key: 'tuning',
+    defaultValue: '12-edo',
+    parse: (raw) => TUNING_SYSTEM_IDS.find((id) => id === raw),
+    format: (id) => id,
+  },
+  tonic: {
+    key: 'tonic',
+    defaultValue: 0,
+    parse(raw) {
+      const pc = TONIC_SLUGS.indexOf(raw);
+      return pc === -1 ? undefined : pc;
+    },
+    format: tonicSlug,
+  },
   referencePitch: {
     key: 'ref',
     defaultValue: 440,
