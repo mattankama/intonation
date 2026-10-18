@@ -10,6 +10,7 @@ import { Inspector } from './Inspector';
 import { Keyboard } from './Keyboard';
 import { LabNav, SettingsFields } from './LabNav';
 import { Wordmark } from './Wordmark';
+import { useAudioSettings } from './useAudioSettings';
 import { useDocumentTitle } from './useDocumentTitle';
 
 /**
@@ -23,6 +24,7 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuId = useId();
   useDocumentTitle(copy.shell.documentTitle(lab.title));
+  useAudioSettings(settings);
 
   const frequencyOf = useCallback(
     (note: Note) => edo12Frequency(note, settings.referencePitch),

@@ -1,6 +1,14 @@
-import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react';
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { type Note, edo12NoteName } from '../core';
 import { copy } from '../copy/en';
+import { computerKeyFor, noteForKeyCode } from './computerKeys';
 
 /** Black keys by pitch class, with the white key (index in octave) they sit after. */
 const BLACK_KEYS = [
@@ -22,10 +30,63 @@ export interface KeyboardProps {
   onPluck(note: Note): void;
 }
 
+/** Typing in these doesn't play notes. */
+const isTextEntry = (target: EventTarget | null) =>
+  target instanceof HTMLElement &&
+  (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName));
+
+const noteKey = (note: Note) => `${note.pitchClass}:${note.octave}`;
+
+/**
+ * Computer keys (A S D F … and the row above) hold notes while pressed. Returns the
+ * notes currently held this way, so their on-screen keys can show it.
+ */
+function useComputerKeys(onNoteOn: (note: Note) => void, onNoteOff: (note: Note) => void) {
+  const [held, setHeld] = useState<ReadonlySet<string>>(new Set());
+  const handlers = useRef({ onNoteOn, onNoteOff });
+  handlers.current = { onNoteOn, onNoteOff };
+
+  useEffect(() => {
+    const down = new Map<string, Note>();
+    const sync = () => setHeld(new Set([...down.values()].map(noteKey)));
+    const release = (code: string) => {
+      const note = down.get(code);
+      if (!note) return;
+      down.delete(code);
+      handlers.current.onNoteOff(note);
+      sync();
+    };
+    const onKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || isTextEntry(e.target)) return;
+      const note = noteForKeyCode(e.code);
+      if (!note || down.has(e.code)) return;
+      e.preventDefault();
+      down.set(e.code, note);
+      handlers.current.onNoteOn(note);
+      sync();
+    };
+    const onKeyUp = (e: globalThis.KeyboardEvent) => release(e.code);
+    const releaseAll = () => [...down.keys()].forEach(release);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', releaseAll);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', releaseAll);
+      releaseAll();
+    };
+  }, []);
+
+  return held;
+}
+
 /** The on-screen keyboard, two octaves from C4. */
 export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
+  const held = useComputerKeys(onNoteOn, onNoteOff);
   const key = (note: Note, colour: 'white' | 'black', style?: CSSProperties) => {
     const name = edo12NoteName(note);
+    const shortcut = computerKeyFor(note);
     const down = (e: PointerEvent<HTMLButtonElement>) => {
       if (e.button !== 0) return;
       e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -50,12 +111,19 @@ export function Keyboard({ onNoteOn, onNoteOff, onPluck }: KeyboardProps) {
         className={`key key-${colour} ml-focusable`}
         style={style}
         aria-label={name}
+        aria-keyshortcuts={shortcut}
+        data-held={held.has(noteKey(note)) || undefined}
         onPointerDown={down}
         onPointerUp={up}
         onPointerCancel={up}
         onLostPointerCapture={up}
         onKeyDown={keyDown}
       >
+        {shortcut && (
+          <span className="key-shortcut" aria-hidden="true">
+            {shortcut}
+          </span>
+        )}
         {colour === 'white' && <span className="key-label">{name}</span>}
       </button>
     );

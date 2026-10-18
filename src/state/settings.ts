@@ -6,9 +6,22 @@
  * default value is left out of the URL so links stay short.
  */
 
+import {
+  BRIGHTNESS_MAX,
+  BRIGHTNESS_MIN,
+  TIMBRE_PRESET_IDS,
+  type TimbrePresetId,
+} from '../core';
+
 export interface Settings {
   /** Frequency of A4 in Hz. */
   referencePitch: number;
+  /** The shared Timbre preset. */
+  timbre: TimbrePresetId;
+  /** Brightness b in aₙ × n^b, −1 to +1 in steps of 0.1 (not applied to Sine). */
+  brightness: number;
+  /** Master volume, 0–100 %. */
+  volume: number;
 }
 
 export const REFERENCE_PITCH_PRESETS = [415, 432, 440, 442] as const;
@@ -28,6 +41,8 @@ interface SettingField<K extends keyof Settings> {
 type SettingFields = { [K in keyof Settings]: SettingField<K> };
 
 const DECIMAL = /^\d+(\.\d+)?$/;
+const SIGNED_DECIMAL = /^-?\d+(\.\d+)?$/;
+const WHOLE = /^\d+$/;
 
 export const SETTING_FIELDS: SettingFields = {
   referencePitch: {
@@ -40,6 +55,32 @@ export const SETTING_FIELDS: SettingFields = {
     },
     format: (hz) => String(hz),
   },
+  timbre: {
+    key: 'timbre',
+    defaultValue: 'sine',
+    parse: (raw) => TIMBRE_PRESET_IDS.find((id) => id === raw),
+    format: (id) => id,
+  },
+  brightness: {
+    key: 'bright',
+    defaultValue: 0,
+    parse(raw) {
+      if (!SIGNED_DECIMAL.test(raw)) return undefined;
+      const b = Math.round(Number(raw) * 10) / 10;
+      return b >= BRIGHTNESS_MIN && b <= BRIGHTNESS_MAX ? b + 0 : undefined;
+    },
+    format: (b) => String(b),
+  },
+  volume: {
+    key: 'vol',
+    defaultValue: 80,
+    parse(raw) {
+      if (!WHOLE.test(raw)) return undefined;
+      const v = Number(raw);
+      return v <= 100 ? v : undefined;
+    },
+    format: (v) => String(v),
+  },
 };
 
 const FIELD_NAMES = Object.keys(SETTING_FIELDS) as (keyof Settings)[];
@@ -48,25 +89,29 @@ export const DEFAULT_SETTINGS: Settings = Object.fromEntries(
   FIELD_NAMES.map((name) => [name, SETTING_FIELDS[name].defaultValue]),
 ) as unknown as Settings;
 
+function assign<K extends keyof Settings>(settings: Settings, name: K, value: Settings[K] | undefined) {
+  if (value !== undefined) settings[name] = value;
+}
+
 export function readSettings(params: URLSearchParams): Settings {
   const settings = { ...DEFAULT_SETTINGS };
   for (const name of FIELD_NAMES) {
     const field = SETTING_FIELDS[name];
     const raw = params.get(field.key);
-    const value = raw === null ? undefined : field.parse(raw);
-    if (value !== undefined) settings[name] = value;
+    if (raw !== null) assign(settings, name, field.parse(raw));
   }
   return settings;
+}
+
+function write<K extends keyof Settings>(params: URLSearchParams, name: K, value: Settings[K]) {
+  const field: SettingField<K> = SETTING_FIELDS[name];
+  if (value === field.defaultValue) params.delete(field.key);
+  else params.set(field.key, field.format(value));
 }
 
 /** Returns a copy of params with the settings written in; other parameters are kept. */
 export function writeSettings(params: URLSearchParams, settings: Settings): URLSearchParams {
   const next = new URLSearchParams(params);
-  for (const name of FIELD_NAMES) {
-    const field = SETTING_FIELDS[name];
-    const value = settings[name];
-    if (value === field.defaultValue) next.delete(field.key);
-    else next.set(field.key, field.format(value));
-  }
+  for (const name of FIELD_NAMES) write(next, name, settings[name]);
   return next;
 }
