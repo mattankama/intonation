@@ -2,7 +2,7 @@
  * Every user-facing string on the site, in one place so it can be translated later.
  * Vocabulary follows GLOSSARY.md.
  */
-import type { CommaId, TuningSystemId } from '../core';
+import type { CommaId, TimbrePresetId, TuningSystemId } from '../core';
 import type { LabId } from '../labs/ids';
 
 export const copy = {
@@ -92,6 +92,25 @@ export const copy = {
       range: (min: number, max: number) => `${min}–${max} Hz`,
       option: (hz: number) => `${hz} Hz`,
       chip: (hz: string) => `A4 ${hz} Hz`,
+    },
+    timbre: {
+      label: 'Timbre',
+      presets: {
+        sine: 'Sine',
+        organ: 'Organ-like',
+        string: 'String-like',
+        brass: 'Brass-like',
+        voice: 'Voice-like',
+      } satisfies Record<TimbrePresetId, string>,
+    },
+    brightness: {
+      label: 'Brightness',
+      dark: 'Dark',
+      bright: 'Bright',
+    },
+    volume: {
+      label: 'Volume',
+      value: (percent: number) => `${percent}%`,
     },
   },
 

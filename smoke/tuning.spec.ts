@@ -23,7 +23,7 @@ test('choosing a tuning system relabels the keys with its spellings and stores i
   await expect(page).toHaveURL(/\/sound-waves\?tuning=meantone$/);
   await expect(key(page, 'G♯4')).toHaveCount(1);
   await expect(key(page, 'A♭4')).toHaveCount(0);
-  await expect(key(page, 'G♯4')).toHaveText('G♯');
+  await expect(key(page, 'G♯4').locator('.key-label')).toHaveText('G♯');
   await expect(tonic(page)).toHaveValue('0');
 
   await tuningSystem(page).selectOption({ label: 'Werckmeister III' });

@@ -23,3 +23,14 @@ export {
   chainOfFifths,
   resolvePitch,
 } from './tuning';
+export {
+  type Harmonics,
+  type TimbrePresetId,
+  TIMBRE_PRESET_IDS,
+  BRIGHTNESS_MIN,
+  BRIGHTNESS_MAX,
+  presetHarmonics,
+  withBrightness,
+  timbreRms,
+  wavePeak,
+} from './timbre';

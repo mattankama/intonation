@@ -248,6 +248,29 @@ button {
   font: var(--type-caption);
   color: var(--text-disabled);
 }
+/* A label with its current value on the right (sliders). */
+.field-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+.field-value {
+  font: var(--type-label);
+  font-variant-numeric: tabular-nums;
+}
+/* Sliders take the charcoal action colour: no chromatic colour on controls. */
+.field-range {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--action-primary-bg);
+}
+.field-range-ends {
+  display: flex;
+  justify-content: space-between;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+}
 
 .mobilebar {
   display: none;
@@ -371,11 +394,13 @@ button {
   z-index: 1;
 }
 .key-white:active,
-.key-white[data-down='true'] {
+.key-white[data-down='true'],
+.key-white[data-held='true'] {
   background: var(--accent-gold-soft);
 }
 .key-black:active,
-.key-black[data-down='true'] {
+.key-black[data-down='true'],
+.key-black[data-held='true'] {
   background: var(--primary-pressed);
 }
 .key-label {
@@ -386,13 +411,36 @@ button {
 /* Black keys carry their spelling (G♯ or A♭ depends on the tuning system). */
 .key-black {
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
   padding-bottom: 3px;
 }
 .key-black .key-label {
   color: var(--text-inverse);
   white-space: nowrap;
+}
+/* Computer-key hints, only where there is likely a hardware keyboard. */
+.key-shortcut {
+  display: none;
+  font: var(--type-caption);
+  color: var(--text-disabled);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .key-white {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .key-shortcut {
+    display: block;
+    line-height: 16px;
+  }
+  .key-black .key-shortcut {
+    color: var(--text-inverse);
+    opacity: 0.7;
+  }
 }
 
 /* ---------- The math ---------- */
@@ -465,6 +513,9 @@ button {
     border-bottom: var(--border-width) solid var(--border-hairline);
   }
   .chip {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font: var(--type-label);
     padding: 5px 8px;
     border: var(--border-width) solid var(--border-field);
