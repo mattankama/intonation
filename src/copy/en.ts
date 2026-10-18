@@ -6,6 +6,7 @@ import {
   type ChordIntervalId,
   type ChordType,
   type CommaId,
+  type CommaPumpId,
   type NamedTuningSystemId,
   type TimbrePresetId,
   type TuningSystemId,
@@ -550,6 +551,40 @@ export const copy = {
       chord: (names: string, ratios: string, proportion: string | null) =>
         proportion === null ? `${names}: ${ratios}` : `${names}: ${ratios} = ${proportion}`,
     },
+    mode: { legend: 'Explore', chord: 'Build a chord', pump: 'Comma pump' },
+    pump: {
+      hint: 'Step through pure chords, each keeping the note it shares with the chord before, and see where home ends up.',
+      select: 'Progression',
+      names: {
+        syntonic: 'Syntonic comma',
+        pythagorean: 'Pythagorean comma',
+        'lesser-diesis': 'Lesser diesis',
+        'greater-diesis': 'Greater diesis',
+        septimal: 'Septimal comma',
+      } satisfies Record<CommaPumpId, string>,
+      /** "C–Am–Dm–G–C: home comes back 21.5¢ flat (80/81)." */
+      description: (chords: string, size: string, sharp: boolean, comma: string) =>
+        `${chords}: home comes back ${size} ${sharp ? 'sharp' : 'flat'} (${comma}).`,
+      /** Chord symbols: "C", "Am", "G7". */
+      symbol: (root: string, type: ChordType) =>
+        `${root}${({ minor: 'm', 'dominant-7th': '7' } as Partial<Record<ChordType, string>>)[type] ?? ''}`,
+      next: 'Next chord',
+      play: 'Play to home',
+      stop: 'Stop',
+      reset: 'Reset',
+      drone: 'Drone on 1/1',
+      droneHint: 'Holds the starting note at its original pitch, so you can hear the drift against it.',
+      maxed: (loops: number) => `That’s ${loops} loops: Reset to start again.`,
+      legend: { path: 'Path of the roots', chord: 'Current chord' },
+      readout: {
+        position: (index: number, total: number, home: boolean) =>
+          index === 0 && home ? 'Home' : `Chord ${index + 1} of ${total}`,
+        chord: (symbol: string, notes: string, held: string | null) =>
+          `${symbol}: ${notes}${held === null ? '' : `, keeping ${held}`}`,
+        notHome: 'Not home yet: step to the end of the loop.',
+        drift: (loops: number, cents: string) => `After ${loops} loop${loops === 1 ? '' : 's'}: ${cents}`,
+      },
+    },
   },
 
   latticeMath: {
@@ -577,6 +612,32 @@ export const copy = {
       body: 'Each step right multiplies by 3 (a pure fifth), each step up-right by 5 (a pure major third), each step along ×7 by 7 (a harmonic seventh), with octaves folded away. Two routes to the same letter name can land on different nodes: the gap between them is a comma.',
     },
     empty: 'Add a note to the chord to see its prime factors.',
+    pump: {
+      start: {
+        heading: 'The starting chord',
+        body: (symbol: string, notes: string) =>
+          `The pump starts on the pure ${symbol} chord on 1/1: ${notes}. Press Next chord to step on.`,
+      },
+      held: {
+        heading: (note: string) => `Keeping ${note}`,
+        body: (symbol: string, note: string, interval: string) =>
+          `${symbol} keeps ${note} at its exact pitch from the chord before. In the pure chord ${note} is the ${interval} above the root, so the root r is ${note} divided by that interval (octaves ignored):`,
+      },
+      root: (symbol: string) => `${symbol}’s root`,
+      comma: {
+        heading: 'The comma',
+        body: (chords: string, home: string, ratio: string) =>
+          `One loop, ${chords}, comes home on ${home} at ${ratio} instead of 1/1. Its size:`,
+      },
+      drift: {
+        heading: 'The drift so far',
+        body: 'Every loop moves home by the same comma, so after k loops the drift is k times it:',
+      },
+      why: {
+        heading: 'Why the pump drifts',
+        body: 'Every chord is pure and every step keeps one note exactly, so nothing is ever out of tune. But the roots move by pure fifths, thirds and sevenths, and around the loop those steps multiply to a comma instead of whole octaves: home lands on a different node with the same letter name.',
+      },
+    },
   },
 
   beatsLab: {

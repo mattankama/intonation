@@ -1,10 +1,18 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
-import { BufferGeometry, DoubleSide, type Group, LineBasicMaterial, LineSegments, Vector3 } from 'three';
-import { type LatticeNode, latticeNoteName, ratioOfNode } from '../../core';
+import {
+  BufferGeometry,
+  CylinderGeometry,
+  DoubleSide,
+  type Group,
+  LineBasicMaterial,
+  LineSegments,
+  Quaternion,
+  Vector3,
+} from 'three';
+import { type LatticeNode, latticeNoteName } from '../../core';
 import { copy } from '../../copy/en';
-import { formatRatio } from '../../format/numbers';
-import { InkDot, InkLine, Scene3D, SceneLabel, useSceneColors } from '../../scene3d/scene';
+import { InkDot, InkLine, Scene3D, SceneLabel, type SceneView, useSceneColors } from '../../scene3d/scene';
 import { TONIC_TRIAD, type Limit, sameNode } from './chord';
 import {
   type EdgeKind,
@@ -16,6 +24,7 @@ import {
   latticeView,
   nodePosition,
 } from './geometry';
+import { nodeRatioText } from './pumpState';
 
 const text = copy.latticeLab;
 
@@ -28,17 +37,22 @@ export interface LatticeSceneProps {
   tonic: number;
   phone: boolean;
   onToggle: (node: LatticeNode) => void;
+  /** Comma explorer (#31): the roots so far, drawn as a teal path; their nodes are drawn too. */
+  path?: readonly LatticeNode[];
+  /** Overrides the view the chord would get (the comma explorer frames its loop). */
+  view?: SceneView;
 }
 
 /**
  * The just-intonation lattice in 3D (issue #30): flat at 5-limit, turned to reveal the ×7
  * layer at 7-limit; the chord's notes are larger dots and its shape is filled in soft gold.
+ * The comma explorer adds the path of its roots in link teal (issue #31).
  * Loaded lazily (with three.js) by LatticeVisual.
  */
 export default function LatticeScene(props: LatticeSceneProps) {
-  const { phone, limit, chord } = props;
+  const { phone, limit, chord, view } = props;
   return (
-    <Scene3D label={text.sceneLabel} view={latticeView({ phone, limit }, chord)} className="jl-scene">
+    <Scene3D label={text.sceneLabel} view={view ?? latticeView({ phone, limit }, chord)} className="jl-scene">
       <LatticeContent {...props} />
     </Scene3D>
   );
@@ -72,20 +86,26 @@ function useTurn(limit: Limit) {
   return group;
 }
 
-function LatticeContent({ limit, chord, tonic, phone, onToggle }: LatticeSceneProps) {
+function LatticeContent({ limit, chord, tonic, phone, onToggle, path }: LatticeSceneProps) {
   const colors = useSceneColors();
   const group = useTurn(limit);
-  const nodes = useMemo(() => latticeGrid({ phone, limit }, chord), [phone, limit, chord]);
+  const nodes = useMemo(() => latticeGrid({ phone, limit }, [...chord, ...(path ?? [])]), [phone, limit, chord, path]);
+  const pathPoints = useMemo(() => path?.map(nodePosition) ?? [], [path]);
   const edges = useMemo(() => latticeEdges(nodes), [nodes]);
   const inChord = (n: LatticeNode) => chord.some((m) => sameNode(m, n));
   // Phones keep only the essential labels: the Tonic's major triad and the chord (decision #17).
-  const labelled = (n: LatticeNode) => !phone || inChord(n) || TONIC_TRIAD.some((m) => sameNode(m, n));
+  // A long comma pump draws nodes beyond the grid: only the chord's are labelled there.
+  const grid = useMemo(() => latticeGrid({ phone, limit }), [phone, limit]);
+  const labelled = (n: LatticeNode) =>
+    inChord(n) ||
+    (grid.some((m) => sameNode(m, n)) && (!phone || TONIC_TRIAD.some((m) => sameNode(m, n))));
 
   return (
     <group ref={group}>
       <Edges edges={edges} kinds={['three', 'five', 'seven']} color={colors.ink} opacity={0.4} />
       <Edges edges={edges} kinds={['diagonal']} color={colors.ink} opacity={0.15} />
       <ChordShape chord={chord} />
+      {pathPoints.length > 1 && <PathTube points={pathPoints} color={colors.accent} />}
       {nodes.map((n) => {
         const position = nodePosition(n);
         const picked = inChord(n);
@@ -95,7 +115,7 @@ function LatticeContent({ limit, chord, tonic, phone, onToggle }: LatticeScenePr
             {labelled(n) && (
               <SceneLabel
                 position={[position[0], position[1] - 0.3, position[2]]}
-                text={text.nodeLabel(latticeNoteName(tonic, n), formatRatio(ratioOfNode(n)))}
+                text={text.nodeLabel(latticeNoteName(tonic, n), nodeRatioText(n))}
                 tone={picked ? 'plain' : 'small'}
               />
             )}
@@ -114,6 +134,47 @@ function AxisLabels({ limit }: { limit: Limit }) {
       <SceneLabel position={[2.4, -2.8, 0]} text={text.axes.three} tone="small" />
       <SceneLabel position={[-4.3, 1.4, 0]} text={text.axes.five} tone="small" />
       {limit === 7 && <SceneLabel position={[-2.6, 1.7, 2.6]} text={text.axes.seven} tone="small" />}
+    </>
+  );
+}
+
+const PATH_RADIUS = 0.035;
+const UP = new Vector3(0, 1, 0);
+
+/**
+ * The comma pump's path (issue #31) in link teal: a thin tube along each step, so it reads
+ * above the 1px lattice edges. It ignores clicks, so the nodes under it stay clickable.
+ */
+function PathTube({ points, color }: { points: readonly Vec3[]; color: string }) {
+  const geometry = useMemo(() => new CylinderGeometry(PATH_RADIUS, PATH_RADIUS, 1, 8), []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  const segments = useMemo(
+    () =>
+      points.slice(1).map((p, i) => {
+        const from = new Vector3(...points[i]!);
+        const along = new Vector3(...p).sub(from);
+        return {
+          position: from.clone().addScaledVector(along, 0.5),
+          quaternion: new Quaternion().setFromUnitVectors(UP, along.clone().normalize()),
+          length: along.length(),
+        };
+      }),
+    [points],
+  );
+  return (
+    <>
+      {segments.map((s, i) => (
+        <mesh
+          key={i}
+          geometry={geometry}
+          position={s.position}
+          quaternion={s.quaternion}
+          scale={[1, s.length, 1]}
+          raycast={() => null}
+        >
+          <meshBasicMaterial color={color} />
+        </mesh>
+      ))}
     </>
   );
 }

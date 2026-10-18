@@ -1644,6 +1644,34 @@ button {
   opacity: 0.45;
   cursor: default;
 }
+/* Comma explorer (#31): the outlined companion button, the teal path key, the drift line. */
+.jl-secondary {
+  font: var(--type-label);
+  background: transparent;
+  color: var(--text-body);
+  border: var(--border-width) solid var(--ink);
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+.jl-path-swatch {
+  flex: none;
+  fill: none;
+  stroke: var(--link);
+  stroke-width: 2;
+}
+.jl-pump-readout {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.jl-readout-line .jl-shape-swatch {
+  vertical-align: -1px;
+  margin-right: 6px;
+}
+.jl-drift {
+  font: var(--type-label-strong);
+}
 
 /* ---------- Phone: below 700px ---------- */
 @media (max-width: 699.98px) {

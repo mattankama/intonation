@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chordFaces, latticeEdges, latticeGrid, latticeView, nodePosition, revealed } from './geometry';
+import { chordFaces, latticeEdges, latticeGrid, latticeView, nodePosition, pumpView, revealed } from './geometry';
 
 const node = (three: number, five = 0, seven = 0) => ({ three, five, seven });
 type V = readonly [number, number, number];
@@ -105,5 +105,31 @@ describe('framing the view', () => {
     const left = latticeView({ phone: true, limit: 5 }, [node(-2), node(-2, 1), node(-1)]);
     expect(left.target[0]).toBeLessThan(-1);
     expect(left.position[0]).toBeCloseTo(left.target[0]);
+  });
+});
+
+describe('framing a comma pump (decision #17: long pumps pan along their path)', () => {
+  const desktop = { phone: false, limit: 5 } as const;
+  // The syntonic pump's first loop: roots C–A–D–G–C' and the notes of its chords.
+  const syntonicLoop = [node(0), node(-1, 1), node(-2, 1), node(-3, 1), node(-4, 1), node(-4, 2), node(-3, 2)];
+
+  it('desktop keeps the grid view while the loop fits in it', () => {
+    expect(pumpView(desktop, syntonicLoop, [node(-1, 1)])).toEqual(latticeView(desktop, []));
+  });
+
+  it('desktop frames a loop that leaves the grid, from further back', () => {
+    const fifths = Array.from({ length: 14 }, (_, i) => node(i));
+    const view = pumpView(desktop, fifths, [node(0)]);
+    const grid = latticeView(desktop, []);
+    expect(view.target[0]).toBeGreaterThan(5);
+    expect(view.target[0]).toBeLessThan(12);
+    expect(view.position[2] - view.target[2]).toBeGreaterThan(grid.position[2] - grid.target[2]);
+  });
+
+  it('phones follow the current chord', () => {
+    const chord = [node(6), node(6, 1), node(7)];
+    expect(pumpView({ phone: true, limit: 5 }, syntonicLoop, chord)).toEqual(
+      latticeView({ phone: true, limit: 5 }, chord),
+    );
   });
 });

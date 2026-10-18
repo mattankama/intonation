@@ -1,9 +1,12 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment } from 'react';
 import { cents, primeFactors, ratioValue, tonicSpelling } from '../../core';
 import { copy } from '../../copy/en';
-import { formatDecimal, formatHz, formatRatio } from '../../format/numbers';
+import { formatHz, formatRatio } from '../../format/numbers';
 import { Live, MathSection, WorkedFormula } from '../../math/MathParts';
 import type { LabProps } from '../registry';
+import { FactorsFormula, c3, log2, sub, unit } from './mathParts';
+import { PumpMath } from './PumpMath';
+import { usePump } from './pumpState';
 import { chordNote, chordNotes, proportionText, tonicFrequency, useLattice } from './state';
 
 const text = copy.latticeMath;
@@ -11,51 +14,16 @@ const SOURCES = copy.math.sources;
 
 export const LATTICE_SOURCES = [SOURCES.euler, SOURCES.longuetHiggins];
 
-const c3 = (value: number) => formatDecimal(value, 3);
-const whole = (value: number) => formatDecimal(value, 0);
-const unit = (symbol: string) => (
-  <>
-    <mspace width="0.1em" />
-    <mtext>{symbol}</mtext>
-  </>
-);
-const log2 = (
-  <msub>
-    <mi>log</mi>
-    <mn>2</mn>
-  </msub>
-);
-const power = (base: string, exponent: ReactNode) => (
-  <msup>
-    <mn>{base}</mn>
-    {exponent}
-  </msup>
-);
-const sub = (name: string, index: string) => (
-  <msub>
-    <mi>{name}</mi>
-    <mi>{index}</mi>
-  </msub>
-);
-/** "(a, b, c)" as a MathML row of identifiers or numbers. */
-const triple = (items: readonly ReactNode[]) => (
-  <>
-    <mo>(</mo>
-    {items.map((item, i) => (
-      <Fragment key={i}>
-        {i > 0 && <mo>,</mo>}
-        {item}
-      </Fragment>
-    ))}
-    <mo>)</mo>
-  </>
-);
-
 /**
  * The last note added to the chord: its prime factors (its place on the lattice), its cents
  * and its frequency; then the chord as whole numbers and why the lattice is built this way.
  */
-export function LatticeMath({ settings }: LabProps) {
+export function LatticeMath(props: LabProps) {
+  const [pump] = usePump();
+  return pump ? <PumpMath settings={props.settings} pump={pump} /> : <ChordMath {...props} />;
+}
+
+function ChordMath({ settings }: LabProps) {
   const [{ chord }] = useLattice();
   const last = chord[chord.length - 1];
   const note = last ? chordNote(last, settings.tonic) : null;
@@ -69,41 +37,7 @@ export function LatticeMath({ settings }: LabProps) {
       {note && factors ? (
         <MathSection heading={text.factors.heading(formatRatio(note.ratio))}>
           <p>{text.factors.body(note.label)}</p>
-          <WorkedFormula
-            general={
-              <>
-                <mi>r</mi>
-                <mo>=</mo>
-                {power('2', <mi>k</mi>)}
-                <mo>·</mo>
-                {power('3', <mi>a</mi>)}
-                <mo>·</mo>
-                {power('5', <mi>b</mi>)}
-                <mo>·</mo>
-                {power('7', <mi>c</mi>)}
-              </>
-            }
-            substituted={
-              <>
-                <Live>{formatRatio(note.ratio)}</Live>
-                <mo>=</mo>
-                {power('2', <mn>{whole(factors.two)}</mn>)}
-                <mo>·</mo>
-                {power('3', <Live>{whole(factors.three)}</Live>)}
-                <mo>·</mo>
-                {power('5', <Live>{whole(factors.five)}</Live>)}
-                <mo>·</mo>
-                {power('7', <Live>{whole(factors.seven)}</Live>)}
-              </>
-            }
-            result={
-              <>
-                {triple([<mi>a</mi>, <mi>b</mi>, <mi>c</mi>])}
-                <mo>=</mo>
-                {triple([factors.three, factors.five, factors.seven].map((e) => <mn>{whole(e)}</mn>))}
-              </>
-            }
-          />
+          <FactorsFormula ratio={formatRatio(note.ratio)} factors={factors} />
         </MathSection>
       ) : (
         <MathSection heading={text.factors.emptyHeading}>

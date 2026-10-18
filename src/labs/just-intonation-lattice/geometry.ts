@@ -193,3 +193,46 @@ export function latticeView(layout: LatticeLayout, chord: readonly LatticeNode[]
   const target: Vec3 = [mean(0), mean(1), mean(2)];
   return { position: [target[0], target[1], target[2] + PHONE_DISTANCE], target };
 }
+
+/** Desktop framing of a pump: the scene's field of view, the narrowest box shape expected and a margin. */
+const FIELD_OF_VIEW = (40 * Math.PI) / 180;
+const MIN_ASPECT = 1.25;
+const FRAME_MARGIN = 0.8;
+
+/**
+ * The view of a comma pump (issue #31). Phones follow the current chord, as for a chord.
+ * Desktop keeps the grid view while `frame` (the nodes of the loop being played) fits in
+ * it, and otherwise frames that loop from as far back as it needs (the grid may then run
+ * off the edges: the loop matters more than the grid around it).
+ */
+export function pumpView(
+  layout: LatticeLayout,
+  frame: readonly LatticeNode[],
+  chord: readonly LatticeNode[],
+): SceneView {
+  const grid = latticeView(layout, chord);
+  if (layout.phone || frame.length === 0) return grid;
+  const t = layout.limit === 7 ? 1 : 0;
+  const points = frame.map((n) => revealed(nodePosition(n), t));
+  const extent = (axis: 0 | 1 | 2) => {
+    const values = points.map((p) => p[axis]);
+    return [Math.min(...values), Math.max(...values)] as const;
+  };
+  const [x, y, z] = [extent(0), extent(1), extent(2)];
+  const tan = Math.tan(FIELD_OF_VIEW / 2);
+  const gridDistance = grid.position[2] - grid.target[2];
+  const fits = (lo: number, hi: number, centre: number, half: number) => lo >= centre - half && hi <= centre + half;
+  const visibleHalf = (distance: number) => [distance * tan * MIN_ASPECT - FRAME_MARGIN, distance * tan - FRAME_MARGIN];
+  const [gridHalfWidth, gridHalfHeight] = visibleHalf(gridDistance - z[1]);
+  if (
+    fits(x[0], x[1], grid.target[0], gridHalfWidth!) &&
+    fits(y[0], y[1], grid.target[1], gridHalfHeight!)
+  )
+    return grid;
+
+  const target: Vec3 = [(x[0] + x[1]) / 2, (y[0] + y[1]) / 2, (z[0] + z[1]) / 2];
+  const halfWidth = (x[1] - x[0]) / 2 + FRAME_MARGIN;
+  const halfHeight = (y[1] - y[0]) / 2 + FRAME_MARGIN;
+  const distance = Math.max(gridDistance, halfWidth / (tan * MIN_ASPECT), halfHeight / tan) + (z[1] - z[0]) / 2;
+  return { position: [target[0], target[1], target[2] + distance], target };
+}

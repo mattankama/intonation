@@ -6,12 +6,50 @@ import { TonicSelect } from '../../shell/TuningFields';
 import type { LabProps } from '../registry';
 import { type Limit, sameNode, setLimit, toggleNode } from './chord';
 import { latticeGrid } from './geometry';
+import { PumpControls } from './PumpControls';
+import { stopPump, usePump } from './pumpState';
 import { chordNote, chordNotes, playChord, useLattice } from './state';
 
 const text = copy.latticeLab;
 
-/** The limit (flat or turned to ×7), the chord's notes, and the Tonic the lattice is built from. */
+/**
+ * What to explore (build a chord, or a comma pump), its controls, and the Tonic the
+ * lattice is built from.
+ */
 export function LatticeControls({ settings }: LabProps) {
+  const [pump, setPump] = usePump();
+  const id = useId();
+  return (
+    <div className="jl-controls">
+      <fieldset className="jl-limit">
+        <legend className="field-label">{text.mode.legend}</legend>
+        {(['chord', 'pump'] as const).map((mode) => (
+          <label key={mode} className="jl-radio">
+            <input
+              type="radio"
+              className="ml-focusable"
+              name={`${id}-mode`}
+              checked={(pump !== null) === (mode === 'pump')}
+              onChange={() => {
+                stopPump();
+                setPump(mode === 'pump' ? { id: 'syntonic', step: 0 } : null);
+              }}
+            />
+            {text.mode[mode]}
+          </label>
+        ))}
+      </fieldset>
+
+      {pump ? <PumpControls settings={settings} pump={pump} /> : <ChordControls settings={settings} />}
+
+      {/* The rail hides the Tonic while the shared system is an EDO; the lattice still uses it. */}
+      {isEdo(settings.tuningSystem) && <TonicSelect hint={text.tonicHint} />}
+    </div>
+  );
+}
+
+/** The limit (flat or turned to ×7) and the chord's notes. */
+function ChordControls({ settings }: LabProps) {
   const [state, setState] = useLattice();
   const phone = usePhoneLayout();
   const id = useId();
@@ -27,7 +65,7 @@ export function LatticeControls({ settings }: LabProps) {
   };
 
   return (
-    <div className="jl-controls">
+    <>
       <p className="field-hint">{text.hint}</p>
 
       <fieldset className="jl-limit">
@@ -111,9 +149,6 @@ export function LatticeControls({ settings }: LabProps) {
           {text.clear}
         </button>
       </div>
-
-      {/* The rail hides the Tonic while the shared system is an EDO; the lattice still uses it. */}
-      {isEdo(settings.tuningSystem) && <TonicSelect hint={text.tonicHint} />}
-    </div>
+    </>
   );
 }
