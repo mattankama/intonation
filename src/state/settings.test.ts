@@ -170,3 +170,57 @@ describe('Volume in the URL', () => {
     expect(readSettings(writeSettings(new URLSearchParams(), settings))).toEqual(settings);
   });
 });
+
+describe('Custom Timbre in the URL (decision: Custom Timbre, issue #10)', () => {
+  // Organ-like as levels 100 80 60 50 0 40 0 30 0…, two hex digits each; harmonic 2 muted.
+  const ORGAN_LEVELS = '64503c320028001e0000000000000000';
+  const organCustom = {
+    from: 'organ' as const,
+    levels: [100, 80, 60, 50, 0, 40, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0],
+    muted: [false, true, ...Array<boolean>(14).fill(false)],
+  };
+
+  it('restores levels in 1 % steps, mutes kept separately, and the preset it came from', () => {
+    expect(read(`timbre=custom.organ.${ORGAN_LEVELS}.0002`).timbre).toEqual(organCustom);
+  });
+
+  it('reads the mute bits as harmonics 1–16, lowest bit first', () => {
+    const { timbre } = read('timbre=custom.sine.64000000000000000000000000000000.8001');
+    expect(timbre).toMatchObject({ muted: [true, ...Array<boolean>(14).fill(false), true] });
+  });
+
+  it('writes the Custom Timbre in about 35 characters plus its preset', () => {
+    const settings = { ...DEFAULT_SETTINGS, timbre: organCustom };
+    expect(writeSettings(new URLSearchParams(), settings).toString()).toBe(
+      `timbre=custom.organ.${ORGAN_LEVELS}.0002`,
+    );
+  });
+
+  it('round-trips through the URL', () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      brightness: 0.5,
+      timbre: {
+        from: 'voice' as const,
+        levels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 99, 100, 37],
+        muted: [true, false, true, ...Array<boolean>(11).fill(false), true, true],
+      },
+    };
+    expect(readSettings(writeSettings(new URLSearchParams(), settings))).toEqual(settings);
+  });
+
+  it('falls back to Sine when the Custom Timbre is malformed', () => {
+    for (const bad of [
+      'custom',
+      `custom.piano.${ORGAN_LEVELS}.0000`,
+      `custom.organ.${ORGAN_LEVELS}`,
+      `custom.organ.${ORGAN_LEVELS.slice(2)}.0000`,
+      `custom.organ.65${ORGAN_LEVELS.slice(2)}.0000`, // 101 %
+      `custom.organ.${ORGAN_LEVELS}.00000`,
+      `custom.organ.${ORGAN_LEVELS.toUpperCase()}.0000`,
+      `custom.organ.${ORGAN_LEVELS}.zzzz`,
+    ]) {
+      expect(read(`timbre=${bad}`).timbre, bad).toBe('sine');
+    }
+  });
+});

@@ -49,9 +49,23 @@ export function presetHarmonics(id: TimbrePresetId, brightness = 0): Harmonics {
   return id === 'sine' ? recipe : withBrightness(recipe, brightness);
 }
 
+/** Σ aₙ², the sum of the squared amplitudes. */
+export function sumOfSquares(harmonics: Harmonics): number {
+  return harmonics.reduce((sum, a) => sum + a * a, 0);
+}
+
 /** RMS of the waveform Σ aₙ·sin(nθ): √(Σ aₙ² / 2). */
 export function timbreRms(harmonics: Harmonics): number {
-  return Math.sqrt(harmonics.reduce((sum, a) => sum + a * a, 0) / 2);
+  return Math.sqrt(sumOfSquares(harmonics) / 2);
+}
+
+/** The waveform Σ aₙ·sin(nθ) at phase θ (radians; one period is 2π). */
+export function waveValue(harmonics: Harmonics, theta: number): number {
+  let value = 0;
+  harmonics.forEach((a, i) => {
+    value += a * Math.sin((i + 1) * theta);
+  });
+  return value;
 }
 
 /** Samples per period when searching for the peak; ample for 16 harmonics. */
@@ -61,12 +75,75 @@ const PEAK_SAMPLES = 4096;
 export function wavePeak(harmonics: Harmonics): number {
   let peak = 0;
   for (let s = 0; s < PEAK_SAMPLES; s++) {
-    const theta = (2 * Math.PI * s) / PEAK_SAMPLES;
-    let value = 0;
-    harmonics.forEach((a, i) => {
-      value += a * Math.sin((i + 1) * theta);
-    });
-    peak = Math.max(peak, Math.abs(value));
+    peak = Math.max(peak, Math.abs(waveValue(harmonics, (2 * Math.PI * s) / PEAK_SAMPLES)));
   }
   return peak;
+}
+
+/* ---------- Custom Timbre (decision: Custom Timbre, issue #10) ---------- */
+
+/** Harmonics 1–16: the presets' length and the Custom Timbre's editable range. */
+export const HARMONIC_COUNT = 16;
+/** Custom levels are whole percentages from 0 to LEVEL_MAX. */
+export const LEVEL_MAX = 100;
+
+/**
+ * The one user-built Timbre: a level per harmonic (whole %, 0–100) and a mute per
+ * harmonic, kept apart so unmuting restores the level. `from` is the Timbre preset it
+ * was made from, for its label and "Reset to preset".
+ */
+export interface CustomTimbre {
+  from: TimbrePresetId;
+  levels: readonly number[];
+  muted: readonly boolean[];
+}
+
+/** The shared Timbre setting: a Timbre preset or the Custom Timbre. */
+export type TimbreChoice = TimbrePresetId | CustomTimbre;
+
+export function isCustomTimbre(timbre: TimbreChoice): timbre is CustomTimbre {
+  return typeof timbre !== 'string';
+}
+
+/**
+ * A Custom Timbre that starts as the preset sounds (brightness included), rescaled so
+ * its strongest harmonic is 100 % and rounded to 1 % steps.
+ */
+export function customTimbreFrom(id: TimbrePresetId, brightness: number): CustomTimbre {
+  const harmonics = presetHarmonics(id, brightness);
+  const strongest = Math.max(...harmonics);
+  return {
+    from: id,
+    levels: harmonics.map((a) => Math.round((a / strongest) * LEVEL_MAX)),
+    muted: harmonics.map(() => false),
+  };
+}
+
+/**
+ * Moves harmonic n's slider or mute (decision #10). A preset first becomes the Custom
+ * Timbre made from it (as heard, brightness included); a Custom Timbre is changed in place.
+ */
+export function editHarmonic(
+  timbre: TimbreChoice,
+  brightness: number,
+  n: number,
+  change: { level?: number; muted?: boolean },
+): CustomTimbre {
+  const base = isCustomTimbre(timbre) ? timbre : customTimbreFrom(timbre, brightness);
+  const i = n - 1;
+  return {
+    from: base.from,
+    levels: base.levels.map((level, j) => (j === i && change.level !== undefined ? change.level : level)),
+    muted: base.muted.map((m, j) => (j === i && change.muted !== undefined ? change.muted : m)),
+  };
+}
+
+/** The amplitudes a Custom Timbre plays: level / 100, or 0 while muted. */
+export function customHarmonics({ levels, muted }: CustomTimbre): Harmonics {
+  return levels.map((level, i) => (muted[i] ? 0 : level / LEVEL_MAX));
+}
+
+/** The harmonics of the shared Timbre setting. Brightness applies to presets only. */
+export function timbreHarmonics(timbre: TimbreChoice, brightness: number): Harmonics {
+  return isCustomTimbre(timbre) ? customHarmonics(timbre) : presetHarmonics(timbre, brightness);
 }

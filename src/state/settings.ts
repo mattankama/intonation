@@ -9,11 +9,15 @@
 import {
   BRIGHTNESS_MAX,
   BRIGHTNESS_MIN,
+  type CustomTimbre,
+  HARMONIC_COUNT,
+  LEVEL_MAX,
   TIMBRE_PRESET_IDS,
   TUNING_SYSTEM_IDS,
-  type TimbrePresetId,
+  type TimbreChoice,
   type Tuning,
   type TuningSystemId,
+  isCustomTimbre,
   tonicSpelling,
 } from '../core';
 
@@ -23,9 +27,9 @@ export interface Settings {
   tonic: number;
   /** Frequency of A4 in Hz. */
   referencePitch: number;
-  /** The shared Timbre preset. */
-  timbre: TimbrePresetId;
-  /** Brightness b in aₙ × n^b, −1 to +1 in steps of 0.1 (not applied to Sine). */
+  /** The shared Timbre: a Timbre preset, or the one Custom Timbre. */
+  timbre: TimbreChoice;
+  /** Brightness b in aₙ × n^b, −1 to +1 in steps of 0.1 (not applied to Sine or Custom). */
   brightness: number;
   /** Master volume, 0–100 %. */
   volume: number;
@@ -90,8 +94,8 @@ export const SETTING_FIELDS: SettingFields = {
   timbre: {
     key: 'timbre',
     defaultValue: 'sine',
-    parse: (raw) => TIMBRE_PRESET_IDS.find((id) => id === raw),
-    format: (id) => id,
+    parse: (raw) => TIMBRE_PRESET_IDS.find((id) => id === raw) ?? parseCustomTimbre(raw),
+    format: (timbre) => (isCustomTimbre(timbre) ? formatCustomTimbre(timbre) : timbre),
   },
   brightness: {
     key: 'bright',
@@ -114,6 +118,33 @@ export const SETTING_FIELDS: SettingFields = {
     format: (v) => String(v),
   },
 };
+
+/**
+ * The Custom Timbre in the URL (decision #10), present only while it is selected:
+ * `custom.<preset>.<levels>.<mutes>`, e.g. `custom.organ.64503c32…0000.0002`.
+ * Levels: two lowercase hex digits per harmonic 1–16 (0–100 %). Mutes: four hex digits,
+ * one bit per harmonic, lowest bit = harmonic 1, so unmuting restores the level.
+ */
+const CUSTOM_TIMBRE = new RegExp(
+  `^custom\\.(${TIMBRE_PRESET_IDS.join('|')})\\.([0-9a-f]{${HARMONIC_COUNT * 2}})\\.([0-9a-f]{${HARMONIC_COUNT / 4}})$`,
+);
+
+function parseCustomTimbre(raw: string): CustomTimbre | undefined {
+  const match = CUSTOM_TIMBRE.exec(raw);
+  if (!match) return undefined;
+  const [, from, levelHex, muteHex] = match;
+  const levels = levelHex!.match(/../g)!.map((pair) => parseInt(pair, 16));
+  if (levels.some((level) => level > LEVEL_MAX)) return undefined;
+  const bits = parseInt(muteHex!, 16);
+  const muted = levels.map((_, i) => (bits & (1 << i)) !== 0);
+  return { from: from as CustomTimbre['from'], levels, muted };
+}
+
+function formatCustomTimbre({ from, levels, muted }: CustomTimbre): string {
+  const levelHex = levels.map((level) => level.toString(16).padStart(2, '0')).join('');
+  const bits = muted.reduce((sum, m, i) => (m ? sum | (1 << i) : sum), 0);
+  return `custom.${from}.${levelHex}.${bits.toString(16).padStart(HARMONIC_COUNT / 4, '0')}`;
+}
 
 const FIELD_NAMES = Object.keys(SETTING_FIELDS) as (keyof Settings)[];
 

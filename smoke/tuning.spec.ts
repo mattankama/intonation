@@ -75,7 +75,10 @@ test('The math shows how a key is built: a ratio, or a comma fraction', async ({
   await page.getByRole('tab', { name: 'Controls' }).click();
   await key(page, 'C4').click();
   math = await mathPanel(page);
-  await expect(math.locator('[data-step="result"]').last()).toContainText('263.18');
+  const frequency = math.locator('.math-section', {
+    has: page.getByRole('heading', { name: 'Its frequency' }),
+  });
+  await expect(frequency.locator('[data-step="result"]')).toContainText('263.18');
 });
 
 test('The math notes the Vallotti attribution when Vallotti is chosen', async ({ page }) => {
