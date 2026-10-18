@@ -275,8 +275,15 @@ function fifthCents(system: ChainSystem, k: number): number {
 
 /** Letter names in fifths order: position −1 is F, 0 is C, 1 is G. */
 const FIFTHS_LETTERS = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
-/** Accidentals from two flats to two sharps, indexed by sharps + 2. */
-const ACCIDENTALS = ['𝄫', '♭', '', '♯', '𝄪'];
+/**
+ * The accidentals for a number of sharps (+) or flats (−): ♯, 𝄪, then ♯𝄪 (triple sharp);
+ * ♭, 𝄫, then 𝄫♭ (triple flat), and so on.
+ */
+function accidentals(sharps: number): string {
+  const n = Math.abs(sharps);
+  if (sharps > 0) return (n % 2 ? '♯' : '') + '𝄪'.repeat(Math.floor(n / 2));
+  return '𝄫'.repeat(Math.floor(n / 2)) + (n % 2 ? '♭' : '');
+}
 
 /** Pitch classes of the natural notes in fifths order: F, C, G, D, A, E, B. */
 const FIFTHS_NATURALS = [5, 0, 7, 2, 9, 4, 11];
@@ -287,9 +294,9 @@ function letterAndAccidental(position: number) {
 }
 
 /** The spelling of the note a number of fifths above C (−3 → E♭, 8 → G♯). */
-function spellFifths(position: number): string {
+export function spellFifths(position: number): string {
   const { letter, accidental } = letterAndAccidental(position);
-  return at(FIFTHS_LETTERS, letter) + at(ACCIDENTALS, accidental + 2);
+  return at(FIFTHS_LETTERS, letter) + accidentals(accidental);
 }
 
 /**
@@ -298,6 +305,9 @@ function spellFifths(position: number): string {
  */
 const TONIC_FIFTHS = [0, -5, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5];
 const tonicFifths = (tuning: Tuning) => at(TONIC_FIFTHS, mod(tuning.tonic, 12));
+
+/** Fifths above C of a Tonic's spelling (D♭ → −5, F♯ → 6). */
+export const fifthsOfTonic = (pitchClass: number): number => at(TONIC_FIFTHS, mod(pitchClass, 12));
 
 /** The name of a Tonic, e.g. "D♭" for pitch class 1. */
 export function tonicSpelling(pitchClass: number): string {

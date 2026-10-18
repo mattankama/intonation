@@ -222,6 +222,9 @@ export const copy = {
       kirnberger:
         'J. P. Kirnberger, letter to J. N. Forkel (c. 1779), printed by H. Bellermann in Allgemeine Musikalische Zeitung 6 (1871).',
       fiveLimit: 'David Wright, Mathematics and Music (2009), pp. 140–141: the asymmetric 5-limit scale.',
+      euler: 'Leonhard Euler, Tentamen novae theoriae musicae (St Petersburg, 1739): the first lattice of fifths and thirds.',
+      longuetHiggins:
+        'H. C. Longuet-Higgins, “Letter to a Musical Friend”, The Music Review 23 (1962): notes as points 3^a · 5^b.',
     },
   },
 
@@ -308,6 +311,67 @@ export const copy = {
       body: 'Each note sits at an angle around the spiral in proportion to its cents above the Tonic, which is at the front; going up an octave makes one full turn and one step up.',
       empty: 'Pick a note to see where it sits.',
     },
+  },
+
+  latticeLab: {
+    sceneLabel: 'Lattice of pure ratios',
+    legendLabel: 'Key',
+    legend: {
+      shape: 'Chord shape',
+      three: '×3 fifths',
+      five: '×5 major thirds',
+      seven: '×7 harmonic sevenths',
+    },
+    axes: { three: '×3 fifths →', five: '×5 major thirds ↗', seven: '×7 harmonic sevenths' },
+    hint: 'Click nodes on the lattice to build a chord and hear it; click a note again to take it out.',
+    nodeLabel: (name: string, ratio: string) => `${name} ${ratio}`,
+    limit: {
+      legend: 'Directions',
+      five: '×3 and ×5 (5-limit)',
+      seven: '×3, ×5 and ×7 (7-limit)',
+      hint: 'The 7-limit turns the lattice to show a third direction: ×7, the harmonic seventh.',
+    },
+    chordHeading: 'Chord',
+    chordLabel: 'Chord notes',
+    chordEmpty: 'No notes yet: click nodes on the lattice, or add one below.',
+    remove: (note: string) => `Remove ${note}`,
+    add: 'Add a note',
+    addPlaceholder: 'Choose a note…',
+    play: 'Play chord',
+    clear: 'Clear chord',
+    tonicHint: 'The lattice is built from this Tonic: 1/1 is the Tonic itself.',
+    readout: {
+      empty: 'Click nodes on the lattice to build a chord.',
+      chord: (names: string, ratios: string, proportion: string | null) =>
+        proportion === null ? `${names}: ${ratios}` : `${names}: ${ratios} = ${proportion}`,
+    },
+  },
+
+  latticeMath: {
+    factors: {
+      heading: (ratio: string) => `Prime factors of ${ratio}`,
+      emptyHeading: 'Prime factors',
+      body: (note: string) =>
+        `Every pure ratio is a product of primes. ${note}’s powers of 3, 5 and 7 are its place on the lattice (a, b, c); the power of 2 only moves it by octaves.`,
+    },
+    cents: {
+      heading: 'Its size in cents',
+      body: (note: string) => `${note} is the ratio r above the Tonic; on a scale of 1200¢ to the octave:`,
+    },
+    frequency: {
+      heading: 'Its frequency',
+      body: (tonic: string) =>
+        `The Tonic ${tonic} sounds at its 12-EDO pitch from the Reference pitch; every node multiplies it by its ratio r:`,
+    },
+    chord: {
+      heading: 'The chord in whole numbers',
+      body: 'Bring the ratios to a common denominator and the chord becomes a row of whole numbers: the harmonics of one low note. Small numbers ring smoothly.',
+    },
+    lattice: {
+      heading: 'Why a lattice',
+      body: 'Each step right multiplies by 3 (a pure fifth), each step up-right by 5 (a pure major third), each step along ×7 by 7 (a harmonic seventh), with octaves folded away. Two routes to the same letter name can land on different nodes: the gap between them is a comma.',
+    },
+    empty: 'Add a note to the chord to see its prime factors.',
   },
 
   notFound: {
