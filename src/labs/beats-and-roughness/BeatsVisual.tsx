@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { timbreHarmonics } from '../../core';
+import { BEAT_MAX_HZ, timbreHarmonics } from '../../core';
 import { copy } from '../../copy/en';
 import { formatCents, formatHz } from '../../format/numbers';
 import { lazyScene, systemColorVar, usePhoneLayout } from '../../scene3d';
@@ -12,9 +12,6 @@ const BeatsRibbon = lazyScene<BeatsRibbonProps>(() => import('./BeatsRibbon'), {
   label: text.sceneLabel,
   className: 'br-scene',
 });
-
-/** Beats faster than this blur into roughness (decision #5: about 15–20 Hz). */
-export const COUNTABLE_BEATS_MAX = 20;
 
 /** Ribbon key entries and their data colours (the swatch index matches the scene). */
 const LEGEND = [
@@ -55,7 +52,7 @@ export function BeatsVisual({ settings }: LabProps) {
 
 function BeatReadout({ tones }: { tones: TwoTones }) {
   const note =
-    tones.rate === 0 ? text.unison : tones.rate > COUNTABLE_BEATS_MAX ? text.tooFast : text.countable;
+    tones.rate === 0 ? text.unison : tones.rate > BEAT_MAX_HZ ? text.tooFast : text.countable;
   return (
     <div className="br-readout">
       <p className="br-rate">
