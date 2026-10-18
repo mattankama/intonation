@@ -1,0 +1,337 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Lives only on branch prototype/lab-layout.
+  Question (wayfinder ticket "Lab page layout", issue #12): where do the main visual, the Lab's controls,
+  the one-sentence intro, the collapsible "The math" panel, the shared settings bar and the on-screen
+  keyboard sit, on desktop and on phones?
+  Plan: three structurally different variants of one Lab page (Tuning systems as the sample),
+  switchable via ?variant=A|B|C, plus a Desktop/Phone toggle (?frame=phone). Uses the real Modern Light tokens.
+  Run from the repo root:  python3 -m http.server 5173   →  http://localhost:5173/prototypes/lab-layout/
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · Lab page layout</title>
+<link rel="stylesheet" href="../../design-system/tokens/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/colors.css">
+<link rel="stylesheet" href="../../design-system/tokens/typography.css">
+<link rel="stylesheet" href="../../design-system/tokens/spacing.css">
+<link rel="stylesheet" href="../../design-system/tokens/shape.css">
+<link rel="stylesheet" href="../../design-system/tokens/base.css">
+<style>
+  html,body{height:100%}
+  body{background:var(--surface-tint)}
+  /* ---------- frame: desktop fills the window, phone is a 390px container ---------- */
+  .frame{container-type:inline-size;background:var(--surface-page);min-height:100vh}
+  body.phone .frame{width:390px;height:844px;min-height:0;margin:24px auto 96px;overflow:auto;border:1px solid var(--border-hairline)}
+  .frame *{min-width:0}
+
+  /* ---------- shared bits ---------- */
+  .wordmark{font:400 26px/1 var(--font-serif);color:var(--text-brand);white-space:nowrap}
+  .labnav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+  .labnav a{font:var(--type-label);color:var(--text-body);padding:8px 10px;border-radius:var(--radius-xs);white-space:nowrap}
+  .labnav a.on{background:var(--ink-wash-8);font-weight:600;text-decoration:none}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font:var(--type-caption);color:var(--disabled-ink);text-transform:none}
+  select,input[type=number]{font:var(--type-body);color:var(--text-body);background:var(--canvas);border:1px solid var(--border-field);border-radius:var(--radius-sm);padding:6px 10px}
+  input[type=range]{accent-color:var(--primary);width:100%}
+  .btn{font:var(--type-label);border-radius:var(--radius-xs);padding:var(--button-padding);border:1px solid transparent;cursor:pointer;background:var(--action-primary-bg);color:var(--action-primary-fg)}
+  .btn.secondary{background:transparent;color:var(--text-body);border-color:var(--text-body)}
+  .btn.tertiary{background:var(--action-tertiary-bg);color:var(--text-body)}
+  .rule{width:var(--eyebrow-rule-width);height:var(--eyebrow-rule-height);background:var(--ornament);margin:12px 0}
+  .intro{font:var(--type-lead);color:var(--text-body);max-width:46ch}
+  h1.serif{font:var(--type-display-serif-md);margin:0}
+  h2,h3{margin:0 0 var(--space-sm)}
+  h3{font:var(--type-heading-sm)}
+  .stage{background:var(--canvas-warm);display:flex;align-items:center;justify-content:center;position:relative}
+  .stage svg{width:100%;height:100%;max-height:520px}
+  .stage .tag{position:absolute;left:12px;top:10px;font:var(--type-caption);color:var(--disabled-ink)}
+  .systems label{display:flex;align-items:center;gap:8px;font:var(--type-body);padding:4px 0}
+  .swatch{width:10px;height:10px;border-radius:9999px;display:inline-block}
+  table.notes{border-collapse:collapse;width:100%;font:var(--type-body)}
+  table.notes th{background:var(--canvas-tint);font:var(--type-caption);text-align:left;padding:6px 10px}
+  table.notes td{padding:6px 10px;border-top:1px solid var(--border-hairline);font:var(--type-mono)}
+  .tablewrap{overflow-x:auto}
+  details.math{border-top:2px solid var(--border-divider)}
+  details.math summary{cursor:pointer;font:var(--type-heading-sm);padding:14px 0;list-style:none}
+  details.math summary::before{content:"▸ ";color:var(--disabled-ink)}
+  details.math[open] summary::before{content:"▾ "}
+  .formula{font:var(--type-mono);background:var(--canvas-soft);padding:10px 12px;border-radius:var(--radius-sm);margin:8px 0}
+  /* keyboard */
+  .kbd{position:relative;height:96px;display:flex;user-select:none}
+  .kbd .w{flex:1;border:1px solid var(--field-border);border-left:none;background:var(--canvas);border-radius:0 0 4px 4px;display:flex;align-items:flex-end;justify-content:center;font:var(--type-caption);color:var(--disabled-ink);padding-bottom:4px}
+  .kbd .w:first-child{border-left:1px solid var(--field-border)}
+  .kbd .b{position:absolute;top:0;height:58%;background:var(--ink);border-radius:0 0 3px 3px}
+  .kbd .w:active,.kbd .w.down{background:var(--accent-gold-soft)}
+  .chords{display:flex;gap:6px;flex-wrap:wrap}
+
+  /* ================= Variant A: Stage + side panel ================= */
+  .A .mast{height:var(--masthead-height);display:flex;align-items:center;gap:32px;padding:0 var(--space-xxxl);border-bottom:1px solid var(--border-hairline)}
+  .A .settings{background:var(--surface-deep);color:var(--text-inverse);display:flex;gap:24px;align-items:flex-end;padding:10px var(--space-xxxl);flex-wrap:wrap}
+  .A .settings .field label{color:#cfc9c3}
+  .A .settings select{background:var(--ink-deep);color:var(--text-inverse);border-color:#5b5550}
+  .A .settings .vol{width:140px}
+  .A .settings .toggle{display:none}
+  .A .head{padding:var(--space-xxl) var(--space-xxxl) var(--space-md)}
+  .A .head .intro{font:var(--type-body-loose);font-size:18px;margin-top:6px}
+  .A .body{display:grid;grid-template-columns:1fr 380px;gap:var(--grid-gap);padding:0 var(--space-xxxl) var(--space-xxxl)}
+  .A .stage{border-radius:var(--radius-md);min-height:460px}
+  .A .side{display:flex;flex-direction:column;gap:var(--space-xxl)}
+  .A .dock{position:sticky;bottom:0;background:var(--canvas);border-top:1px solid var(--border-hairline);padding:12px var(--space-xxxl);display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+  @container (max-width:700px){
+    .A .mast{height:56px;padding:0 16px;gap:12px}
+    .A .mast .labnav{display:none}
+    .A .mast .menu{display:inline-flex !important}
+    .A .settings{padding:8px 16px;gap:12px}
+    .A .settings .field:not(.primary){display:none}
+    .A .settings.open .field{display:flex}
+    .A .settings .toggle{display:inline-flex;margin-left:auto}
+    .A .head{padding:16px}
+    .A .body{grid-template-columns:1fr;padding:0 16px 16px;gap:20px}
+    .A .stage{min-height:300px}
+    .A .dock{padding:8px;grid-template-columns:1fr}
+    .A .dock .chords{display:none}
+    .A .kbd{height:72px}
+  }
+
+  /* ================= Variant B: Editorial scroll ================= */
+  .B .mast{height:var(--masthead-height);display:flex;align-items:center;justify-content:space-between;padding:0 var(--space-gutter)}
+  .B .sub{position:sticky;top:0;z-index:2;background:var(--canvas);border-top:1px solid var(--border-hairline);border-bottom:1px solid var(--border-hairline);height:var(--subnav-height);display:flex;align-items:center;gap:20px;padding:0 var(--space-gutter);overflow-x:auto}
+  .B .sub .pill{font:var(--type-label);white-space:nowrap;padding:6px 10px;border:1px solid var(--border-field);border-radius:var(--radius-sm);background:var(--canvas)}
+  .B .sub .pill b{font-weight:600}
+  .B .hero{background:var(--canvas-warm);padding:var(--space-section) var(--space-gutter)}
+  .B .hero h1{font:var(--type-display-serif-xl)}
+  .B .stageband{padding:0}
+  .B .stage{min-height:540px;background:var(--canvas-soft)}
+  .B .band{padding:var(--space-section) var(--space-gutter)}
+  .B .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--grid-gap)}
+  .B .mathband{background:var(--canvas-tint);padding:0 var(--space-gutter)}
+  .B .mathband details.math{border-top:none}
+  .B .mathband summary{padding:var(--space-xxl) 0;font:var(--type-heading-lg)}
+  .B .fab{position:fixed;right:24px;bottom:84px;z-index:5}
+  body.phone .B .fab{position:sticky;float:right;margin:-64px 16px 16px 0;bottom:16px}
+  .B .drawer{position:fixed;left:0;right:0;bottom:0;z-index:4;background:var(--canvas);border-top:1px solid var(--border-hairline);padding:12px var(--space-gutter) 16px;transform:translateY(110%);transition:transform var(--duration-fast) var(--ease-standard)}
+  body.phone .B .drawer{position:sticky}
+  .B.kbdopen .drawer{transform:none}
+  body.phone .B:not(.kbdopen) .drawer{display:none}
+  @container (max-width:700px){
+    .B .mast{height:56px;padding:0 16px}
+    .B .mast .labnav{display:none}
+    .B .mast .menu{display:inline-flex !important}
+    .B .sub{padding:0 16px;gap:8px}
+    .B .hero{padding:24px 16px}
+    .B .hero h1{font:var(--type-display-serif-md)}
+    .B .stage{min-height:320px}
+    .B .band{padding:24px 16px}
+    .B .cols{grid-template-columns:1fr;gap:24px}
+    .B .mathband{padding:0 16px}
+    .B .drawer{padding:8px}
+    .B .drawer .chords{display:none}
+  }
+
+  /* ================= Variant C: Instrument workspace ================= */
+  .C{display:grid;grid-template-columns:248px 1fr 340px;grid-template-rows:1fr auto;height:100vh}
+  body.phone .C{height:100%}
+  .C .rail{grid-row:1/3;background:var(--canvas-soft);border-right:1px solid var(--border-hairline);padding:20px 18px;display:flex;flex-direction:column;gap:20px;overflow:auto}
+  .C .rail .labnav{flex-direction:column;overflow:visible}
+  .C .rail .labnav a{padding:8px 10px}
+  .C .rail .sect{font:var(--type-caption);color:var(--disabled-ink);text-transform:uppercase;letter-spacing:0;margin-bottom:-12px}
+  .C .center{display:flex;flex-direction:column;overflow:hidden}
+  .C .centerhead{padding:16px 24px 8px;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .C .centerhead h1{font:var(--type-heading-lg);margin:0}
+  .C .centerhead .intro{font:var(--type-body);color:#5b5550;max-width:none}
+  .C .stage{flex:1;margin:0 24px 16px;border-radius:var(--radius-md)}
+  .C .inspector{border-left:1px solid var(--border-hairline);display:flex;flex-direction:column;overflow:hidden}
+  .C .tabs{display:flex;border-bottom:1px solid var(--border-hairline)}
+  .C .tabs button{flex:1;font:var(--type-label);background:none;border:none;padding:14px 0;cursor:pointer;border-bottom:3px solid transparent;color:var(--text-body)}
+  .C .tabs button.on{border-bottom-color:var(--primary);font-weight:700}
+  .C .pane{padding:20px;overflow:auto;flex:1;display:none;flex-direction:column;gap:20px}
+  .C .pane.on{display:flex}
+  .C .pane details.math{border-top:none}
+  .C .keys{grid-column:2/4;border-top:1px solid var(--border-hairline);padding:10px 24px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+  .C .mobilebar{display:none}
+  @container (max-width:700px){
+    .C{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto auto}
+    .C .rail{display:none}
+    .C .mobilebar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-hairline)}
+    .C .mobilebar .chip{font:var(--type-label);padding:5px 8px;border:1px solid var(--border-field);border-radius:var(--radius-sm);white-space:nowrap}
+    .C .center{min-height:340px}
+    .C .centerhead{padding:12px 16px 4px}
+    .C .stage{margin:0 16px 12px}
+    .C .inspector{border-left:none;border-top:1px solid var(--border-hairline);max-height:300px}
+    .C .keys{grid-column:1;padding:8px}
+    .C .keys .chords{display:none}
+  }
+
+  /* ---------- prototype switcher (deliberately NOT Modern Light) ---------- */
+  #switcher{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99;display:flex;align-items:center;gap:6px;background:#111;color:#fff;border-radius:9999px;padding:6px 8px;font:600 13px/1 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  #switcher button{background:#2a2a2a;color:#fff;border:none;border-radius:9999px;padding:8px 12px;font:inherit;cursor:pointer}
+  #switcher button.on{background:#ffd54a;color:#111}
+  #switcher .label{padding:0 10px;min-width:210px;text-align:center}
+  #switcher .sep{width:1px;height:20px;background:#444;margin:0 4px}
+</style>
+</head>
+<body>
+<div class="frame" id="frame"></div>
+
+<div id="switcher">
+  <button id="prev" title="Previous variant (←)">◀</button>
+  <span class="label" id="vlabel"></span>
+  <button id="next" title="Next variant (→)">▶</button>
+  <span class="sep"></span>
+  <button id="fDesk">Desktop</button>
+  <button id="fPhone">Phone</button>
+</div>
+
+<!-- ---------- shared fragments, cloned into each variant ---------- -->
+<template id="t-labnav">
+  <nav class="labnav">
+    <a href="#">Sound waves</a><a href="#">Beats &amp; roughness</a><a href="#" class="on">Tuning systems</a>
+    <a href="#">Chord comparison</a><a href="#">Just-intonation lattice</a><a href="#">EDO explorer</a>
+  </nav>
+</template>
+<template id="t-settings">
+  <div class="field primary"><label>Tuning system</label>
+    <select><option>12-EDO</option><option>Pythagorean</option><option selected>¼-comma meantone</option><option>Werckmeister III</option><option>Vallotti</option><option>Kirnberger III</option><option>5-limit just intonation</option><option>N-EDO…</option></select></div>
+  <div class="field"><label>Tonic</label><select><option>C</option><option>D</option><option>E♭</option></select></div>
+  <div class="field"><label>Reference pitch</label><select><option>A4 = 440 Hz</option><option>415 Hz</option><option>432 Hz</option><option>442 Hz</option></select></div>
+  <div class="field"><label>Timbre</label><select><option>String-like</option><option>Sine</option><option>Organ-like</option><option>Brass-like</option><option>Voice-like</option></select></div>
+  <div class="field vol"><label>Volume</label><input type="range" value="60"></div>
+</template>
+<template id="t-systems">
+  <div class="systems">
+    <h3>Systems shown (up to 4)</h3>
+    <label><input type="checkbox" checked> <span class="swatch" style="background:var(--primary)"></span> 12-EDO</label>
+    <label><input type="checkbox" checked> <span class="swatch" style="background:var(--link)"></span> ¼-comma meantone</label>
+    <label><input type="checkbox" checked> <span class="swatch" style="background:#c9a227"></span> Pythagorean</label>
+    <label><input type="checkbox"> <span class="swatch" style="background:var(--band-forest)"></span> 5-limit just intonation</label>
+  </div>
+</template>
+<template id="t-table">
+  <div class="tablewrap"><table class="notes">
+    <tr><th>Note</th><th>12-EDO</th><th>Meantone</th><th>Pythagorean</th></tr>
+    <tr><td>C</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+    <tr><td>D</td><td>200.0</td><td>193.2</td><td>203.9</td></tr>
+    <tr><td>E</td><td>400.0</td><td>386.3</td><td>407.8</td></tr>
+    <tr><td>F</td><td>500.0</td><td>503.4</td><td>498.0</td></tr>
+    <tr><td>G</td><td>700.0</td><td>696.6</td><td>702.0</td></tr>
+    <tr><td>G♯</td><td>800.0</td><td>772.6</td><td>815.6</td></tr>
+  </table></div>
+</template>
+<template id="t-math">
+  <details class="math"><summary>The math</summary>
+    <p>Cents measure an interval on a log scale: 1200 to the octave, 100 per 12-EDO semitone.</p>
+    <div class="formula">cents = 1200 · log₂(f₂ / f₁)</div>
+    <p>In ¼-comma meantone every fifth is narrowed by ¼ of the syntonic comma so that four fifths make a pure major third:</p>
+    <div class="formula">fifth = 5^(1/4) = 696.578¢ &nbsp;·&nbsp; C–E = 4 fifths − 2 octaves = 386.314¢ = 5/4</div>
+  </details>
+</template>
+<template id="t-stage">
+  <div class="stage"><span class="tag">3D pitch spiral — placeholder</span><svg viewBox="-260 -230 520 460"></svg></div>
+</template>
+<template id="t-keys">
+  <div class="kbd"></div>
+</template>
+<template id="t-chords">
+  <div class="chords"><button class="btn tertiary">C</button><button class="btn tertiary">F</button><button class="btn tertiary">G</button><button class="btn tertiary">Am</button><button class="btn tertiary">E</button><button class="btn tertiary">A♭</button></div>
+</template>
+
+<script>
+const T = id => document.getElementById('t-'+id).content.cloneNode(true);
+const NAMES = {A:'Stage + side panel', B:'Editorial scroll', C:'Instrument workspace'};
+const KEYS = Object.keys(NAMES);
+const intro = 'Compare how tuning systems place the twelve notes, on a spiral where one turn is one octave.';
+
+function variantA(root){
+  root.className='A';
+  root.innerHTML=`
+    <header class="mast"><span class="wordmark">Intonation</span><span class="slot-nav"></span>
+      <button class="btn tertiary menu" style="display:none;margin-left:auto">☰ Labs</button></header>
+    <div class="settings"><span class="slot-settings" style="display:contents"></span>
+      <button class="btn tertiary toggle" style="color:#fff;background:rgba(255,255,255,.12)">All settings ▾</button></div>
+    <div class="head"><h1 class="serif">Tuning systems</h1><p class="intro">${intro}</p></div>
+    <div class="body"><span class="slot-stage" style="display:contents"></span>
+      <aside class="side"><span class="slot-systems" style="display:contents"></span><span class="slot-table" style="display:contents"></span><span class="slot-math" style="display:contents"></span></aside></div>
+    <div class="dock"><span class="slot-keys" style="display:contents"></span><span class="slot-chords" style="display:contents"></span></div>`;
+  root.querySelector('.toggle').onclick=()=>root.querySelector('.settings').classList.toggle('open');
+}
+function variantB(root){
+  root.className='B';
+  root.innerHTML=`
+    <header class="mast"><span class="wordmark">Intonation</span><span class="slot-nav"></span>
+      <button class="btn tertiary menu" style="display:none">☰ Labs</button></header>
+    <div class="sub">
+      <span class="pill">Tuning <b>¼-comma meantone</b></span><span class="pill">Tonic <b>C</b></span>
+      <span class="pill">A4 <b>440 Hz</b></span><span class="pill">Timbre <b>String-like</b></span><span class="pill">Vol <b>60%</b></span></div>
+    <section class="hero"><h1 class="serif">Tuning systems</h1><div class="rule"></div><p class="intro">${intro}</p></section>
+    <section class="stageband"><span class="slot-stage" style="display:contents"></span></section>
+    <section class="band"><div class="cols"><div class="slot-systems"></div><div class="slot-table" style="grid-column:span 2"></div></div></section>
+    <section class="mathband"><span class="slot-math" style="display:contents"></span></section>
+    <section class="band" style="padding-bottom:120px"></section>
+    <button class="btn fab">🎹 Keyboard</button>
+    <div class="drawer"><div style="display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center"><span class="slot-keys" style="display:contents"></span><span class="slot-chords" style="display:contents"></span></div></div>`;
+  root.querySelector('.fab').onclick=()=>root.classList.toggle('kbdopen');
+}
+function variantC(root){
+  root.className='C';
+  root.innerHTML=`
+    <aside class="rail"><span class="wordmark">Intonation</span>
+      <div class="sect">Labs</div><span class="slot-nav"></span>
+      <div class="sect">Settings</div><div style="display:flex;flex-direction:column;gap:12px"><span class="slot-settings" style="display:contents"></span></div></aside>
+    <div class="mobilebar"><span class="wordmark" style="font-size:20px">Intonation</span>
+      <span class="chip">Meantone · C</span><span class="chip">440</span><button class="btn tertiary" style="margin-left:auto">☰</button></div>
+    <main class="center"><div class="centerhead"><h1>Tuning systems</h1><p class="intro">${intro}</p></div>
+      <span class="slot-stage" style="display:contents"></span></main>
+    <aside class="inspector"><div class="tabs"><button class="on" data-p="ctl">Controls</button><button data-p="math">The math</button></div>
+      <div class="pane on" data-p="ctl"><span class="slot-systems" style="display:contents"></span><span class="slot-table" style="display:contents"></span></div>
+      <div class="pane" data-p="math"><span class="slot-math" style="display:contents"></span></div></aside>
+    <div class="keys"><span class="slot-keys" style="display:contents"></span><span class="slot-chords" style="display:contents"></span></div>`;
+  root.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+    root.querySelectorAll('.tabs button,.pane').forEach(x=>x.classList.toggle('on',x.dataset.p===b.dataset.p));
+    root.querySelector('.pane[data-p=math] details').open=true;});
+}
+
+function fill(root){
+  const put=(slot,frag)=>root.querySelectorAll('.slot-'+slot).forEach(s=>s.appendChild(T(frag)));
+  put('nav','labnav'); put('settings','settings'); put('systems','systems'); put('table','table');
+  put('math','math'); put('stage','stage'); put('keys','keys'); put('chords','chords');
+  root.querySelectorAll('.stage svg').forEach(drawSpiral);
+  root.querySelectorAll('.kbd').forEach(drawKeys);
+}
+function drawSpiral(svg){
+  const sys=[['var(--primary)',i=>i*100],['var(--link)',i=>[0,76,193.2,310.3,386.3,503.4,579.5,696.6,772.6,889.7,1006.8,1082.9][i]],['#c9a227',i=>[0,113.7,203.9,294.1,407.8,498,611.7,702,815.6,905.9,996.1,1109.8][i]]];
+  let s='', path='';
+  for(let t=0;t<=2.2;t+=0.01){const a=t*2*Math.PI-Math.PI/2, r=70+t*65; path+=(t?'L':'M')+(r*Math.cos(a)).toFixed(1)+' '+(r*Math.sin(a)*0.62+(t-1.1)*40).toFixed(1);}
+  s+=`<path d="${path}" fill="none" stroke="var(--field-border)" stroke-width="2"/>`;
+  sys.forEach(([col,c],k)=>{for(let o=0;o<2;o++)for(let i=0;i<12;i++){const t=o+c(i)/1200, a=t*2*Math.PI-Math.PI/2, r=70+t*65;
+    s+=`<circle cx="${(r*Math.cos(a)).toFixed(1)}" cy="${(r*Math.sin(a)*0.62+(t-1.1)*40).toFixed(1)}" r="${6-k}" fill="${col}"/>`;}});
+  svg.innerHTML=s;
+}
+function drawKeys(k){
+  const whites=['C','D','E','F','G','A','B'], blackAfter={0:1,1:1,3:1,4:1,5:1}, n=14;
+  for(let i=0;i<n;i++){const w=document.createElement('div');w.className='w';w.textContent=whites[i%7]+(4+Math.floor(i/7));
+    w.onpointerdown=()=>w.classList.add('down');w.onpointerup=w.onpointerleave=()=>w.classList.remove('down');k.appendChild(w);}
+  for(let i=0;i<n-1;i++) if(blackAfter[i%7]){const b=document.createElement('div');b.className='b';b.style.left=`calc(${(i+1)/n*100}% - ${100/n*0.3}%)`;b.style.width=`${100/n*0.6}%`;k.appendChild(b);}
+}
+
+function render(){
+  const p=new URLSearchParams(location.search), v=KEYS.includes(p.get('variant'))?p.get('variant'):'A', phone=p.get('frame')==='phone';
+  document.body.classList.toggle('phone',phone);
+  const frame=document.getElementById('frame'); frame.innerHTML=''; const root=document.createElement('div'); frame.appendChild(root);
+  ({A:variantA,B:variantB,C:variantC})[v](root); fill(root);
+  document.getElementById('vlabel').textContent=`${v} (${NAMES[v]}) · ${phone?'phone 390px':'desktop'}`;
+  document.getElementById('fDesk').classList.toggle('on',!phone); document.getElementById('fPhone').classList.toggle('on',phone);
+}
+function go(changes){const p=new URLSearchParams(location.search);for(const[k,v]of Object.entries(changes))v==null?p.delete(k):p.set(k,v);history.replaceState(null,'','?'+p);render();}
+function cycle(d){const cur=new URLSearchParams(location.search).get('variant')||'A';go({variant:KEYS[(KEYS.indexOf(cur)+d+KEYS.length)%KEYS.length]});}
+document.getElementById('prev').onclick=()=>cycle(-1);
+document.getElementById('next').onclick=()=>cycle(1);
+document.getElementById('fDesk').onclick=()=>go({frame:null});
+document.getElementById('fPhone').onclick=()=>go({frame:'phone'});
+addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea,[contenteditable]'))return;
+  if(e.key==='ArrowLeft')cycle(-1); if(e.key==='ArrowRight')cycle(1);});
+render();
+</script>
+</body>
+</html>
