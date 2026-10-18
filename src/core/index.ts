@@ -96,6 +96,15 @@ export {
   latticeNoteName,
   chordProportion,
 } from './lattice';
+export {
+  type StepApproximation,
+  type ChartPoint,
+  EDO_TARGETS,
+  CHART_TARGETS,
+  approximate,
+  edoApproximations,
+  edoErrorChart,
+} from './edoApproximation';
 export { beatRate, centsBetween } from './twoTones';
 export {
   type CommaPumpId,
