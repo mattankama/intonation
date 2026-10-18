@@ -6,7 +6,7 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { audioEngine } from '../../audio/engine';
 import { commaPumpLength, runCommaPump } from '../../core';
-import { hrefFor, navigate } from '../../state/location';
+import { appPathname, hrefFor, navigate } from '../../state/location';
 import type { Settings } from '../../state/settings';
 import { MAX_PUMP_STEP, type PumpState, readPump, writePump } from './pumpState';
 import { playStep, tonicFrequency } from './sound';
@@ -28,7 +28,7 @@ const DRONE = 'comma:drone';
 /** The pump in the address bar right now (playback outlives renders). */
 const pumpNow = () => readPump(new URLSearchParams(window.location.search));
 const writeNow = (next: PumpState) =>
-  navigate(hrefFor(window.location.pathname, writePump(new URLSearchParams(window.location.search), next)), {
+  navigate(hrefFor(appPathname(), writePump(new URLSearchParams(window.location.search), next)), {
     replace: true,
   });
 

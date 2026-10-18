@@ -1,5 +1,5 @@
 import type { AnchorHTMLAttributes, MouseEvent } from 'react';
-import { navigate } from './location';
+import { navigate, siteHref } from './location';
 
 /** An in-app link: a real <a href> that navigates without reloading the page. */
 export function Link({ href, onClick, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
@@ -12,5 +12,5 @@ export function Link({ href, onClick, ...rest }: AnchorHTMLAttributes<HTMLAnchor
     navigate(href);
     window.scrollTo(0, 0);
   };
-  return <a href={href} onClick={handleClick} {...rest} />;
+  return <a href={siteHref(href)} onClick={handleClick} {...rest} />;
 }
