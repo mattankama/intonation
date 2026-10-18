@@ -136,10 +136,72 @@ button {
   text-decoration: none;
 }
 .lab-card-preview {
+  display: block;
+  width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   background: var(--surface-tint);
   border-radius: var(--radius-xl);
   margin-bottom: var(--space-sm);
+}
+/* Preview drawings (decision #18): flat ink on the tint, static; hover changes the card only. */
+.lab-card-preview * {
+  vector-effect: non-scaling-stroke;
+}
+.preview-ink {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.preview-thin {
+  stroke-width: 1;
+}
+.preview-guide {
+  fill: none;
+  stroke: var(--border-field);
+  stroke-width: 1;
+}
+.preview-frame {
+  fill: var(--surface-card);
+  stroke: var(--border-hairline);
+  stroke-width: 1;
+}
+.preview-contour {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+/* The smoothest valleys in ink; rougher levels fade. */
+.preview-contour[data-level='1'] {
+  stroke: var(--disabled-ink);
+}
+.preview-contour[data-level='2'] {
+  stroke: var(--border-field);
+}
+.preview-bar {
+  fill: var(--primary);
+}
+.preview-dot {
+  fill: var(--ink);
+}
+.preview-ring {
+  fill: var(--surface-card);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+.preview-link {
+  stroke: var(--ink);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 2;
+}
+.preview-column {
+  fill: var(--surface-card);
+}
+.preview-fill {
+  fill: var(--accent-gold-soft);
 }
 .lab-card-title {
   font: var(--type-heading-card);
