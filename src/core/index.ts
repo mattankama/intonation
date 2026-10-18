@@ -56,3 +56,5 @@ export {
   editHarmonic,
   timbreHarmonics,
 } from './timbre';
+export { type TuningTableRow, tuningTable } from './table';
+export { nearestPureInterval } from './interval';
