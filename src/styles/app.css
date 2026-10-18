@@ -865,6 +865,111 @@ button {
   align-self: flex-start;
 }
 
+/* ---------- Beats & roughness Lab ---------- */
+.br-visual {
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-sm);
+}
+.br-beats {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+.br-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-md);
+  font: var(--type-label);
+}
+.br-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Data colours are allowed on 3D data marks and their legends only (design-system README). */
+.br-swatch {
+  flex: none;
+}
+.br-swatch-line {
+  width: 16px;
+  height: 3px;
+  border-radius: var(--radius-full);
+}
+.br-swatch-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+}
+.br-scene {
+  flex: 1 1 auto;
+  min-height: 280px;
+}
+.br-caption {
+  font: var(--type-caption);
+  color: var(--text-body);
+}
+.br-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.br-rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px var(--space-xs);
+}
+.br-rate-label {
+  font: var(--type-label-strong);
+}
+.br-rate-value {
+  font: var(--type-heading-lg);
+  font-variant-numeric: tabular-nums;
+}
+.br-rate-unit,
+.br-tones,
+.br-note {
+  font: var(--type-label);
+  color: var(--text-body);
+}
+.br-controls-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxl);
+}
+.br-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.br-heading {
+  font: var(--type-label-strong);
+}
+.br-play {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-label);
+  background: var(--action-primary-bg);
+  color: var(--action-primary-fg);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: var(--button-padding);
+  cursor: pointer;
+}
+.br-play:active {
+  background: var(--action-primary-bg-pressed);
+}
+
 /* ---------- Phone: below 700px ---------- */
 @media (max-width: 699.98px) {
   .lab-layout {
@@ -947,6 +1052,13 @@ button {
   }
   .ts-tables {
     overflow: visible;
+  }
+  .br-scene {
+    flex: none;
+    height: 340px;
+  }
+  .br-play {
+    padding: var(--button-padding-touch);
   }
   .scene3d-reset-text {
     display: none;

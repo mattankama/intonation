@@ -58,3 +58,4 @@ export {
 } from './timbre';
 export { type TuningTableRow, tuningTable } from './table';
 export { nearestPureInterval } from './interval';
+export { beatRate, centsBetween } from './twoTones';

@@ -8,6 +8,7 @@
 import type { ComponentType } from 'react';
 import { copy } from '../copy/en';
 import type { Settings } from '../state/settings';
+import { beatsAndRoughnessLab } from './beats-and-roughness';
 import { LAB_IDS, type LabId } from './ids';
 import { soundWavesLab } from './sound-waves';
 import { tuningSystemsLab } from './tuning-systems';
@@ -36,6 +37,7 @@ type LabParts = Pick<LabDefinition, 'Visual' | 'Controls' | 'Math' | 'sources'>;
 /** Each Lab's own parts, added as Labs are built (e.g. 'sound-waves': soundWavesLab). */
 const components: Partial<Record<LabId, LabParts>> = {
   'sound-waves': soundWavesLab,
+  'beats-and-roughness': beatsAndRoughnessLab,
   'tuning-systems': tuningSystemsLab,
 };
 
