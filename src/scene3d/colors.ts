@@ -27,7 +27,21 @@ export interface SceneColors {
   readonly systems: readonly [string, string, string, string];
 }
 
-const FALLBACK: SceneColors = {
+/** The token behind each single scene colour. */
+export const SCENE_COLOR_TOKENS = {
+  background: '--canvas-warm',
+  ink: '--ink',
+  guide: '--field-border',
+  accent: '--link',
+  fill: '--accent-gold-soft',
+} as const satisfies Record<Exclude<keyof SceneColors, 'systems'>, string>;
+
+/**
+ * The token values, for when no stylesheet is there to read (outside a browser, or before
+ * the tokens load). colors.test.ts checks them against design-system/tokens/colors.css, so
+ * they cannot drift from it.
+ */
+export const FALLBACK_COLORS: SceneColors = {
   background: '#f1efed',
   ink: '#161513',
   guide: '#d4cfca',
@@ -38,16 +52,17 @@ const FALLBACK: SceneColors = {
 
 /** The scene colours from the tokens on :root (fallbacks where a token is missing). */
 export function readSceneColors(): SceneColors {
-  if (typeof document === 'undefined') return FALLBACK;
+  if (typeof document === 'undefined') return FALLBACK_COLORS;
   const style = getComputedStyle(document.documentElement);
   const token = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
-  const [s1, s2, s3, s4] = SYSTEM_COLOR_TOKENS.map((name, i) => token(name, FALLBACK.systems[i]!));
+  const [s1, s2, s3, s4] = SYSTEM_COLOR_TOKENS.map((name, i) => token(name, FALLBACK_COLORS.systems[i]!));
+  const single = (role: keyof typeof SCENE_COLOR_TOKENS) => token(SCENE_COLOR_TOKENS[role], FALLBACK_COLORS[role]);
   return {
-    background: token('--canvas-warm', FALLBACK.background),
-    ink: token('--ink', FALLBACK.ink),
-    guide: token('--field-border', FALLBACK.guide),
-    accent: token('--link', FALLBACK.accent),
-    fill: token('--accent-gold-soft', FALLBACK.fill),
+    background: single('background'),
+    ink: single('ink'),
+    guide: single('guide'),
+    accent: single('accent'),
+    fill: single('fill'),
     systems: [s1!, s2!, s3!, s4!],
   };
 }
