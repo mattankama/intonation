@@ -259,6 +259,8 @@ export const copy = {
         'R. Plomp & W. J. M. Levelt, “Tonal consonance and critical bandwidth”, J. Acoust. Soc. Am. 38, 548–560 (1965).',
       sethares:
         'W. A. Sethares, “Local consonance and the relationship between timbre and scale”, J. Acoust. Soc. Am. 94(3), 1218–1228 (1993).',
+      setharesTtss:
+        'W. A. Sethares, Tuning, Timbre, Spectrum, Scale, 2nd ed. (Springer, 2005), §6.8 and Appendix E; constants from his dissmeasure.m.',
     },
   },
 
@@ -498,6 +500,63 @@ export const copy = {
     roughness: {
       heading: 'Beats or roughness',
       body: 'Beats are easiest to follow at around 4 a second. Above about 15–20 a second they blur into roughness, a buzz rather than a wobble, and once the tones are about a critical band apart (roughly 100 Hz around A4) they sound as two separate, smooth notes.',
+    },
+  },
+
+  /** The roughness landscape (issue #29). Say only "roughness" here (decision #15). */
+  roughnessLab: {
+    heading: 'Roughness',
+    intro: 'See how rough every three-note chord sounds: smooth chords sit in the valleys.',
+    sceneLabel: 'Roughness landscape',
+    legendLabel: 'Landscape key',
+    legend: { pure: 'Pure chord', edo12: '12-EDO version', played: 'Last played' },
+    axes: { lower: 'lower interval', upper: 'upper interval', height: 'roughness' },
+    caption: (phone: boolean) =>
+      `Height: relative roughness, 0–1, scaled for the current Timbre (the roughest chord shown is 1). ${
+        phone ? 'Tap a pin to name it; tap anywhere to hear that chord.' : 'Click any point to hear that chord.'
+      }`,
+    /** "major 4:5:6", "dominant 7th 20:25:36 (no 5th)". */
+    pinName: (type: string, proportion: string, withoutFifth: boolean) =>
+      `${type} ${proportion}${withoutFifth ? ' (no 5th)' : ''}`,
+    /** "12-EDO major". */
+    edo12Name: (type: string) => `12-EDO ${type}`,
+    play: (name: string) => `Play ${name}`,
+    pointName: (lower: string, upper: string) => `${lower} + ${upper}`,
+    readout: {
+      empty: 'Play a chord to see how rough it is.',
+      lower: 'Lower interval',
+      upper: 'Upper interval',
+      roughness: 'Relative roughness',
+      on: (bottom: string, hz: string) => `on ${bottom} (${hz})`,
+    },
+    bottomLabel: 'Bottom note',
+    bottomHint: 'Every chord on the landscape is built up from this note. Low chords are rougher.',
+    showEdo12: 'Show 12-EDO versions',
+    showEdo12Hint: 'Adds each chord as 12-EDO plays it, joined to its pure version.',
+    pinsHeading: 'Chords on the landscape',
+    pinsHint: 'Root position at pure tuning; the 7th chords leave out their fifth to fit three notes.',
+    pinsRoughness: 'Relative roughness',
+  },
+
+  roughnessMath: {
+    bottom: {
+      heading: 'The bottom note',
+      body: (bottom: string) =>
+        `Every chord on the landscape stands on ${bottom}, calculated in 12-EDO from the Reference pitch:`,
+    },
+    pair: {
+      heading: 'Two partials',
+      body: (s: string, gap: string) =>
+        `As two sine partials move apart, roughness rises, peaks and fades: Sethares’ fit to Plomp and Levelt’s listening data. The weaker partial sets the strength. x = s · Δf is their gap Δf scaled to the register by s = 0.24 / (0.0207 · f₁ + 18.96), f₁ the lower. For the bottom two fundamentals, s = ${s} and Δf = ${gap}:`,
+    },
+    chord: {
+      heading: 'The whole chord',
+      body: (chord: string, partials: number, pairs: number) =>
+        `A chord’s roughness R adds d over every pair of its partials, all three notes pooled: for ${chord}, ${partials} partials make ${pairs} pairs. The landscape divides by its roughest chord, Rₘₐₓ, so heights run from 0 to 1:`,
+    },
+    ingredient: {
+      heading: 'Roughness is one ingredient',
+      body: 'Roughness is one ingredient of consonance, not the whole of it. How smooth a chord sounds also depends on harmonicity (how closely its partials fit one harmonic series) and on familiarity (what your ears are used to). This model measures neither, so read the landscape as roughness only.',
     },
   },
 

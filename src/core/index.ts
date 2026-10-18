@@ -87,3 +87,13 @@ export {
 export { type TuningTableRow, tuningTable } from './table';
 export { nearestPureInterval } from './interval';
 export { beatRate, centsBetween } from './twoTones';
+export {
+  type RoughnessLandscape,
+  LANDSCAPE_MAX_CENTS,
+  ROUGHNESS_CONSTANTS,
+  chordRoughness,
+  partialRoughness,
+  roughnessLandscape,
+  roughnessScale,
+  stackedChord,
+} from './roughness';
