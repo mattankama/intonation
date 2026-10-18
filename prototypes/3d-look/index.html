@@ -1,0 +1,190 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Lives only on branch prototype/3d-look.
+  Question (wayfinder ticket "3D look on the light palette", issue #13): how are the pitch spiral and the
+  lattice drawn in Modern Light (light only), and which colours distinguish up to 4 overlaid tuning systems
+  plus the pure chord?
+  Plan: three rendering styles (?variant=A|B|C) × two scenes (?scene=spiral|lattice) × two palettes
+  (?palette=1|2, styles A and B only). Data: real cents for 12-EDO, ¼-comma meantone, Pythagorean, 5-limit JI.
+  Run from the repo root:  python3 -m http.server 5173   →  http://localhost:5173/prototypes/3d-look/
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · 3D look</title>
+<link rel="stylesheet" href="../../design-system/tokens/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/colors.css">
+<link rel="stylesheet" href="../../design-system/tokens/typography.css">
+<link rel="stylesheet" href="../../design-system/tokens/base.css">
+<style>
+  html,body{height:100%;margin:0;overflow:hidden;background:var(--canvas-warm)}
+  #stage{position:fixed;inset:0}
+  .legend{position:fixed;left:24px;top:20px;z-index:3;background:var(--canvas);border:1px solid var(--border-hairline);border-radius:var(--radius-md);padding:14px 16px;min-width:240px}
+  .legend h3{font:var(--type-heading-sm);margin:0 0 8px}
+  .legend .row{display:flex;align-items:center;gap:10px;font:var(--type-body);padding:3px 0;cursor:default}
+  .legend .row.click{cursor:pointer}
+  .legend .row.dim{opacity:.4}
+  .legend .sw{width:12px;height:12px;border-radius:9999px;flex:none}
+  .legend .glyph{width:14px;text-align:center;font:600 14px/1 var(--font-sans);color:var(--primary);flex:none}
+  .legend .ring{width:10px;height:10px;border:2px solid var(--ink);border-radius:9999px;flex:none}
+  .legend .note{font:var(--type-caption);color:#7a736d;margin-top:8px;max-width:260px}
+  .lbl{font:var(--type-label);color:var(--ink);background:rgba(255,255,255,.75);padding:1px 4px;border-radius:3px;pointer-events:none;white-space:nowrap}
+  .lbl.small{font:var(--type-caption)}
+  .lbl.accent{color:var(--link);font-weight:700}
+  #switcher{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99;display:flex;align-items:center;gap:6px;background:#111;color:#fff;border-radius:9999px;padding:6px 8px;font:600 13px/1 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  #switcher button{background:#2a2a2a;color:#fff;border:none;border-radius:9999px;padding:8px 12px;font:inherit;cursor:pointer}
+  #switcher button.on{background:#ffd54a;color:#111}
+  #switcher button:disabled{opacity:.35;cursor:default}
+  #switcher .label{padding:0 10px;min-width:190px;text-align:center}
+  #switcher .sep{width:1px;height:20px;background:#444;margin:0 4px}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<div class="legend" id="legend"></div>
+<div id="switcher">
+  <button id="prev">◀</button><span class="label" id="vlabel"></span><button id="next">▶</button>
+  <span class="sep"></span><button data-scene="spiral">Spiral</button><button data-scene="lattice">Lattice</button>
+  <span class="sep"></span><button data-pal="1">Palette 1</button><button data-pal="2">Palette 2</button>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {CSS2DRenderer, CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
+
+const VARIANTS = {A:'Ink drawing', B:'Soft solids', C:'Shape-coded mono'};
+const PALETTES = {
+  1:{name:'System colours', cols:['#312d2a','#006b8f','#33553c','#b8892a']},
+  2:{name:'Muted extended', cols:['#227e9e','#d4a72c','#4f7a5a','#9c6b4e']},
+};
+const INK='#161513', CHARCOAL='#312d2a', TEAL='#006b8f', HAIR='#d4cfca', GOLDSOFT='#f7e0a1';
+const SYSTEMS = [
+  {name:'12-EDO', cents:[...Array(12)].map((_,i)=>i*100), glyph:'●'},
+  {name:'¼-comma meantone', cents:[0,76.049,193.157,310.265,386.314,503.422,579.471,696.578,772.627,889.735,1006.843,1082.892], glyph:'■'},
+  {name:'Pythagorean', cents:[0,113.685,203.910,294.135,407.820,498.045,611.730,701.955,815.640,905.865,996.090,1109.775], glyph:'▲'},
+  {name:'5-limit just intonation', cents:[0,111.731,203.910,315.641,386.314,498.045,590.224,701.955,813.686,884.359,1017.596,1088.269], glyph:'◆'},
+];
+const NAMES=['C','C♯','D','E♭','E','F','F♯','G','G♯','A','B♭','B'];
+const PURE=[{n:'C',c:0},{n:'E (5/4)',c:386.314},{n:'G (3/2)',c:701.955}];
+let highlight=1; // variant C: which system is highlighted
+
+const host=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); host.appendChild(renderer.domElement);
+const labels=new CSS2DRenderer(); labels.domElement.style.cssText='position:absolute;inset:0;pointer-events:none'; host.appendChild(labels.domElement);
+const camera=new THREE.PerspectiveCamera(40,1,0.1,200);
+const controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true;
+let scene;
+
+function state(){const p=new URLSearchParams(location.search);
+  return {v:VARIANTS[p.get('variant')]?p.get('variant'):'A', scene:p.get('scene')==='lattice'?'lattice':'spiral', pal:PALETTES[p.get('palette')]?p.get('palette'):'1'};}
+
+function label(text,pos,cls='lbl'){const d=document.createElement('div');d.className=cls;d.textContent=text;const o=new CSS2DObject(d);o.position.copy(pos);return o;}
+function mat(style,color,opts={}){
+  if(style==='B') return new THREE.MeshStandardMaterial({color,roughness:.65,metalness:0,transparent:opts.opacity<1,opacity:opts.opacity??1});
+  return new THREE.MeshBasicMaterial({color,transparent:opts.opacity<1,opacity:opts.opacity??1});
+}
+function line(points,color,style,width=0.02,opts={}){
+  if(style==='B'){const curve=new THREE.CatmullRomCurve3(points);return new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(points.length*2,8),width,8,false),mat('B',color,opts));}
+  const m=opts.dashed?new THREE.LineDashedMaterial({color,dashSize:.12,gapSize:.08,transparent:true,opacity:opts.opacity??1}):new THREE.LineBasicMaterial({color,transparent:true,opacity:opts.opacity??1});
+  const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),m); if(opts.dashed)l.computeLineDistances(); return l;
+}
+function marker(style,k,color,opts={}){
+  const s=opts.size??(style==='B'?0.11:0.085);
+  let g=new THREE.SphereGeometry(s,20,14);
+  if(style==='C') g=[new THREE.SphereGeometry(s,20,14),new THREE.BoxGeometry(s*1.6,s*1.6,s*1.6),new THREE.TetrahedronGeometry(s*1.5),new THREE.OctahedronGeometry(s*1.4)][k];
+  return new THREE.Mesh(g,mat(style==='C'?'B':style,color,opts));
+}
+function ring(style,pos,normal){
+  const r=new THREE.Mesh(new THREE.TorusGeometry(0.2,style==='B'?0.022:0.014,10,40),mat(style==='C'?'B':style,INK));
+  r.position.copy(pos); r.lookAt(pos.clone().add(normal)); return r;
+}
+const helix=(t,r)=>{const a=Math.PI/2-2*Math.PI*t;return new THREE.Vector3(r*Math.cos(a),t*1.6-1.6,r*Math.sin(a));};
+
+function buildSpiral(st){
+  const cols=PALETTES[st.pal].cols;
+  SYSTEMS.forEach((sys,k)=>{
+    const r=3+k*0.32, col=st.v==='C'?CHARCOAL:cols[k];
+    const dim=st.v==='C'&&k!==highlight, c=st.v==='C'&&k===highlight?TEAL:col, op=dim?0.35:1;
+    const pts=[];for(let t=0;t<=2;t+=0.01)pts.push(helix(t,r));
+    scene.add(line(pts,st.v==='C'?HAIR:col,st.v,0.012,{opacity:st.v==='A'?0.55:(st.v==='B'?0.5:0.8)}));
+    for(let o=0;o<2;o++)sys.cents.forEach(cn=>{const m=marker(st.v,k,c,{opacity:op});m.position.copy(helix(o+cn/1200,r));scene.add(m);});
+  });
+  NAMES.forEach((n,i)=>scene.add(label(n,helix(i/12,4.55),'lbl small')));
+  PURE.forEach(p=>{const pos=helix(p.c/1200,3+3*0.32+0.5);const rp=ring(st.v,pos,new THREE.Vector3(pos.x,0,pos.z));scene.add(rp);
+    scene.add(label('pure '+p.n,pos.clone().add(new THREE.Vector3(0,0.32,0)),'lbl small'));});
+  scene.add(line([new THREE.Vector3(0,-1.9,0),new THREE.Vector3(0,1.9,0)],HAIR,'A'));
+  camera.position.set(0,4.2,9.5); controls.target.set(0,0,0);
+}
+
+function red(r){while(r>=2)r/=2;while(r<1)r*=2;return r;}
+function frac(a,b,c){ // octave-reduced 3^a 5^b 7^c as a fraction string
+  let n=1,d=1;const mul=(p,e)=>{for(let i=0;i<Math.abs(e);i++){if(e>0)n*=p;else d*=p;}};mul(3,a);mul(5,b);mul(7,c);
+  while(n/d>=2)d*=2;while(n/d<1)n*=2;const g=(x,y)=>y?g(y,x%y):x;const k=g(n,d);return `${n/k}/${d/k}`;}
+function buildLattice(st){
+  const cols=PALETTES[st.pal].cols, node=st.v==='C'?CHARCOAL:cols[0], edge=st.v==='C'?HAIR:(st.v==='A'?'#8f8780':HAIR), path=TEAL;
+  const P=(a,b,c=0)=>new THREE.Vector3(a*1.25+b*0.62,b*1.08,c*1.4);
+  const nodes=[];for(let a=-4;a<=3;a++)for(let b=-1;b<=1;b++)nodes.push([a,b,0]);[-1,0,1].forEach(a=>nodes.push([a,0,1]));
+  const has=(a,b,c)=>nodes.some(n=>n[0]===a&&n[1]===b&&n[2]===c);
+  nodes.forEach(([a,b,c])=>{
+    [[1,0,0],[0,1,0],[-1,1,0],[0,0,1]].forEach(([da,db,dc])=>{if(has(a+da,b+db,c+dc))scene.add(line([P(a,b,c),P(a+da,b+db,c+dc)],edge,st.v==='B'?'B':'A',0.012,{opacity:0.7}));});
+    const m=marker(st.v,0,node,{size:st.v==='B'?0.13:0.1});m.position.copy(P(a,b,c));scene.add(m);
+    scene.add(label(frac(a,b,c),P(a,b,c).add(new THREE.Vector3(0,-0.27,0)),'lbl small'));
+  });
+  // C major triangle: 1/1, 3/2, 5/4
+  const tri=new THREE.BufferGeometry().setFromPoints([P(0,0),P(1,0),P(0,1)]);
+  scene.add(new THREE.Mesh(tri,new THREE.MeshBasicMaterial({color:GOLDSOFT,side:THREE.DoubleSide,transparent:true,opacity:.85})));
+  scene.add(label('C major (4:5:6)',P(0.35,0.35).add(new THREE.Vector3(0,0,0.01)),'lbl'));
+  // syntonic comma pump C → A → D → G → C'
+  const pump=[P(0,0),P(-1,1),P(-2,1),P(-3,1),P(-4,1)].map(v=>v.add(new THREE.Vector3(0,0,0.05)));
+  scene.add(line(pump,path,st.v==='B'?'B':'A',0.03,{dashed:st.v==='C'}));
+  const end=marker(st.v==='C'?'B':st.v,0,path,{size:0.16});end.position.copy(P(-4,1));scene.add(end);
+  scene.add(label("C' = 80/81 · −21.5¢",P(-4,1).add(new THREE.Vector3(0,0.35,0)),'lbl accent'));
+  [['×3 (fifths) →',P(3.6,-1.3)],['×5 (thirds) ↗',P(-4.9,1.9)],['×7 (towards you)',P(0,0,1).add(new THREE.Vector3(0,0.5,0))]].forEach(([t,p])=>scene.add(label(t,p,'lbl small')));
+  camera.position.set(-0.6,0.2,10); controls.target.set(-0.6,0.2,0);
+}
+
+function legend(st){
+  const el=document.getElementById('legend'), cols=PALETTES[st.pal].cols;
+  let h='';
+  if(st.scene==='spiral'){
+    h+=`<h3>Tuning systems</h3>`+SYSTEMS.map((s,k)=>st.v==='C'
+      ?`<div class="row click ${k===highlight?'':'dim'}" data-k="${k}"><span class="glyph" style="color:${k===highlight?TEAL:CHARCOAL}">${s.glyph}</span>${s.name}</div>`
+      :`<div class="row"><span class="sw" style="background:${cols[k]}"></span>${s.name}</div>`).join('');
+    h+=`<div class="row"><span class="ring"></span>pure chord target (C major)</div>`;
+  } else h+=`<h3>Just-intonation lattice</h3><div class="row"><span class="sw" style="background:${GOLDSOFT};border-radius:2px"></span>chord shape</div><div class="row"><span class="sw" style="background:${TEAL}"></span>comma pump path</div>`;
+  h+=`<div class="note">${VARIANTS[st.v]}${st.v==='C'?' · palette ignored: shape tells systems apart, one teal highlight (click a row)':' · '+PALETTES[st.pal].name}. Drag to rotate, scroll to zoom.</div>`;
+  el.innerHTML=h;
+  el.querySelectorAll('.row.click').forEach(r=>r.onclick=()=>{highlight=+r.dataset.k;render();});
+}
+
+function render(){
+  const st=state();
+  scene=new THREE.Scene(); scene.background=new THREE.Color('#f1efed');
+  if(st.v==='B'||st.v==='C'){scene.add(new THREE.HemisphereLight(0xffffff,0xd4cfca,1.6));const d=new THREE.DirectionalLight(0xffffff,1.6);d.position.set(4,8,6);scene.add(d);}
+  labels.domElement.innerHTML='';
+  (st.scene==='spiral'?buildSpiral:buildLattice)(st);
+  legend(st);
+  document.getElementById('vlabel').textContent=`${st.v} (${VARIANTS[st.v]}) · ${st.scene}`;
+  document.querySelectorAll('[data-scene]').forEach(b=>b.classList.toggle('on',b.dataset.scene===st.scene));
+  document.querySelectorAll('[data-pal]').forEach(b=>{b.classList.toggle('on',b.dataset.pal===st.pal);b.disabled=st.v==='C';});
+  resize();
+}
+function go(ch){const p=new URLSearchParams(location.search);for(const[k,v]of Object.entries(ch))p.set(k,v);history.replaceState(null,'','?'+p);render();}
+function cycle(d){const k=Object.keys(VARIANTS),cur=state().v;go({variant:k[(k.indexOf(cur)+d+k.length)%k.length]});}
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h);labels.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
+document.getElementById('prev').onclick=()=>cycle(-1);
+document.getElementById('next').onclick=()=>cycle(1);
+document.querySelectorAll('[data-scene]').forEach(b=>b.onclick=()=>go({scene:b.dataset.scene}));
+document.querySelectorAll('[data-pal]').forEach(b=>b.onclick=()=>go({palette:b.dataset.pal}));
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')cycle(-1);if(e.key==='ArrowRight')cycle(1);});
+addEventListener('resize',resize);
+render();
+(function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera);labels.render(scene,camera);})();
+</script>
+</body>
+</html>
