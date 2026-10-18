@@ -7,6 +7,7 @@ import { Sources } from '../math/MathParts';
 import { NoteMath, noteMathSources } from '../math/NoteMath';
 import { tuningOf } from '../state/settings';
 import { useSettings } from '../state/useSettings';
+import { ChordButtons } from './ChordButtons';
 import { Inspector } from './Inspector';
 import { Keyboard } from './Keyboard';
 import { LabNav, SettingsFields } from './LabNav';
@@ -123,6 +124,7 @@ export function LabPage({ lab }: { lab: LabDefinition }) {
 
       <div className="keys">
         <Keyboard tuning={tuning} onNoteOn={onNoteOn} onNoteOff={onNoteOff} onPluck={onPluck} />
+        <ChordButtons tuning={tuning} referencePitch={settings.referencePitch} />
       </div>
     </div>
   );

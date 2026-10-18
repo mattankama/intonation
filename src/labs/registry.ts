@@ -9,6 +9,7 @@ import type { ComponentType } from 'react';
 import { copy } from '../copy/en';
 import type { Settings } from '../state/settings';
 import { LAB_IDS, type LabId } from './ids';
+import { chordComparisonLab } from './chord-comparison';
 import { soundWavesLab } from './sound-waves';
 
 export interface LabProps {
@@ -35,6 +36,7 @@ type LabParts = Pick<LabDefinition, 'Visual' | 'Controls' | 'Math' | 'sources'>;
 /** Each Lab's own parts, added as Labs are built (e.g. 'sound-waves': soundWavesLab). */
 const components: Partial<Record<LabId, LabParts>> = {
   'sound-waves': soundWavesLab,
+  'chord-comparison': chordComparisonLab,
 };
 
 export const LABS: readonly LabDefinition[] = LAB_IDS.map((id) => ({

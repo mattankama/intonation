@@ -56,3 +56,31 @@ export {
   editHarmonic,
   timbreHarmonics,
 } from './timbre';
+export {
+  type ChordType,
+  type ChordIntervalId,
+  type ChordChoice,
+  type ChordTone,
+  type PureChord,
+  type PureChordChoice,
+  type ChordRemark,
+  type TunedNote,
+  type TunedChord,
+  CHORD_TYPES,
+  CHORD_ROOT_OCTAVE,
+  tuneChord,
+  mappedSteps,
+  nearestSteps,
+  chordSize,
+  chordTones,
+  hasAlternativePureChord,
+  pureChord,
+} from './chord';
+export {
+  type Beat,
+  type NotePairBeats,
+  BEAT_HARMONICS,
+  BEAT_MAX_HZ,
+  BEAT_FLOOR,
+  chordBeats,
+} from './beats';

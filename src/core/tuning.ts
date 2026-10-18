@@ -173,7 +173,7 @@ const CHAIN_SYSTEMS: Record<ChainSystemId, ChainSystem> = {
   just: { comma: 'syntonic', start: -5, narrowed: fifthsAt([-2, 2], ratio(1, 1)), wolf: true },
 };
 
-const isChain = (system: TuningSystemId): system is ChainSystemId => system in CHAIN_SYSTEMS;
+export const isChain = (system: TuningSystemId): system is ChainSystemId => system in CHAIN_SYSTEMS;
 
 const PURE_FIFTH_CENTS = cents(ratio(3, 2));
 const commaCents = (system: ChainSystem) => cents(COMMAS[system.comma]);
@@ -287,7 +287,7 @@ function letterAndAccidental(position: number) {
 }
 
 /** The spelling of the note a number of fifths above C (−3 → E♭, 8 → G♯). */
-function spellFifths(position: number): string {
+export function spellFifths(position: number): string {
   const { letter, accidental } = letterAndAccidental(position);
   return at(FIFTHS_LETTERS, letter) + at(ACCIDENTALS, accidental + 2);
 }
@@ -308,7 +308,7 @@ export function tonicSpelling(pitchClass: number): string {
 const FAMILIAR_FIFTHS = [0, 7, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5];
 
 /** Fifths above C of the spelling a tuning system gives a key. */
-function keyFifths(tuning: Tuning, pitchClass: number): number {
+export function keyFifths(tuning: Tuning, pitchClass: number): number {
   if (!isChain(tuning.system)) return at(FAMILIAR_FIFTHS, mod(pitchClass, 12));
   const system = CHAIN_SYSTEMS[tuning.system];
   return tonicFifths(tuning) + chainPosition(system, intervalAboveTonic(tuning, pitchClass));
